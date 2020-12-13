@@ -27,16 +27,23 @@ MWCLIENT_OBJECT_FILES= \
 	mwclient/wiki_session.o \
 	mwclient/wiki_write_api.o
 
+MWCLIENT_TESTS= \
+	cbl/path_test
+
 all: mwclient/libmwclient.a orlodrimbot/sandbox/sandbox
+check: $(MWCLIENT_TESTS)
+	cd cbl && ./path_test
 clean:
-	rm -f cbl/*.o mwclient/*.o mwclient/libmwclient.a
+	rm -f cbl/*.o mwclient/*.o mwclient/util/*.o mwclient/libmwclient.a
 	rm -f orlodrimbot/sandbox/*.o orlodrimbot/sandbox/sandbox
 
 %.o: %.cpp
 	$(CC) -c $< -o $@
 mwclient/libmwclient.a: $(MWCLIENT_OBJECT_FILES)
 	ar rcs $@ $^
+cbl/%_test: cbl/%_test.o cbl/unittest.o mwclient/libmwclient.a
+	g++ -o $@ $^ -lcurl
 orlodrimbot/sandbox/sandbox: orlodrimbot/sandbox/sandbox.o orlodrimbot/sandbox/sandbox_lib.o mwclient/libmwclient.a
 	g++ -o $@ $^ -lcurl
 
-.PHONY: all clean orlodrimbot-obj
+.PHONY: all check clean orlodrimbot-obj
