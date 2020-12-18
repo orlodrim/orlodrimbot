@@ -14,6 +14,9 @@ MWCLIENT_OBJECT_FILES= \
 	cbl/unicode_fr.o \
 	cbl/utf8.o \
 	mwclient/bot_exclusion.o \
+	mwclient/parser.o \
+	mwclient/parser_misc.o \
+	mwclient/parser_nodes.o \
 	mwclient/request.o \
 	mwclient/site_info.o \
 	mwclient/titles_util.o \
@@ -27,12 +30,19 @@ MWCLIENT_OBJECT_FILES= \
 	mwclient/wiki_session.o \
 	mwclient/wiki_write_api.o
 
+MWCLIENT_TESTLIB_OBJECT_FILES=\
+	cbl/unittest.o \
+	mwclient/tests/parser_test_util.o
+
 MWCLIENT_TESTS= \
-	cbl/path_test
+	cbl/path_test \
+	mwclient/tests/parser_misc_test \
+	mwclient/tests/parser_nodes_test \
+	mwclient/tests/parser_test
 
 all: mwclient/libmwclient.a orlodrimbot/sandbox/sandbox
 check: $(MWCLIENT_TESTS)
-	cd cbl && ./path_test
+	for bin in $^; do $${bin}; done; echo SUCCESS
 clean:
 	rm -f cbl/*.o mwclient/*.o mwclient/util/*.o mwclient/libmwclient.a
 	rm -f orlodrimbot/sandbox/*.o orlodrimbot/sandbox/sandbox
@@ -41,7 +51,7 @@ clean:
 	$(CC) -c $< -o $@
 mwclient/libmwclient.a: $(MWCLIENT_OBJECT_FILES)
 	ar rcs $@ $^
-cbl/%_test: cbl/%_test.o cbl/unittest.o mwclient/libmwclient.a
+%_test: %_test.o $(MWCLIENT_TESTLIB_OBJECT_FILES) mwclient/libmwclient.a
 	g++ -o $@ $^ -lcurl
 orlodrimbot/sandbox/sandbox: orlodrimbot/sandbox/sandbox.o orlodrimbot/sandbox/sandbox_lib.o mwclient/libmwclient.a
 	g++ -o $@ $^ -lcurl
