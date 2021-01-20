@@ -32,6 +32,7 @@ MWCLIENT_OBJECT_FILES= \
 
 MWCLIENT_TESTLIB_OBJECT_FILES=\
 	cbl/unittest.o \
+	mwclient/mock_wiki.o \
 	mwclient/tests/parser_test_util.o
 
 MWCLIENT_TESTS= \
