@@ -54,6 +54,7 @@ void initCategory(mwc::Wiki& wiki, const CategoryConfig& config, const Date& dat
 
   CBL_INFO << "Writing '" << title << "' with content '" << content << "'";
   if (!dryRun) {
+    // The edit summary is intentionally left blank so that the autosummary shows the content before substitution.
     wiki.writePage(title, content, mwc::WriteToken::newForCreation(), "");
   }
 }
