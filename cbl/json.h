@@ -39,6 +39,11 @@ enum ValueType {
   VT_ARRAY,
 };
 
+enum Style {
+  COMPACT,
+  INDENTED,
+};
+
 // Ad-hoc variant type that can be parsed from and serialized to JSON.
 class Value {
 public:
@@ -157,10 +162,10 @@ public:
   void resize(int newSize);
   Value& addItem();
 
-  void toJSONCat(std::string& buffer) const;
-  std::string toJSON() const {
+  void toJSONCat(std::string& buffer, Style style = COMPACT, int depth = 0) const;
+  std::string toJSON(Style style = COMPACT) const {
     std::string buffer;
-    toJSONCat(buffer);
+    toJSONCat(buffer, style, 0);
     return buffer;
   }
 

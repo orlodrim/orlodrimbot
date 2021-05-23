@@ -166,6 +166,11 @@ string unquotePartial(string_view& s) {
   return data;
 }
 
+static void addIndentedLine(string& buffer, int depth) {
+  buffer += '\n';
+  buffer.append(depth * 2, ' ');
+}
+
 const Value& Value::ArrayAccessor::operator[](int index) const {
   if (index < 0) {
     throw std::out_of_range("json::ArrayAccessor::operator[] called with a negative index");
@@ -391,35 +396,60 @@ void Value::setType(ValueType newType) {
   }
 }
 
-void Value::toJSONCat(string& buffer) const {
-  if (m_type == VT_BOOL) {
-    buffer += m_data.boolData ? "true" : "false";
-  } else if (m_type == VT_NUMBER) {
-    buffer += *m_data.str;
-  } else if (m_type == VT_STRING) {
-    quoteCat(*m_data.str, buffer);
-  } else if (m_type == VT_OBJECT) {
-    buffer += '{';
-    bool notFirst = false;
-    for (const auto& [key, value] : *m_data.object) {
-      if (notFirst) buffer += ',';
-      notFirst = true;
-      quoteCat(key, buffer);
-      buffer += ":";
-      value.toJSONCat(buffer);
+void Value::toJSONCat(string& buffer, Style style, int depth) const {
+  switch (m_type) {
+    case VT_NULL:
+      buffer += "null";
+      break;
+    case VT_BOOL:
+      buffer += m_data.boolData ? "true" : "false";
+      break;
+    case VT_NUMBER:
+      buffer += *m_data.str;
+      break;
+    case VT_STRING:
+      quoteCat(*m_data.str, buffer);
+      break;
+    case VT_OBJECT: {
+      buffer += '{';
+      bool notFirst = false;
+      for (const auto& [key, value] : *m_data.object) {
+        if (notFirst) {
+          buffer += ',';
+        }
+        if (style == INDENTED) {
+          addIndentedLine(buffer, depth + 1);
+        }
+        notFirst = true;
+        quoteCat(key, buffer);
+        buffer += style == INDENTED ? ": " : ":";
+        value.toJSONCat(buffer, style, depth + 1);
+      }
+      if (notFirst && style == INDENTED) {
+        addIndentedLine(buffer, depth);
+      }
+      buffer += '}';
+      break;
     }
-    buffer += '}';
-  } else if (m_type == VT_ARRAY) {
-    buffer += '[';
-    bool notFirst = false;
-    for (const Value* value : *m_data.array) {
-      if (notFirst) buffer += ',';
-      notFirst = true;
-      value->toJSONCat(buffer);
+    case VT_ARRAY: {
+      buffer += '[';
+      bool notFirst = false;
+      for (const Value* value : *m_data.array) {
+        if (notFirst) {
+          buffer += ',';
+        }
+        if (style == INDENTED) {
+          addIndentedLine(buffer, depth + 1);
+        }
+        notFirst = true;
+        value->toJSONCat(buffer, style, depth + 1);
+      }
+      if (notFirst && style == INDENTED) {
+        addIndentedLine(buffer, depth);
+      }
+      buffer += ']';
+      break;
     }
-    buffer += ']';
-  } else {
-    buffer += "null";
   }
 }
 
