@@ -94,8 +94,8 @@ struct RecentChangesParams {
 };
 
 struct LogEventsParams {
-  int prop = 0;                // from RevProp
-  LogEventType type = LE_ALL;  // from LogEventType
+  int prop = 0;                      // from RevProp (combination of values).
+  LogEventType type = LE_UNDEFINED;  // from LogEventType. LE_UNDEFINED means all.
   std::string user;
   std::string title;
   EventsDir direction = NEWEST_FIRST;

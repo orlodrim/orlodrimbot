@@ -168,7 +168,7 @@ struct Revision {
 };
 
 enum LogEventType {
-  LE_ALL,
+  LE_UNDEFINED,
   LE_BLOCK,
   LE_PROTECT,
   LE_RIGHTS,
@@ -186,7 +186,7 @@ enum LogEventType {
 class LogEvent {
 public:
   int64_t logid = 0;
-  int type = 0;
+  LogEventType type = LE_UNDEFINED;
   std::string action;
   bool bot = false;
   cbl::Date timestamp;
@@ -240,6 +240,8 @@ public:
   int64_t rcid = 0;
   revid_t oldRevid = 0;
   long oldSize = 0;
+
+  RecentChange copy() const;
 
 private:
   RecentChangeType m_type = RC_UNDEFINED;

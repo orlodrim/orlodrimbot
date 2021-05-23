@@ -133,6 +133,26 @@ const string& RecentChange::comment() const {
   return EMPTY_STRING;
 }
 
+RecentChange RecentChange::copy() const {
+  RecentChange newRC;
+  newRC.rcid = rcid;
+  newRC.oldRevid = oldRevid;
+  newRC.oldSize = oldSize;
+  newRC.setType(m_type);
+  switch (m_type) {
+    case RC_UNDEFINED:
+      break;
+    case RC_EDIT:
+    case RC_NEW:
+      newRC.mutableRevision() = *m_revision;
+      break;
+    case RC_LOG:
+      newRC.mutableLogEvent() = *m_logEvent;
+      break;
+  }
+  return newRC;
+}
+
 WriteToken WriteToken::newForCreation() {
   return WriteToken(CREATE);
 }

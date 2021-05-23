@@ -164,12 +164,12 @@ static LogEventType getLogEventTypeFromString(const string& str) {
   } else if (str == "newusers") {
     return LE_NEWUSERS;
   }
-  return LE_ALL;
+  return LE_UNDEFINED;
 }
 
 static const char* getStringOfLogEventType(LogEventType type) {
   switch (type) {
-    case LE_ALL:
+    case LE_UNDEFINED:
       return "";
     case LE_BLOCK:
       return "block";
