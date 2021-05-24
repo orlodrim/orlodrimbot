@@ -16,8 +16,14 @@ struct RecentChangesOptions {
   int type = 0;
   int properties = mwc::RP_TITLE | mwc::RP_USER | mwc::RP_TIMESTAMP;
   bool includeLogDetails = false;
-  // Starts enumerating from this timestamp (to the most recent). Ignored if continueToken is set and non-empty.
+  // Starts enumerating from this timestamp (to the most recent). If continueToken is set, the enumeration may start
+  // later (but not earlier).
   cbl::Date start;
+  // Stops the enumeration at this timestamp. If continueToken is set, it is updated so that the enumeration can
+  // continue after this date.
+  cbl::Date end;
+  // Stops the enumeration after returning that number of results. If continueToken is set, it is updated so that the
+  // enumeration can continue at the point where it stopped.
   int limit = mwc::PAGER_ALL;
   // Token to continue the enumeration some time after a previous call (optional, input and output parameter).
   std::string* continueToken = nullptr;
@@ -25,6 +31,7 @@ struct RecentChangesOptions {
 
 struct RecentlyUpdatedPagesOptions {
   cbl::Date start;
+  cbl::Date end;
   std::string excludedUser;
   std::string* continueToken = nullptr;
 };
@@ -32,6 +39,7 @@ struct RecentlyUpdatedPagesOptions {
 struct RecentLogEventsOptions {
   mwc::LogEventType logType = mwc::LE_UNDEFINED;  // LE_UNDEFINED means all.
   cbl::Date start;
+  cbl::Date end;
   std::string* continueToken = nullptr;
 };
 

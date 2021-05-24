@@ -150,6 +150,7 @@ public:
     m_wiki->addRecentChange(makeRC(1003, "2000-01-01T00:03:00Z", "User 3", "Article 3"));
     m_recentChangesSync->updateDatabaseFromWiki(*m_wiki);
 
+    // start set, continueToken not set.
     vector<RecentChange> recentChanges;
     auto processRecentChange = [&](const RecentChange& recentChange) { recentChanges.push_back(recentChange.copy()); };
     RecentChangesReader recentChangesReader(m_dbPath);
@@ -160,8 +161,57 @@ public:
     CBL_ASSERT_EQ(recentChanges[0].title(), "Article 2");
     CBL_ASSERT_EQ(recentChanges[1].title(), "Article 3");
 
+    // start to another value, continueToken not set.
     recentChanges.clear();
     options.start = Date::fromISO8601("2000-01-01T00:02:01Z");
+    recentChangesReader.enumRecentChanges(options, processRecentChange);
+    CBL_ASSERT_EQ(recentChanges.size(), 1U);
+    CBL_ASSERT_EQ(recentChanges[0].title(), "Article 3");
+
+    // start and continueToken both set. start points to the most recent change.
+    string continueToken = "rc|1002";
+    recentChanges.clear();
+    options.continueToken = &continueToken;
+    options.start = Date::fromISO8601("2000-01-01T00:03:00Z");
+    recentChangesReader.enumRecentChanges(options, processRecentChange);
+    CBL_ASSERT_EQ(recentChanges.size(), 1U);
+    CBL_ASSERT_EQ(recentChanges[0].title(), "Article 3");
+
+    // start and continueToken both set. continueToken points to the most recent change.
+    continueToken = "rc|1002";
+    recentChanges.clear();
+    options.continueToken = &continueToken;
+    options.start = Date::fromISO8601("2000-01-01T00:01:00Z");
+    recentChangesReader.enumRecentChanges(options, processRecentChange);
+    CBL_ASSERT_EQ(recentChanges.size(), 2U);
+    CBL_ASSERT_EQ(recentChanges[0].title(), "Article 2");
+    CBL_ASSERT_EQ(recentChanges[1].title(), "Article 3");
+  }
+
+  CBL_TEST_CASE(enumRecentChanges_withEnd) {
+    vector<RecentChange> recentChanges;
+    auto processRecentChange = [&](const RecentChange& recentChange) { recentChanges.push_back(recentChange.copy()); };
+    RecentChangesReader recentChangesReader(m_dbPath);
+
+    string continueToken;
+    RecentChangesOptions options;
+    options.continueToken = &continueToken;
+    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken), processRecentChange);
+    CBL_ASSERT(recentChanges.empty());
+
+    m_wiki->addRecentChange(makeRC(1001, "2000-01-01T00:01:00Z", "User 1", "Article 1"));
+    m_wiki->addRecentChange(makeRC(1002, "2000-01-01T00:02:00Z", "User 2", "Article 2"));
+    m_wiki->addRecentChange(makeRC(1003, "2000-01-01T00:03:00Z", "User 3", "Article 3"));
+    m_recentChangesSync->updateDatabaseFromWiki(*m_wiki);
+
+    options.end = Date::fromISO8601("2000-01-01T00:02:00Z");
+    recentChangesReader.enumRecentChanges(options, processRecentChange);
+    CBL_ASSERT_EQ(recentChanges.size(), 2U);
+    CBL_ASSERT_EQ(recentChanges[0].title(), "Article 1");
+    CBL_ASSERT_EQ(recentChanges[1].title(), "Article 2");
+
+    recentChanges.clear();
+    options.end = Date();
     recentChangesReader.enumRecentChanges(options, processRecentChange);
     CBL_ASSERT_EQ(recentChanges.size(), 1U);
     CBL_ASSERT_EQ(recentChanges[0].title(), "Article 3");

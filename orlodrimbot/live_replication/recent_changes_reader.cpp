@@ -87,15 +87,17 @@ RecentChangesReader::RecentChangesReader(const string& databasePath) {
 void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options, const Callback& callback) {
   ReadTransaction transaction(m_database, CBL_HERE);
 
-  int64_t nextId;
-  if (options.continueToken && !options.continueToken->empty()) {
-    nextId = parseContinueToken(*options.continueToken, RC_CONTINUE_TOKEN);
-  } else if (!options.start.isNull()) {
+  int64_t nextId = -1;
+  if (!options.start.isNull()) {
     Statement statement = m_database.prepareAndBind(
         "SELECT rcid FROM recentchanges WHERE timestamp >= ?1 ORDER BY timestamp, rcid LIMIT 1;",
         options.start.toTimeT());
     nextId = statement.step() ? statement.columnInt64(0) : 0;
-  } else {
+  }
+  if (options.continueToken && !options.continueToken->empty()) {
+    nextId = std::max(nextId, parseContinueToken(*options.continueToken, RC_CONTINUE_TOKEN));
+  }
+  if (nextId == -1) {
     Statement statement = m_database.prepare("SELECT MAX(rcid) FROM recentchanges;");
     CBL_ASSERT(statement.step());
     nextId = statement.isColumnNull(0) ? 0 : statement.columnInt64(0) + 1;
@@ -137,7 +139,7 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
   int limit = options.limit;
 
   while (limit != 0 && statement.step()) {
-    nextId = statement.columnInt64(0) + 1;
+    nextId = statement.columnInt64(0);
     RecentChangeType rcType = getRecentChangeTypeFromString(statement.columnTextNotNull(1));
     int columnIndex = 2;
     RecentChange* recentChange = nullptr;
@@ -199,14 +201,16 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
         break;
       }
       default:
-        break;
+        continue;
     }
-    if (recentChange != nullptr) {
-      callback(*recentChange);
+    if (!options.end.isNull() && recentChange->timestamp() > options.end) {
+      break;
     }
+    callback(*recentChange);
     if (limit != mwc::PAGER_ALL) {
       limit--;
     }
+    nextId++;
   }
 
   if (options.continueToken) {
@@ -222,6 +226,7 @@ unordered_set<string> RecentChangesReader::getRecentlyUpdatedPages(const Recentl
     rcOptions.properties |= mwc::RP_USER;
   }
   rcOptions.start = options.start;
+  rcOptions.end = options.end;
   rcOptions.continueToken = options.continueToken;
   enumRecentChanges(rcOptions, [&](const RecentChange& rc) {
     if (!options.excludedUser.empty() && rc.user() == options.excludedUser) {
@@ -247,6 +252,7 @@ vector<LogEvent> RecentChangesReader::getRecentLogEvents(const RecentLogEventsOp
   rcOptions.type = RC_LOG;
   rcOptions.includeLogDetails = true;
   rcOptions.start = options.start;
+  rcOptions.end = options.end;
   rcOptions.continueToken = options.continueToken;
   enumRecentChanges(rcOptions, [&](const RecentChange& rc) {
     CBL_ASSERT_EQ(rc.type(), RC_LOG);
