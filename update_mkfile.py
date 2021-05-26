@@ -84,7 +84,7 @@ class File:
 
   def add_to_library(self, library):
     if self.has_main_function:
-      raise RuntimeError(f'File with main function added to library: {file.path}')
+      raise RuntimeError(f'File with main function added to library: {self.path}')
     self.library = library
     if self.is_source:
       library.objects.add(self.path_without_ext + '.o')
@@ -151,7 +151,7 @@ def main():
   mwclient_lib = Library('mwclient/libmwclient.a', 2)
   wikiutil_lib = Library('orlodrimbot/wikiutil/libwikiutil.a', 1)
   for file in all_files.values():
-    if file.path.startswith('mwclient/') and not file.path.startswith('mwclient/tests/'):
+    if file.path.startswith('mwclient/') and not file.is_test and not file.path.startswith('mwclient/tests/'):
       file.add_to_library_rec(mwclient_lib)
     elif file.path.startswith('orlodrimbot/wikiutil/') and not file.is_test:
       file.add_to_library(wikiutil_lib)

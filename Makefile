@@ -12,6 +12,7 @@ TESTS= \
 	mwclient/tests/parser_misc_test \
 	mwclient/tests/parser_nodes_test \
 	mwclient/tests/parser_test \
+	mwclient/util/bot_section_test \
 	orlodrimbot/bot_requests_archiver/bot_requests_archiver_lib_test \
 	orlodrimbot/live_replication/recent_changes_reader_test \
 	orlodrimbot/live_replication/recent_changes_sync_test \
@@ -106,6 +107,14 @@ mwclient/tests/parser_test_util.o: mwclient/tests/parser_test_util.cpp cbl/error
 mwclient/titles_util.o: mwclient/titles_util.cpp cbl/generated_range.h cbl/html_entities.h cbl/json.h \
 	cbl/string.h cbl/unicode_fr.h cbl/utf8.h mwclient/site_info.h mwclient/titles_util.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/util/bot_section.o: mwclient/util/bot_section.cpp cbl/generated_range.h cbl/string.h cbl/unicode_fr.h \
+	cbl/utf8.h mwclient/util/bot_section.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/util/bot_section_test.o: mwclient/util/bot_section_test.cpp cbl/log.h cbl/unittest.h \
+	mwclient/util/bot_section.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/util/bot_section_test: mwclient/util/bot_section_test.o cbl/unittest.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^
 mwclient/util/init_wiki.o: mwclient/util/init_wiki.cpp cbl/args_parser.h cbl/date.h cbl/error.h cbl/file.h \
 	cbl/generated_range.h cbl/json.h cbl/log.h cbl/path.h cbl/string.h mwclient/site_info.h \
 	mwclient/titles_util.h mwclient/util/init_wiki.h mwclient/wiki.h mwclient/wiki_base.h \
@@ -249,9 +258,9 @@ mwclient/libmwclient.a: cbl/args_parser.o cbl/date.o cbl/error.o cbl/file.o cbl/
 	cbl/http_client.o cbl/json.o cbl/log.o cbl/path.o cbl/string.o cbl/unicode_fr.o cbl/utf8.o \
 	mwclient/bot_exclusion.o mwclient/mock_wiki.o mwclient/parser.o mwclient/parser_misc.o \
 	mwclient/parser_nodes.o mwclient/request.o mwclient/site_info.o mwclient/titles_util.o \
-	mwclient/util/init_wiki.o mwclient/wiki.o mwclient/wiki_base.o mwclient/wiki_defs.o \
-	mwclient/wiki_read_api.o mwclient/wiki_read_api_query_list.o mwclient/wiki_read_api_query_prop.o \
-	mwclient/wiki_session.o mwclient/wiki_write_api.o
+	mwclient/util/bot_section.o mwclient/util/init_wiki.o mwclient/wiki.o mwclient/wiki_base.o \
+	mwclient/wiki_defs.o mwclient/wiki_read_api.o mwclient/wiki_read_api_query_list.o \
+	mwclient/wiki_read_api_query_prop.o mwclient/wiki_session.o mwclient/wiki_write_api.o
 	ar rcs $@ $^
 orlodrimbot/wikiutil/libwikiutil.a: orlodrimbot/wikiutil/date_parser.o
 	ar rcs $@ $^
