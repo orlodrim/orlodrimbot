@@ -121,6 +121,14 @@ static const char* getStringOfUserGroup(UserInfoGroups userGroup) {
       return "sysop";
     case UIG_BOT:
       return "bot";
+    case UIG_BUREAUCRAT:
+      return "bureaucrat";
+    case UIG_CHECKUSER:
+      return "checkuser";
+    case UIG_OVERSIGHT:
+      return "oversight";
+    case UIG_INTERFACE_ADMIN:
+      return "interface-admin";
     default:
       break;
   }
@@ -568,6 +576,14 @@ static void getUsersInfoOneRequest(WikiBase& wiki, int properties, StringRange n
             user->groups |= UIG_SYSOP;
           } else if (groupStr == "bot") {
             user->groups |= UIG_BOT;
+          } else if (groupStr == "bureaucrat") {
+            user->groups |= UIG_BUREAUCRAT;
+          } else if (groupStr == "checkuser") {
+            user->groups |= UIG_CHECKUSER;
+          } else if (groupStr == "oversight") {
+            user->groups |= UIG_OVERSIGHT;
+          } else if (groupStr == "interface-admin") {
+            user->groups |= UIG_INTERFACE_ADMIN;
           }
         }
       }

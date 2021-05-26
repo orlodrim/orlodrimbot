@@ -260,6 +260,10 @@ enum UserInfoGroups {
   UIG_AUTOPATROLLED = 2,
   UIG_SYSOP = 4,
   UIG_BOT = 8,
+  UIG_BUREAUCRAT = 0x10,
+  UIG_CHECKUSER = 0x20,
+  UIG_OVERSIGHT = 0x40,
+  UIG_INTERFACE_ADMIN = 0x80,
 };
 
 class UserInfo {
