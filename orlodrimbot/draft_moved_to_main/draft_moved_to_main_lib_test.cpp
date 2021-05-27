@@ -21,7 +21,7 @@ public:
   void getUsersInfo(int properties, vector<UserInfo>& users) override {
     CBL_ASSERT_EQ(properties, mwc::UIP_GROUPS);
     for (UserInfo& user : users) {
-      user.groups = user.name.find("Trusted") == string::npos ? 0 : mwc::UIG_AUTOPATROLLED;
+      user.groups = user.name.find("Trusted") == string::npos ? 0 : mwc::UG_AUTOPATROLLED;
     }
   }
 };

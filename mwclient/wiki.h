@@ -320,7 +320,7 @@ public:
 
   virtual void getUsersInfo(int properties, std::vector<UserInfo>& users);
   virtual std::vector<Revision> getUserContribs(const UserContribsParams& params);
-  virtual std::vector<std::string> getUsersInGroup(UserInfoGroups userGroup);
+  virtual std::vector<std::string> getUsersInGroup(UserGroup userGroup);
 
   virtual std::string expandTemplates(const std::string& code, const std::string& title = "API");
   virtual std::string renderAsHTML(const RenderParams& params);

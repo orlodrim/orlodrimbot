@@ -115,19 +115,19 @@ static const char* getStringOfFilterRedirMode(FilterRedirMode mode) {
   throw std::invalid_argument("getStringOfFilterRedirMode called with invalid mode " + std::to_string(mode));
 }
 
-static const char* getStringOfUserGroup(UserInfoGroups userGroup) {
+static const char* getStringOfUserGroup(UserGroup userGroup) {
   switch (userGroup) {
-    case UIG_SYSOP:
+    case UG_SYSOP:
       return "sysop";
-    case UIG_BOT:
+    case UG_BOT:
       return "bot";
-    case UIG_BUREAUCRAT:
+    case UG_BUREAUCRAT:
       return "bureaucrat";
-    case UIG_CHECKUSER:
+    case UG_CHECKUSER:
       return "checkuser";
-    case UIG_OVERSIGHT:
+    case UG_OVERSIGHT:
       return "oversight";
-    case UIG_INTERFACE_ADMIN:
+    case UG_INTERFACE_ADMIN:
       return "interface-admin";
     default:
       break;
@@ -569,21 +569,21 @@ static void getUsersInfoOneRequest(WikiBase& wiki, int properties, StringRange n
         for (const json::Value& group : groupsNode.array()) {
           const string& groupStr = group.str();
           if (groupStr == "autoconfirmed") {
-            user->groups |= UIG_AUTOCONFIRMED;
+            user->groups |= UG_AUTOCONFIRMED;
           } else if (groupStr == "autopatrolled") {
-            user->groups |= UIG_AUTOPATROLLED;
+            user->groups |= UG_AUTOPATROLLED;
           } else if (groupStr == "sysop") {
-            user->groups |= UIG_SYSOP;
+            user->groups |= UG_SYSOP;
           } else if (groupStr == "bot") {
-            user->groups |= UIG_BOT;
+            user->groups |= UG_BOT;
           } else if (groupStr == "bureaucrat") {
-            user->groups |= UIG_BUREAUCRAT;
+            user->groups |= UG_BUREAUCRAT;
           } else if (groupStr == "checkuser") {
-            user->groups |= UIG_CHECKUSER;
+            user->groups |= UG_CHECKUSER;
           } else if (groupStr == "oversight") {
-            user->groups |= UIG_OVERSIGHT;
+            user->groups |= UG_OVERSIGHT;
           } else if (groupStr == "interface-admin") {
-            user->groups |= UIG_INTERFACE_ADMIN;
+            user->groups |= UG_INTERFACE_ADMIN;
           }
         }
       }
@@ -615,7 +615,7 @@ void Wiki::getUsersInfo(int properties, vector<UserInfo>& users) {
   };
 }
 
-vector<string> Wiki::getUsersInGroup(UserInfoGroups userGroup) {
+vector<string> Wiki::getUsersInGroup(UserGroup userGroup) {
   string userGroupStr = getStringOfUserGroup(userGroup);
   WikiListPager pager("allusers", "aulimit");
   pager.setParam("augroup", userGroupStr);

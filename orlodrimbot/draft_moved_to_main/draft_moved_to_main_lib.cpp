@@ -103,7 +103,7 @@ unordered_set<string> getTrustedUsers(Wiki& wiki, const unordered_set<string>& u
   wiki.getUsersInfo(mwc::UIP_GROUPS, userInfoVec);
   unordered_set<string> trustedUsers;
   for (const UserInfo userInfo : userInfoVec) {
-    if (userInfo.groups & (mwc::UIG_AUTOPATROLLED | mwc::UIG_SYSOP | mwc::UIG_BOT)) {
+    if (userInfo.groups & (mwc::UG_AUTOPATROLLED | mwc::UG_SYSOP | mwc::UG_BOT)) {
       trustedUsers.insert(userInfo.name);
     }
   }
