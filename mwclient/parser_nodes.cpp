@@ -196,7 +196,7 @@ NodePtr List::setItem(int i, NodePtr item) {
   CBL_ASSERT(i >= 0 && i < size());
   NodePtr oldNode = std::move(m_nodes[i]);
   m_nodes[i] = std::move(item);
-  return std::move(oldNode);
+  return oldNode;
 }
 
 NodePtr List::setItem(int i, const std::string& content) {

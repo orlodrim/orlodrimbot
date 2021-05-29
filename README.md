@@ -17,7 +17,7 @@ As a start, the initial version contains the [sandbox](https://fr.wikipedia.org/
 
 The only dependency of the framework is libcurl (libcurl4-openssl-dev package in Ubuntu/Debian). The bot itself also depends on sqlite (libsqlite3-dev) and [re2](https://github.com/google/re2).
 
-The code is written in C++17. To build the framework library and the bot tools, run:
+The code is written in C++20. To build the framework library and the bot tools, run:
 
 `make`
 

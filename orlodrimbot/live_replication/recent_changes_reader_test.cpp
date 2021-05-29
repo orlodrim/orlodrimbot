@@ -32,15 +32,6 @@ string debugString(const unordered_set<string>& container) {
   return cbl::join(sortedItems, ",");
 }
 
-RecentChangesOptions makeRCOptions(string* continueToken, int properties = -1) {
-  RecentChangesOptions options;
-  options.continueToken = continueToken;
-  if (properties != -1) {
-    options.properties = properties;
-  }
-  return options;
-}
-
 class RecentChangesReaderTest : public cbl::Test {
 public:
   void setUp() override {
@@ -58,7 +49,7 @@ public:
 
     RecentChangesReader recentChangesReader(m_dbPath);
     string continueToken;
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken), processRecentChange);
+    recentChangesReader.enumRecentChanges({.continueToken = &continueToken}, processRecentChange);
     CBL_ASSERT(!continueToken.empty());
     CBL_ASSERT(recentChanges.empty());
 
@@ -67,7 +58,7 @@ public:
         makeLogRC(1002, 501, mwc::LE_MOVE, "move", "2000-01-01T00:02:00Z", "User 2", "Article 2", "Article 2 renamed"));
     m_recentChangesSync->updateDatabaseFromWiki(*m_wiki);
     string continueToken2 = continueToken;
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken2), processRecentChange);
+    recentChangesReader.enumRecentChanges({.continueToken = &continueToken2}, processRecentChange);
     CBL_ASSERT(continueToken != continueToken2) << continueToken;
     CBL_ASSERT_EQ(recentChanges.size(), 2U);
     CBL_ASSERT_EQ(recentChanges[0].type(), mwc::RC_EDIT);
@@ -81,13 +72,13 @@ public:
     CBL_ASSERT_EQ(recentChanges[1].logEvent().newTitle(), "Article 2 renamed");
 
     string continueToken3 = continueToken2;
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken3), processRecentChange);
+    recentChangesReader.enumRecentChanges({.continueToken = &continueToken3}, processRecentChange);
     CBL_ASSERT_EQ(continueToken2, continueToken3);
     CBL_ASSERT_EQ(recentChanges.size(), 2U);
 
     m_wiki->addRecentChange(makeRC(1003, "2000-01-01T00:03:00Z", "User 3", "Article 3"));
     m_recentChangesSync->updateDatabaseFromWiki(*m_wiki);
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken3), processRecentChange);
+    recentChangesReader.enumRecentChanges({.continueToken = &continueToken3}, processRecentChange);
     CBL_ASSERT_EQ(recentChanges.size(), 3U);
     CBL_ASSERT_EQ(recentChanges[2].title(), "Article 3");
   }
@@ -98,7 +89,8 @@ public:
 
     RecentChangesReader recentChangesReader(m_dbPath);
     string continueToken;
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken, mwc::RP_TIMESTAMP), processRecentChange);
+    recentChangesReader.enumRecentChanges({.properties = mwc::RP_TIMESTAMP, .continueToken = &continueToken},
+                                          processRecentChange);
     string oldContinueToken = continueToken;
 
     RecentChange rc1001 = makeRC(1001, "2000-01-01T00:01:00Z", "User 1", "Article 1");
@@ -113,7 +105,8 @@ public:
     m_wiki->addRecentChange(std::move(rc1002));
     m_recentChangesSync->updateDatabaseFromWiki(*m_wiki);
 
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken, mwc::RP_TIMESTAMP), processRecentChange);
+    recentChangesReader.enumRecentChanges({.properties = mwc::RP_TIMESTAMP, .continueToken = &continueToken},
+                                          processRecentChange);
     CBL_ASSERT_EQ(recentChanges.size(), 2U);
     CBL_ASSERT_EQ(recentChanges[0].timestamp(), Date::fromISO8601("2000-01-01T00:01:00Z"));
     CBL_ASSERT_EQ(recentChanges[0].user(), "");
@@ -131,7 +124,9 @@ public:
 
     continueToken = oldContinueToken;
     recentChanges.clear();
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken, mwc::RP_SIZE | mwc::RP_COMMENT | mwc::RP_REVID), processRecentChange);
+    recentChangesReader.enumRecentChanges(
+        {.properties = mwc::RP_SIZE | mwc::RP_COMMENT | mwc::RP_REVID, .continueToken = &continueToken},
+        processRecentChange);
     CBL_ASSERT_EQ(recentChanges.size(), 2U);
     CBL_ASSERT(recentChanges[0].timestamp().isNull());
     CBL_ASSERT_EQ(recentChanges[0].oldRevid, 50);
@@ -196,7 +191,7 @@ public:
     string continueToken;
     RecentChangesOptions options;
     options.continueToken = &continueToken;
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken), processRecentChange);
+    recentChangesReader.enumRecentChanges({.continueToken = &continueToken}, processRecentChange);
     CBL_ASSERT(recentChanges.empty());
 
     m_wiki->addRecentChange(makeRC(1001, "2000-01-01T00:01:00Z", "User 1", "Article 1"));
@@ -226,7 +221,8 @@ public:
     RecentChangesOptions options;
     options.continueToken = &continueToken;
     options.type = mwc::RC_EDIT | mwc::RC_LOG;
-    recentChangesReader.enumRecentChanges(makeRCOptions(&continueToken, mwc::RP_TIMESTAMP), processRecentChange);
+    recentChangesReader.enumRecentChanges({.properties = mwc::RP_TIMESTAMP, .continueToken = &continueToken},
+                                          processRecentChange);
 
     m_wiki->addRecentChange(makeRC(1001, "2000-01-01T00:01:00Z", "User 1", "Article 1", mwc::RC_EDIT));
     m_wiki->addRecentChange(makeRC(1002, "2000-01-01T00:02:00Z", "User 2", "Article 2", mwc::RC_NEW));
