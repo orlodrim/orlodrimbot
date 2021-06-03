@@ -6,9 +6,10 @@
 #include <utility>
 #include <vector>
 #include "cbl/date.h"
+#include "cbl/json.h"
 #include "cbl/log.h"
 #include "cbl/sqlite.h"
-#include "mwclient/wiki.h"
+#include "mwclient/wiki_defs.h"
 #include "continue_token.h"
 
 using cbl::Date;
@@ -104,14 +105,14 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
   }
 
   string query = "SELECT rcid, type";
+  if (options.includeLogDetails) {
+    query += ", logtype, logaction, logparams";
+  }
   for (const auto& [property, columnName] : RC_PROPERTIES) {
     if (options.properties & property) {
       query += ", ";
       query += columnName;
     }
-  }
-  if (options.includeLogDetails) {
-    query += ", logtype, logaction";
   }
   query += " FROM recentchanges WHERE rcid >= ?1";
   if (options.type != 0) {
@@ -146,6 +147,9 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
     switch (rcType) {
       case RC_EDIT:
       case RC_NEW: {
+        if (options.includeLogDetails) {
+          columnIndex += 3;  // logtype, logaction, logparams
+        }
         recentChange = rcType == RC_EDIT ? &editRc : &newRc;
         Revision& revision = recentChange->mutableRevision();
         if (options.properties & mwc::RP_TITLE) {
@@ -174,9 +178,29 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
       case RC_LOG: {
         recentChange = &logEventRc;
         LogEvent& logEvent = recentChange->mutableLogEvent();
+        json::Value params;
+        if (options.includeLogDetails) {
+          logEvent.setType(getLogEventTypeFromString(statement.columnTextNotNull(columnIndex++)));
+          logEvent.action = statement.columnTextNotNull(columnIndex++);
+          const char* paramsAsJson = statement.columnText(columnIndex++);
+          if (paramsAsJson) {
+            params = json::parse(paramsAsJson);
+          }
+        }
         if (options.properties & mwc::RP_TITLE) {
           logEvent.title = statement.columnTextNotNull(columnIndex++);
-          logEvent.setNewTitle(statement.columnTextNotNull(columnIndex++));
+          if (!statement.isColumnNull(columnIndex)) {
+            if (!options.includeLogDetails) {
+              logEvent.setType(mwc::LE_MOVE);  // Property not requested, but this must be set before using moveParams.
+            }
+            if (logEvent.type() == mwc::LE_MOVE) {  // This should be true unless the database is inconsistent.
+              logEvent.mutableMoveParams().newTitle = statement.columnTextNotNull(columnIndex);
+              if (params["suppressredirect"].boolean()) {
+                logEvent.mutableMoveParams().suppressRedirect = true;
+              }
+            }
+          }
+          columnIndex++;
         }
         if (options.properties & mwc::RP_USER) {
           logEvent.user = statement.columnTextNotNull(columnIndex++);
@@ -193,10 +217,6 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
         if (options.properties & mwc::RP_REVID) {
           columnIndex += 2;  // revid, old_revid
           logEvent.logid = statement.columnInt64(columnIndex++);
-        }
-        if (options.includeLogDetails) {
-          logEvent.type = getLogEventTypeFromString(statement.columnTextNotNull(columnIndex++));
-          logEvent.action = statement.columnTextNotNull(columnIndex++);
         }
         break;
       }
@@ -237,7 +257,7 @@ unordered_set<string> RecentChangesReader::getRecentlyUpdatedPages(const Recentl
       titles.insert(title);
     }
     if (rc.type() == RC_LOG) {
-      const string& newTitle = rc.logEvent().newTitle();
+      const string& newTitle = rc.logEvent().moveParams().newTitle;
       if (!newTitle.empty()) {
         titles.insert(newTitle);
       }
@@ -257,7 +277,7 @@ vector<LogEvent> RecentChangesReader::getRecentLogEvents(const RecentLogEventsOp
   enumRecentChanges(rcOptions, [&](const RecentChange& rc) {
     CBL_ASSERT_EQ(rc.type(), RC_LOG);
     const LogEvent& logEvent = rc.logEvent();
-    if (options.logType == mwc::LE_UNDEFINED || logEvent.type == options.logType) {
+    if (options.logType == mwc::LE_UNDEFINED || logEvent.type() == options.logType) {
       logEvents.push_back(logEvent);
     }
   });

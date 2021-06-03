@@ -183,14 +183,14 @@ private:
     rc.setType(RC_LOG);
     rc.rcid = 1001;
     LogEvent& logEvent = rc.mutableLogEvent();
+    logEvent.setType(mwc::LE_MOVE);
     logEvent.title = "Page 1";
     logEvent.logid = 30;
     logEvent.timestamp = Date::fromISO8601("2005-01-01T00:01:00Z");
     logEvent.user = "User 1";
-    logEvent.type = mwc::LE_MOVE;
     logEvent.action = "move";
     logEvent.comment = "Comment for log";
-    logEvent.setNewTitle("Page 2");
+    logEvent.mutableMoveParams().newTitle = "Page 2";
     m_wiki->addRecentChange(std::move(rc));
     m_recentChangesSync->updateDatabaseFromWiki(*m_wiki);
     sqlite::ReadTransaction transaction(m_recentChangesSync->m_database, CBL_HERE);

@@ -69,7 +69,7 @@ public:
     CBL_ASSERT_EQ(recentChanges[1].timestamp(), Date::fromISO8601("2000-01-01T00:02:00Z"));
     CBL_ASSERT_EQ(recentChanges[1].user(), "User 2");
     CBL_ASSERT_EQ(recentChanges[1].title(), "Article 2");
-    CBL_ASSERT_EQ(recentChanges[1].logEvent().newTitle(), "Article 2 renamed");
+    CBL_ASSERT_EQ(recentChanges[1].logEvent().moveParams().newTitle, "Article 2 renamed");
 
     string continueToken3 = continueToken2;
     recentChangesReader.enumRecentChanges({.continueToken = &continueToken3}, processRecentChange);
@@ -322,11 +322,11 @@ public:
     vector<LogEvent> logEvents = recentChangesReader.getRecentLogEvents(options);
     CBL_ASSERT_EQ(logEvents.size(), 3U);
     CBL_ASSERT_EQ(logEvents[0].title, "Article 2");
-    CBL_ASSERT_EQ(logEvents[0].type, mwc::LE_MOVE);
+    CBL_ASSERT_EQ(logEvents[0].type(), mwc::LE_MOVE);
     CBL_ASSERT_EQ(logEvents[1].title, "Article 3");
-    CBL_ASSERT_EQ(logEvents[1].type, mwc::LE_DELETE);
+    CBL_ASSERT_EQ(logEvents[1].type(), mwc::LE_DELETE);
     CBL_ASSERT_EQ(logEvents[2].title, "Article 4");
-    CBL_ASSERT_EQ(logEvents[2].type, mwc::LE_PROTECT);
+    CBL_ASSERT_EQ(logEvents[2].type(), mwc::LE_PROTECT);
 
     continueToken2 = continueToken;
     options.continueToken = &continueToken2;

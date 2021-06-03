@@ -171,6 +171,8 @@ static LogEventType getLogEventTypeFromString(const string& str) {
     return LE_ABUSEFILTER;
   } else if (str == "newusers") {
     return LE_NEWUSERS;
+  } else if (str == "create") {
+    return LE_CREATE;
   }
   return LE_UNDEFINED;
 }
@@ -203,13 +205,15 @@ static const char* getStringOfLogEventType(LogEventType type) {
       return "abusefilter";
     case LE_NEWUSERS:
       return "newusers";
+    case LE_CREATE:
+      return "create";
   }
   throw std::invalid_argument("getStringOfLogEventType called with invalid type " + std::to_string(type));
 }
 
 static void convertJSONToLogEvent(const json::Value& value, LogEvent& le) {
   const string& logTypeStr = value.has("logtype") ? value["logtype"].str() : value["type"].str();
-  le.type = getLogEventTypeFromString(logTypeStr);
+  le.setType(getLogEventTypeFromString(logTypeStr));
   le.action = value.has("logaction") ? value["logaction"].str() : value["action"].str();
   le.title = value["title"].str();
   le.logid = value["logid"].numberAsInt64();
@@ -219,16 +223,11 @@ static void convertJSONToLogEvent(const json::Value& value, LogEvent& le) {
   le.userid = value["userid"].numberAsInt64();
   le.comment = value["comment"].str();
   le.parsedComment = value["parsedcomment"].str();
-  const json::Value& newTitle = value["params"]["target_title"];
-  if (!newTitle.isNull()) {
-    le.setNewTitle(newTitle.str());
-  } else {
-    const json::Value& newTitle2 = value["logparams"]["target_title"];
-    if (!newTitle2.isNull()) {
-      le.setNewTitle(newTitle2.str());
-    } else {
-      le.setNewTitle(value["move"]["new_title"].str());
-    }
+  const json::Value& params = value.has("logparams") ? value["logparams"] : value["params"];
+  if (!params.isNull() && le.type() == LE_MOVE) {
+    LogEvent::MoveParams& moveParams = le.mutableMoveParams();
+    moveParams.newTitle = params["target_title"].str();
+    moveParams.suppressRedirect = params.has("suppressredirect");
   }
 }
 

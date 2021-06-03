@@ -59,12 +59,12 @@ void MockRecentChangesReader::addMove(const string& timestamp, const string& tit
   RecentChange& rc = m_recentChanges.back();
   rc.setType(mwc::RC_LOG);
   LogEvent& logEvent = rc.mutableLogEvent();
+  logEvent.setType(mwc::LE_MOVE);
   logEvent.timestamp = Date::fromISO8601(timestamp);
   logEvent.title = title;
   logEvent.user = user;
-  logEvent.type = mwc::LE_MOVE;
   logEvent.action = "move";
-  logEvent.setNewTitle(newTitle);
+  logEvent.mutableMoveParams().newTitle = newTitle;
 }
 
 void MockRecentChangesReader::addDeletion(const string& timestamp, const string& title, const string& user) {
@@ -72,10 +72,10 @@ void MockRecentChangesReader::addDeletion(const string& timestamp, const string&
   RecentChange& rc = m_recentChanges.back();
   rc.setType(mwc::RC_LOG);
   LogEvent& logEvent = rc.mutableLogEvent();
+  logEvent.setType(mwc::LE_DELETE);
   logEvent.timestamp = Date::fromISO8601(timestamp);
   logEvent.title = title;
   logEvent.user = user;
-  logEvent.type = mwc::LE_DELETE;
   logEvent.action = "delete";
 }
 

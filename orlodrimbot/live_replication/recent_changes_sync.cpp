@@ -91,7 +91,8 @@ RecentChangesSync::RecentChangesSync(const string& databasePath) {
           logid INT,
           logtype TEXT,
           logaction TEXT,
-          new_title TEXT
+          new_title TEXT,
+          logparams TEXT
         );
         CREATE INDEX recentchanges_timestamp_index ON recentchanges(timestamp);
         CREATE INDEX recentchanges_log_index ON recentchanges(rcid) WHERE type = "log";
@@ -148,8 +149,8 @@ void RecentChangesSync::writeRecentChanges(const vector<RecentChange>& recentCha
   Statement statement = m_database.prepare(
       "INSERT INTO recentchanges "
       "(rcid, timestamp, title, user, comment, type, revid, old_revid, size, logid, logtype, logaction, "
-      "new_title) "
-      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13);");
+      "new_title, logparams) "
+      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14);");
   Statement checkRcidStatement = m_database.prepare("SELECT COUNT(*) FROM recentchanges WHERE rcid = ?1");
   for (const RecentChange& rc : recentChanges) {
     if (rc.rcid > newMaxRcid) {
@@ -175,15 +176,18 @@ void RecentChangesSync::writeRecentChanges(const vector<RecentChange>& recentCha
       }
       case RC_LOG: {
         const LogEvent& logEvent = rc.logEvent();
-        const char* typeStr = convertLogEventTypeToStr(logEvent.type);
+        const char* typeStr = convertLogEventTypeToStr(logEvent.type());
         if (typeStr == nullptr) continue;
-        if (logEvent.type == mwc::LE_MOVE) {
-          statement.bind(13, rc.logEvent().newTitle());
+        if (logEvent.type() == mwc::LE_MOVE) {
+          statement.bind(13, rc.logEvent().moveParams().newTitle);
         }
         statement.bind(6, "log");
         statement.bind(10, logEvent.logid);
         statement.bind(11, typeStr);
         statement.bind(12, logEvent.action);
+        if (logEvent.type() == mwc::LE_MOVE && logEvent.moveParams().suppressRedirect) {
+          statement.bind(14, R"({"suppressredirect":true})");
+        }
         break;
       }
       default:

@@ -1,0 +1,110 @@
+{
+  "TimeRange": [
+    {
+      "method": "GET",
+      "url": [
+        "https://fr.wikipedia.org/w/api.php?",
+        "format=json&",
+        "action=query&",
+        "leend=2021-05-21T13%3A35%3A54Z&",
+        "lelimit=3&",
+        "leprop=type%7Cdetails%7Ctitle%7Ctimestamp&",
+        "lestart=2021-05-21T13%3A37%3A50Z&",
+        "list=logevents&",
+        "maxlag=5&",
+        "assert=user"
+      ],
+      "response": {"batchcomplete":"","continue":{"continue":"-||","lecontinue":"20210521133625|105200292"},"query":{"logevents":[{"action":"move","ns":2,"params":{"target_ns":0,"target_title":"Château de Fretaise"},"timestamp":"2021-05-21T13:37:50Z","title":"Utilisateur:Boolette/Brouillon","type":"move"},{"action":"patrol","ns":0,"params":{"curid":183115482,"previd":172721746},"timestamp":"2021-05-21T13:37:07Z","title":"Tour de Bois-Ruffin","type":"patrol"},{"action":"autocreate","ns":2,"params":{"userid":4129527},"timestamp":"2021-05-21T13:36:49Z","title":"Utilisateur:Kuroshide","type":"newusers"}]}}
+    },
+    {
+      "method": "GET",
+      "url": [
+        "https://fr.wikipedia.org/w/api.php?",
+        "format=json&",
+        "action=query&",
+        "continue=-%7C%7C&",
+        "lecontinue=20210521133625%7C105200292&",
+        "leend=2021-05-21T13%3A35%3A54Z&",
+        "lelimit=3&",
+        "leprop=type%7Cdetails%7Ctitle%7Ctimestamp&",
+        "lestart=2021-05-21T13%3A37%3A50Z&",
+        "list=logevents&",
+        "maxlag=5&",
+        "assert=user"
+      ],
+      "response": {"batchcomplete":"","query":{"logevents":[{"action":"delete","ns":0,"params":{},"timestamp":"2021-05-21T13:36:25Z","title":"Syndrome Z","type":"delete"},{"action":"protect","ns":0,"params":{"description":"‎[edit=autoconfirmed] (expire le 21 août 2021 à 13:36 (UTC))‎[move=autoconfirmed] (expire le 21 août 2021 à 13:36 (UTC))","details":[{"expiry":"2021-08-21T13:36:19Z","level":"autoconfirmed","type":"edit"},{"expiry":"2021-08-21T13:36:19Z","level":"autoconfirmed","type":"move"}]},"timestamp":"2021-05-21T13:36:19Z","title":"Traductions de la Bible en français","type":"protect"},{"action":"block","ns":2,"params":{"duration":"infinity","flags":["nocreate","noemail"],"sitewide":""},"timestamp":"2021-05-21T13:35:54Z","title":"Utilisateur:Pololo332311","type":"block"}]}}
+    }
+  ],
+  "FilterByType": [
+    {
+      "method": "GET",
+      "url": [
+        "https://fr.wikipedia.org/w/api.php?",
+        "format=json&",
+        "action=query&",
+        "lelimit=3&",
+        "leprop=type%7Cdetails%7Ctitle&",
+        "lestart=2021-05-30T06%3A00%3A00Z&",
+        "letype=delete&",
+        "list=logevents&",
+        "maxlag=5&",
+        "assert=user"
+      ],
+      "response": {"batchcomplete":"","continue":{"continue":"-||","lecontinue":"20210530055552|105239240"},"query":{"logevents":[{"action":"delete","ns":0,"params":{},"title":"I Vitelloni","type":"delete"},{"action":"delete","ns":0,"params":{},"title":"I Clowns","type":"delete"},{"action":"delete","ns":14,"params":{},"title":"Catégorie:Roman de la série Fantômette","type":"delete"}]}}
+    }
+  ],
+  "FilterByUser": [
+    {
+      "method": "GET",
+      "url": [
+        "https://fr.wikipedia.org/w/api.php?",
+        "format=json&",
+        "action=query&",
+        "lelimit=2&",
+        "leprop=type%7Cdetails%7Ctitle&",
+        "lestart=2021-05-29T23%3A23%3A00Z&",
+        "leuser=OrlodrimBot&",
+        "list=logevents&",
+        "maxlag=5&",
+        "assert=user"
+      ],
+      "response": {"batchcomplete":"","continue":{"continue":"-||","lecontinue":"20210529004222|105234753"},"query":{"logevents":[{"action":"move","ns":1,"params":{"suppressredirect":"","target_ns":1,"target_title":"Discussion:Cryptologie dans la littérature/À faire"},"title":"Discussion:Cryptologie et littérature/À faire","type":"move"},{"action":"create","ns":102,"params":{},"title":"Projet:Technologies/Évaluation/Index/7","type":"create"}]}}
+    }
+  ],
+  "FilterByTitle": [
+    {
+      "method": "GET",
+      "url": [
+        "https://fr.wikipedia.org/w/api.php?",
+        "format=json&",
+        "action=query&",
+        "lelimit=2&",
+        "leprop=type%7Cdetails%7Ctitle%7Ctimestamp&",
+        "lestart=2016-03-01T00%3A00%3A00Z&",
+        "letitle=Utilisateur%3AOrlodrimBot&",
+        "list=logevents&",
+        "maxlag=5&",
+        "assert=user"
+      ],
+      "response": {"batchcomplete":"","continue":{"continue":"-||","lecontinue":"20130610205043|50520116"},"query":{"logevents":[{"action":"patrol","ns":2,"params":{"curid":123507151,"previd":121290714},"timestamp":"2016-02-19T15:15:13Z","title":"Utilisateur:OrlodrimBot","type":"patrol"},{"action":"rights","ns":2,"params":{"newgroups":["bot","ipblock-exempt"],"newmetadata":[{"expiry":"infinity","group":"bot"},{"expiry":"infinity","group":"ipblock-exempt"}],"oldgroups":["bot","ipblock-exempt","sysop"],"oldmetadata":[{"expiry":"infinity","group":"bot"},{"expiry":"infinity","group":"ipblock-exempt"},{"expiry":"infinity","group":"sysop"}]},"timestamp":"2013-06-11T08:32:38Z","title":"Utilisateur:OrlodrimBot","type":"rights"}]}}
+    }
+  ],
+  "MoveParams": [
+    {
+      "method": "GET",
+      "url": [
+        "https://fr.wikipedia.org/w/api.php?",
+        "format=json&",
+        "action=query&",
+        "lelimit=2&",
+        "leprop=type%7Cdetails%7Ctitle&",
+        "lestart=2021-05-29T23%3A23%3A00Z&",
+        "letype=move&",
+        "list=logevents&",
+        "maxlag=5&",
+        "assert=user"
+      ],
+      "response": {"batchcomplete":"","continue":{"continue":"-||","lecontinue":"20210529223955|105238735"},"query":{"logevents":[{"action":"move","ns":1,"params":{"suppressredirect":"","target_ns":1,"target_title":"Discussion:Cryptologie dans la littérature/À faire"},"title":"Discussion:Cryptologie et littérature/À faire","type":"move"},{"action":"move","ns":1,"params":{"target_ns":1,"target_title":"Discussion:Shinobi (film, 2005)"},"title":"Discussion:Shinobi: Heart Under Blade","type":"move"}]}}
+    }
+  ]
+}

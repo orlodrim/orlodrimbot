@@ -62,13 +62,17 @@ RecentChange makeLogRC(int rcid, int logid, LogEventType type, const string& act
   rc.rcid = rcid;
   rc.setType(mwc::RC_LOG);
   LogEvent& logEvent = rc.mutableLogEvent();
-  logEvent.type = type;
+  logEvent.setType(type);
   logEvent.action = action;
   logEvent.timestamp = Date::fromISO8601(timestamp);
   logEvent.user = user;
   logEvent.title = title;
   logEvent.logid = logid;
-  logEvent.setNewTitle(newTitle);
+  if (type == mwc::LE_MOVE) {
+    logEvent.mutableMoveParams().newTitle = newTitle;
+  } else {
+    CBL_ASSERT(newTitle.empty());
+  }
   return rc;
 }
 

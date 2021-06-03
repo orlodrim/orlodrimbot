@@ -153,17 +153,18 @@ ListOfPublishedDrafts::Articles ListOfPublishedDrafts::getNewlyPublishedDrafts(j
   unordered_set<string> usersToCheck;
 
   for (const LogEvent& logEvent : logEvents) {
-    if (logEvent.type == mwc::LE_MOVE && !logEvent.title.empty() && !logEvent.newTitle().empty()) {
+    if (logEvent.type() == mwc::LE_MOVE && !logEvent.title.empty() && !logEvent.moveParams().newTitle.empty()) {
+      const string& newTitle = logEvent.moveParams().newTitle;
       ArticlesByTitle::iterator articleIt = articlesByCurrentTitle.find(logEvent.title);
       if (articleIt != articlesByCurrentTitle.end()) {
         // An already published draft was moved.
         Article* article = articleIt->second;
-        if (m_wiki->getTitleNamespace(logEvent.newTitle()) == NS_MAIN) {
+        if (m_wiki->getTitleNamespace(newTitle) == NS_MAIN) {
           // It's still in main, keep tracking it.
-          article->currentTitle = logEvent.newTitle();
+          article->currentTitle = newTitle;
           article->lastMoveDate = logEvent.timestamp;
           articlesByCurrentTitle.erase(articleIt);
-          articlesByCurrentTitle[logEvent.newTitle()] = article;
+          articlesByCurrentTitle[newTitle] = article;
         } else if (logEvent.action == "move_redir") {
           // The article was moved outside of the main namespace without creating a direct, so it can be ignored.
           article->deleted = true;
@@ -173,13 +174,13 @@ ListOfPublishedDrafts::Articles ListOfPublishedDrafts::getNewlyPublishedDrafts(j
           // This should be fixed by deleting the redirect, so keep the entry in the list.
         }
       } else if (m_wiki->getTitleNamespace(logEvent.title) != NS_MAIN &&
-                 m_wiki->getTitleNamespace(logEvent.newTitle()) == NS_MAIN) {
+                 m_wiki->getTitleNamespace(newTitle) == NS_MAIN) {
         // New draft published to main.
         newArticles.emplace_back();
         Article& article = newArticles.back();
         article.draftTitle = logEvent.title;
-        article.firstTitleInMain = logEvent.newTitle();
-        article.currentTitle = logEvent.newTitle();
+        article.firstTitleInMain = newTitle;
+        article.currentTitle = newTitle;
         article.publisher = logEvent.user;
         article.publishDate = logEvent.timestamp;
         article.lastMoveDate = logEvent.timestamp;
@@ -187,7 +188,7 @@ ListOfPublishedDrafts::Articles ListOfPublishedDrafts::getNewlyPublishedDrafts(j
         articlesByCurrentTitle[article.currentTitle] = &article;
         usersToCheck.insert(logEvent.user);
       }
-    } else if (logEvent.type == mwc::LE_DELETE && logEvent.action == "delete") {
+    } else if (logEvent.type() == mwc::LE_DELETE && logEvent.action == "delete") {
       ArticlesByTitle::iterator articleIt = articlesByCurrentTitle.find(logEvent.title);
       if (articleIt != articlesByCurrentTitle.end()) {
         Article* article = articleIt->second;

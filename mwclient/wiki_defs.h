@@ -181,12 +181,15 @@ enum LogEventType {
   LE_SUPPRESS,
   LE_ABUSEFILTER,
   LE_NEWUSERS,
+  LE_CREATE,
 };
 
 class LogEvent {
 public:
+  LogEventType type() const { return m_type; }
+  void setType(LogEventType newType) { m_type = newType; }
+
   int64_t logid = 0;
-  LogEventType type = LE_UNDEFINED;
   std::string action;
   bool bot = false;
   cbl::Date timestamp;
@@ -196,11 +199,18 @@ public:
   std::string comment;
   std::string parsedComment;
 
-  void setNewTitle(const std::string& value) { m_newTitle = value; }
-  const std::string& newTitle() const { return m_newTitle; }
+  struct MoveParams {
+    std::string newTitle;
+    bool suppressRedirect = false;
+  };
+  // Returns an empty MoveParams if type() != LE_MOVE.
+  const MoveParams& moveParams() const { return m_moveParams; }
+  // Requires type() == LE_MOVE.
+  MoveParams& mutableMoveParams() { return m_moveParams; }
 
 private:
-  std::string m_newTitle;
+  LogEventType m_type = LE_UNDEFINED;
+  MoveParams m_moveParams;
 };
 
 enum RecentChangeType {

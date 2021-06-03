@@ -14,6 +14,7 @@ TESTS= \
 	mwclient/tests/parser_misc_test \
 	mwclient/tests/parser_nodes_test \
 	mwclient/tests/parser_test \
+	mwclient/tests/wiki_log_events_test \
 	mwclient/util/bot_section_test \
 	orlodrimbot/bot_requests_archiver/bot_requests_archiver_lib_test \
 	orlodrimbot/draft_moved_to_main/draft_moved_to_main_lib_test \
@@ -28,7 +29,7 @@ TESTS= \
 
 all: $(BINARIES)
 check: $(TESTS)
-	for bin in $^; do $${bin}; done; echo SUCCESS
+	for bin in $^; do if ! (cd $$(dirname $${bin}) && ./$$(basename $${bin})); then exit 1; fi; done
 clean:
 	rm -f */*.[ao] */*/*.[ao] $(BINARIES) $(TESTS)
 
@@ -109,6 +110,18 @@ mwclient/tests/parser_test: mwclient/tests/parser_test.o cbl/unittest.o mwclient
 mwclient/tests/parser_test_util.o: mwclient/tests/parser_test_util.cpp cbl/error.h cbl/generated_range.h \
 	mwclient/parser.h mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/tests/parser_test_util.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/tests/replay_wiki.o: mwclient/tests/replay_wiki.cpp cbl/args_parser.h cbl/date.h cbl/error.h \
+	cbl/file.h cbl/generated_range.h cbl/http_client.h cbl/json.h cbl/log.h cbl/string.h \
+	mwclient/site_info.h mwclient/tests/replay_wiki.h mwclient/titles_util.h mwclient/util/init_wiki.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/tests/wiki_log_events_test.o: mwclient/tests/wiki_log_events_test.cpp cbl/date.h cbl/error.h cbl/json.h \
+	cbl/log.h cbl/unittest.h mwclient/site_info.h mwclient/tests/replay_wiki.h mwclient/titles_util.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/tests/wiki_log_events_test: mwclient/tests/wiki_log_events_test.o cbl/unittest.o \
+	mwclient/tests/replay_wiki.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
 mwclient/titles_util.o: mwclient/titles_util.cpp cbl/generated_range.h cbl/html_entities.h cbl/json.h \
 	cbl/string.h cbl/unicode_fr.h cbl/utf8.h mwclient/site_info.h mwclient/titles_util.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -232,9 +245,8 @@ orlodrimbot/live_replication/mock_recent_changes_reader.o: orlodrimbot/live_repl
 	orlodrimbot/live_replication/mock_recent_changes_reader.h orlodrimbot/live_replication/recent_changes_reader.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 orlodrimbot/live_replication/recent_changes_reader.o: orlodrimbot/live_replication/recent_changes_reader.cpp \
-	cbl/date.h cbl/error.h cbl/json.h cbl/log.h cbl/sqlite.h mwclient/site_info.h mwclient/titles_util.h \
-	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/live_replication/continue_token.h \
-	orlodrimbot/live_replication/recent_changes_reader.h
+	cbl/date.h cbl/error.h cbl/json.h cbl/log.h cbl/sqlite.h mwclient/wiki_defs.h \
+	orlodrimbot/live_replication/continue_token.h orlodrimbot/live_replication/recent_changes_reader.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 orlodrimbot/live_replication/recent_changes_reader_test.o: orlodrimbot/live_replication/recent_changes_reader_test.cpp \
 	cbl/date.h cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h \
