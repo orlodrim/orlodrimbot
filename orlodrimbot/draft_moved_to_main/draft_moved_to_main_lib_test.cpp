@@ -93,7 +93,7 @@ private:
     // Article published and moved back to the user namespace.
     m_recentChangesReader.addMove("2000-01-01T12:20:00Z", "Utilisateur:U3/Draft", "Article 3", "U3");
     m_recentChangesReader.addMove("2000-01-01T12:25:00Z", "Article 3", "Utilisateur:U3/Draft");
-    m_recentChangesReader.lastRC().mutableLogEvent().action = "move_redir";
+    m_recentChangesReader.lastRC().mutableLogEvent().mutableMoveParams().suppressRedirect = true;
 
     // Article published and moved back to the user namespace. A redirect is unexpectedly left.
     m_recentChangesReader.addMove("2000-01-01T12:30:00Z", "Utilisateur:U4/Draft", "Article 4", "U4");

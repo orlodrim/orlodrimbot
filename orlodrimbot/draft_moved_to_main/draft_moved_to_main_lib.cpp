@@ -165,7 +165,7 @@ ListOfPublishedDrafts::Articles ListOfPublishedDrafts::getNewlyPublishedDrafts(j
           article->lastMoveDate = logEvent.timestamp;
           articlesByCurrentTitle.erase(articleIt);
           articlesByCurrentTitle[newTitle] = article;
-        } else if (logEvent.action == "move_redir") {
+        } else if (logEvent.moveParams().suppressRedirect) {
           // The article was moved outside of the main namespace without creating a direct, so it can be ignored.
           article->deleted = true;
           articlesByCurrentTitle.erase(articleIt);
