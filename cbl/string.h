@@ -13,6 +13,23 @@ namespace string_internal {
 
 extern const signed char INT_OF_HEX_DIGIT[0x100];
 
+constexpr size_t getTotalLength() {
+  return 0;
+}
+
+template <typename... Args>
+size_t getTotalLength(std::string_view firstArg, Args... args) {
+  return firstArg.size() + getTotalLength(args...);
+}
+
+constexpr void concatHelper(std::string& buffer) {}
+
+template <typename... Args>
+void concatHelper(std::string& buffer, std::string_view firstArg, Args... args) {
+  buffer += firstArg;
+  concatHelper(buffer, args...);
+}
+
 }  // namespace string_internal
 
 // Intended to identify place where a temporary string_view -> string conversion was introduced in a function call, but
@@ -27,6 +44,15 @@ inline bool startsWith(std::string_view s, std::string_view prefix) {
 inline bool endsWith(std::string_view s, std::string_view suffix) {
   size_t n = suffix.size();
   return n <= s.size() && memcmp(s.data() + s.size() - n, suffix.data(), n) == 0;
+}
+
+// Concatenates multiple string_views (or anything convertible to string_view).
+template <typename... Args>
+std::string concat(Args... args) {
+  std::string result;
+  result.reserve(string_internal::getTotalLength(args...));
+  string_internal::concatHelper(result, args...);
+  return result;
 }
 
 // Parses s as an int represented in base 10.
