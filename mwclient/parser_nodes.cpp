@@ -19,6 +19,47 @@ using std::vector;
 
 namespace wikicode {
 
+static bool extractDummyVariableText(const Variable& variable, string& rawText) {
+  if (!variable.defaultValue().has_value()) {
+    return false;
+  }
+  for (const Node& node : variable.nameNode()) {
+    switch (node.type()) {
+      case NT_TEXT:
+        if (!cbl::isSpace(node.asText().text)) {
+          return false;
+        }
+        break;
+      case NT_COMMENT:
+        break;
+      default:
+        return false;
+    }
+  }
+  for (const Node& node : *variable.defaultValue()) {
+    switch (node.type()) {
+      case NT_TEXT:
+        rawText += node.asText().text;
+        break;
+      case NT_COMMENT:
+        break;
+      default:
+        return false;
+    }
+  }
+  return true;
+}
+
+static string_view stripSubst(string_view name) {
+  string_view strippedName = cbl::trim(name, cbl::TRIM_LEFT);
+  if (cbl::startsWith(strippedName, "subst:")) {
+    return strippedName.substr(strlen("subst:"));
+  } else if (cbl::startsWith(strippedName, "safesubst:")) {
+    return strippedName.substr(strlen("safesubst:"));
+  }
+  return name;
+}
+
 /* == NodeGenerator == */
 
 NodeGenerator::NodeGenerator(Node* node, EnumerationOrder enumerationOrder, int typeFiltering)
@@ -507,16 +548,26 @@ void Template::computeName() {
   m_name.clear();
 
   string rawText;
-  for (Node& node : firstField) {
-    if (node.type() == NT_TEXT) {
-      rawText += node.asText().text;
-    } else if (node.type() != NT_COMMENT) {
-      return;
+  for (const Node& node : firstField) {
+    switch (node.type()) {
+      case NT_TEXT:
+        rawText += node.asText().text;
+        break;
+      case NT_VARIABLE: {
+        if (!extractDummyVariableText(node.asVariable(), rawText)) {
+          return;
+        }
+        break;
+      }
+      case NT_COMMENT:
+        break;
+      default:
+        return;
     }
   }
 
-  mwc::TitleParts titleParts =
-      mwc::TitlesUtil(mwc::SiteInfo::stubInstance()).parseTitle(rawText, mwc::NS_MAIN, mwc::PTF_KEEP_INITIAL_COLON);
+  mwc::TitleParts titleParts = mwc::TitlesUtil(mwc::SiteInfo::stubInstance())
+                                   .parseTitle(stripSubst(rawText), mwc::NS_MAIN, mwc::PTF_KEEP_INITIAL_COLON);
   if (titleParts.titleWithoutAnchor().empty()) {
     m_name = titleParts.anchor();  // Parser function.
   } else {

@@ -214,6 +214,15 @@ private:
     CBL_ASSERT_EQ(createTemplate("{{ x/{{{y}}} }}")->name(), "");
     CBL_ASSERT_EQ(createTemplate("{{#if:1}}")->name(), "#if:1");
 
+    CBL_ASSERT_EQ(createTemplate("{{subst:Test}}")->name(), "Test");
+    CBL_ASSERT_EQ(createTemplate("{{safesubst:Test}}")->name(), "Test");
+    CBL_ASSERT_EQ(createTemplate("{{ subst: Test}}")->name(), "Test");
+    CBL_ASSERT_EQ(createTemplate("{{{{{|subst:}}}Test}}")->name(), "Test");
+    CBL_ASSERT_EQ(createTemplate("{{{{{|safesubst:}}}Test}}")->name(), "Test");
+    CBL_ASSERT_EQ(createTemplate("{{{{{|safesubst:<!-- comment -->}}}Test}}")->name(), "Test");
+    CBL_ASSERT_EQ(createTemplate("{{{{{x|safesubst:}}}Test}}")->name(), "");
+    CBL_ASSERT_EQ(createTemplate("{{ {{{|safesubst:}}} #invoke:Abc}}")->name(), "#invoke:Abc");
+
     template_ = createTemplate("{{Test|a|b|c}}");
     template_->removeAllFieldsExceptFirst();
     CBL_ASSERT_EQ(template_->toString(), "{{Test}}");

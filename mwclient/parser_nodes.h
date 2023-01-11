@@ -192,7 +192,7 @@ public:
   cbl::GeneratedRange<TypedNodeGenerator<const Variable>> getVariables(
       EnumerationOrder enumerationOrder = PREFIX_DFS) const;
 
-  // Cast to more specific types. NO CHECK PEFORMED.
+  // Cast to more specific types. NO CHECK PERFORMED.
   inline List& asList();
   inline const List& asList() const;
   inline Text& asText();
