@@ -149,6 +149,16 @@ string trimAndCollapseSpace(string_view s) {
   return collapseSpace(trim(s));
 }
 
+string toLowerCaseASCII(string_view s) {
+  string result(s);
+  for (char& c : result) {
+    if (c >= 'A' && c <= 'Z') {
+      c += 'a' - 'A';
+    }
+  }
+  return result;
+}
+
 FieldGenerator::FieldGenerator(string_view str, char separator, bool ignoreLastFieldIfEmpty)
     : m_unconsumedPart(str), m_separator(separator) {
   if (ignoreLastFieldIfEmpty) {

@@ -55,6 +55,16 @@ std::string concat(Args... args) {
   return result;
 }
 
+// Appends multiple string_views (or anything convertible to string_view) to buffer.
+template <typename... Args>
+void append(std::string& buffer, Args... args) {
+  size_t newLength = buffer.size() + string_internal::getTotalLength(args...);
+  if (newLength > buffer.capacity()) {
+    buffer.reserve(newLength);
+  }
+  string_internal::concatHelper(buffer, args...);
+}
+
 // Parses s as an int represented in base 10.
 // Strict parsing (space, '+' sign or extra characters at the end are not allowed). Leading zeros are ignored.
 // Throws: ParseError.
@@ -94,6 +104,8 @@ std::string_view trim(std::string_view s, int trimOptions = TRIM_BOTH);
 bool isSpace(std::string_view s);
 std::string collapseSpace(std::string_view s);
 std::string trimAndCollapseSpace(std::string_view s);
+
+std::string toLowerCaseASCII(std::string_view s);
 
 /* Returns true if c is in '0'-'9', 'A'-'F' or 'a'-'f'. */
 inline bool isHexDigit(char c) {
