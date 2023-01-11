@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <string>
+#include <string_view>
 
 namespace cbl {
 
@@ -27,14 +28,14 @@ void removeFile(const std::string& path, bool mustExist);
 // Writes `content` to file `path`.
 // Overwrites the file if it already exists. Not atomic: in case of failure, the content may be partially written.
 // Throws: FileNotFoundError (e.g. if the directory does not exist), PermissionError, SystemError.
-void writeFile(const std::string& path, const std::string& content);
+void writeFile(const std::string& path, std::string_view content);
 
 // Same as writeFile, but writes to a temporary file first and then rename to the final name.
 // This is atomic only if the rename operation itself is atomic, which is usually true on local Linux file systems.
 // Attributes of the original file (permissions, owner, group) are not preserved. Even if the target file is read-only,
 // it will be overwritten if that the user has write access to the parent directory.
 // Throws: SystemError.
-void writeFileAtomically(const std::string& path, const std::string& content);
+void writeFileAtomically(const std::string& path, std::string_view content);
 
 }  // namespace cbl
 

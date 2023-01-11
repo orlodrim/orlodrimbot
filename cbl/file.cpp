@@ -5,9 +5,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
+#include <string_view>
 #include "error.h"
 
 using std::string;
+using std::string_view;
 
 namespace cbl {
 
@@ -67,7 +69,7 @@ string readFile(const string& path) {
   }
 }
 
-static void writeOpenedFileAndCloseIt(const string& path, FILE* file, const string& content) {
+static void writeOpenedFileAndCloseIt(const string& path, FILE* file, string_view content) {
   if (file == nullptr) {
     int savedErrno = errno;
     string errorMessage = "Cannot open '" + path + "' in write mode: " + getCErrorString(savedErrno);
@@ -78,7 +80,7 @@ static void writeOpenedFileAndCloseIt(const string& path, FILE* file, const stri
     }
     throw SystemError(errorMessage);
   }
-  if (fwrite(content.c_str(), 1, content.size(), file) != content.size()) {
+  if (fwrite(content.data(), 1, content.size(), file) != content.size()) {
     int savedErrno = errno;
     fclose(file);
     throw SystemError("Cannot write '" + path + "': " + getCErrorString(savedErrno));
@@ -89,11 +91,11 @@ static void writeOpenedFileAndCloseIt(const string& path, FILE* file, const stri
   }
 }
 
-void writeFile(const string& path, const string& content) {
+void writeFile(const string& path, string_view content) {
   writeOpenedFileAndCloseIt(path, fopen(path.c_str(), "w"), content);
 }
 
-void writeFileAtomically(const string& path, const string& content) {
+void writeFileAtomically(const string& path, string_view content) {
   string tempPath = path + ".tmp-XXXXXX";
   int fd = mkstemp(&tempPath[0]);
   if (fd == -1) {
