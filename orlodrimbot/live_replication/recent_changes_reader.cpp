@@ -1,4 +1,5 @@
 #include "recent_changes_reader.h"
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <string_view>
