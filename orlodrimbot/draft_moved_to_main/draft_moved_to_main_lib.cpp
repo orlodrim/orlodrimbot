@@ -84,7 +84,7 @@ void EventsByDay::addEvent(const Date& date, const string& event) {
 }
 
 void EventsByDay::removeOldEvents(int daysToKeep) {
-  Date minDate = (Date::now() - DateDiff(86400 * daysToKeep)).extractDay();
+  Date minDate = (Date::now() - DateDiff::fromDays(daysToKeep)).extractDay();
   for (SectionMap::iterator it = m_sections.end(); it != m_sections.begin();) {
     --it;
     if (it->first >= minDate) break;
@@ -140,7 +140,7 @@ ListOfPublishedDrafts::ListOfPublishedDrafts(Wiki* wiki, live_replication::Recen
 ListOfPublishedDrafts::Articles ListOfPublishedDrafts::getNewlyPublishedDrafts(json::Value& state) {
   string continueToken = state["rcContinueToken"].str();
   live_replication::RecentLogEventsOptions options;
-  options.start = Date::now() - DateDiff(3600 * 36);
+  options.start = Date::now() - DateDiff::fromHours(36);
   // Start from where we stopped last time. Unless we restart after a long break, this overrides options.start.
   // Note: we could also regenerate the full list every time (m_daysToKeep days). However, the incremental approach
   // allows the manual removal of content if needed. Also, the edit summary is incremental anyway.

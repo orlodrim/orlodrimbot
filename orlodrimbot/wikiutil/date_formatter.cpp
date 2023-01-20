@@ -24,6 +24,7 @@ const char* const FR_MONTHS[12] = {
 class FrenchDateFormatter : public DateFormatter {
 public:
   string format(const Date& date, Format format, Precision precision) const override;
+  string getMonthName(int month) const override;
 };
 
 string FrenchDateFormatter::format(const Date& date, Format format, Precision precision) const {
@@ -67,6 +68,13 @@ string FrenchDateFormatter::format(const Date& date, Format format, Precision pr
   }
   return result;
 }
+
+string FrenchDateFormatter::getMonthName(int month) const {
+  if (month < 1 || month > 12) {
+    throw std::invalid_argument("Invalid month: " + std::to_string(month));
+  }
+  return FR_MONTHS[month - 1];
+};
 
 }  // namespace
 

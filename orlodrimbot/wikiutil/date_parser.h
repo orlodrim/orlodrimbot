@@ -9,9 +9,13 @@ namespace wikiutil {
 struct SignatureDate {
   cbl::Date utcDate;
   // Local date as expressed in the text = utcDate + localTimeDiff.
-  cbl::DateDiff localTimeDiff = cbl::DateDiff(0);
+  cbl::DateDiff localTimeDiff;
 
   bool isNull() const { return utcDate.isNull(); }
+  cbl::Date localDate() const { return utcDate + localTimeDiff; }
+  bool operator<(const SignatureDate& other) const {
+    return utcDate < other.utcDate;
+  }
 };
 
 // Parser for human-readable dates occurring in wikicode, possibly using wiki-specific syntax.

@@ -61,6 +61,22 @@ private:
         dateFormatter.format(Date::fromISO8601("0080-01-01T00:00:00Z"), DateFormatter::LONG, DateFormatter::MINUTE),
         "1 janvier 80 à 00:00");
   }
+  CBL_TEST_CASE(getMonthName) {
+    const DateFormatter& dateFormatter = DateFormatter::getByLang("fr");
+
+    CBL_ASSERT_EQ(dateFormatter.getMonthName(1), "janvier");
+    CBL_ASSERT_EQ(dateFormatter.getMonthName(12), "décembre");
+
+    for (int month : {-1, 0, 13}) {
+      bool exceptionThrown = false;
+      try {
+        dateFormatter.getMonthName(0);
+      } catch (const std::invalid_argument&) {
+        exceptionThrown = true;
+      }
+      CBL_ASSERT(exceptionThrown) << "No exception thrown for month " << month;
+    }
+  }
 };
 
 }  // namespace wikiutil

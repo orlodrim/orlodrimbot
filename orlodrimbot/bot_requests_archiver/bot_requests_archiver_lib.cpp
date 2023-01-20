@@ -55,7 +55,7 @@ void splitRequests(const string& code, bool archiveAll, string& currentRequests,
       state = archiveAll ? 2 : 1;
     } else if (state == 1 && line.find(magicTokenOfLineWithDate) != string_view::npos) {
       Date dateArch = dateParser.extractFirstDate(line, DateParser::AFTER_2000);
-      if (!dateArch.isNull() && dateArch < Date::now() + DateDiff(86400)) {
+      if (!dateArch.isNull() && dateArch < Date::now() + DateDiff::fromDays(1)) {
         state = 2;
       }
     }
@@ -156,7 +156,7 @@ void BotRequestsArchiver::archiveMonth(YearMonth yearMonth, bool archiveAll, Red
 void BotRequestsArchiver::run(bool forceNewMonth) {
   // The pages for a new month are initialized on the last day of the previous month at 23:00 UTC+1 or 23:00 UTC+2, so
   // we need to take the date at least 3 hours in the future.
-  Date baseDate = Date::now() + DateDiff(3600 * 4);
+  Date baseDate = Date::now() + DateDiff::fromHours(4);
   YearMonth baseMonth(baseDate);
   bool newMonth = baseDate.day() == 1 || forceNewMonth;
 

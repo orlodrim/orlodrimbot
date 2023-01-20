@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
   // This program normally runs in the evening, a few hours before midnight UTC. Set dateForInitialization to six
   // hours in the future so that categories for a given month are created at the end of the last day of the previous
   // month.
-  Date dateForInitialization = Date::now() + DateDiff(3600 * 6);
+  Date dateForInitialization = Date::now() + DateDiff::fromHours(6);
   bool dryRun = false;
   cbl::parseArgs(argc, argv, &wikiFlags, "--date", &dateForInitialization, "--dryrun", &dryRun);
   mwc::Wiki wiki;

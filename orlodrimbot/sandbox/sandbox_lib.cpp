@@ -45,8 +45,8 @@ void SandboxCleaner::run(bool force, bool dryRun) {
   for (const SandboxPage& sandbox : m_sandboxes) {
     Date pageTimestamp = pageTimestamps.at(sandbox.page);
     Date templateTimestamp = pageTimestamps.at(sandbox.templatePage);
-    Date minTimestamp = now - DateDiff(sandbox.minSeconds + MAX_AGE_FOR_CLEANUP);
-    Date maxTimestampOfPage = now - DateDiff(sandbox.minSeconds);
+    Date minTimestamp = now - DateDiff::fromSeconds(sandbox.minSeconds + MAX_AGE_FOR_CLEANUP);
+    Date maxTimestampOfPage = now - DateDiff::fromSeconds(sandbox.minSeconds);
 
     if (!force && pageTimestamp < minTimestamp && templateTimestamp < minTimestamp) {
       CBL_INFO << "Skipping cleanup of '" << sandbox.page << "' because it was not edited after " << minTimestamp;

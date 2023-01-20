@@ -139,7 +139,7 @@ void RecentChangesSync::writeRecentChanges(const vector<RecentChange>& recentCha
     // However, since the order of rcid and timestamp is also slightly different, we can't simply put a condition on the
     // timestamp. Instead, we first compute the smaller rcid in the time range to ignore, and then discard all changes
     // with a higher rcid.
-    Date maxTimestamp = requestDate - DateDiff(m_secondsToIgnore);
+    Date maxTimestamp = requestDate - DateDiff::fromSeconds(m_secondsToIgnore);
     for (const RecentChange& rc : recentChanges) {
       if (rc.timestamp() > maxTimestamp) {
         newMaxRcid = std::min(newMaxRcid, rc.rcid - 1);

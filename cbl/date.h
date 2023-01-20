@@ -13,7 +13,16 @@ namespace cbl {
 // Represents a difference between two dates, with the same granularity as Date (1 second).
 class DateDiff {
 public:
-  explicit DateDiff(int64_t seconds) : m_seconds(seconds) {}
+  static DateDiff nullDiff() { return DateDiff(0); }
+  static DateDiff fromSeconds(int64_t seconds) { return DateDiff(seconds); }
+  static DateDiff fromMinutes(int64_t minutes) { return DateDiff(minutes * 60); }
+  static DateDiff fromHours(int64_t hours) { return DateDiff(hours * 3600); }
+  static DateDiff fromDays(int64_t days) { return DateDiff(days * 86400); }
+  static DateDiff fromWeeks(int64_t weeks) { return DateDiff(weeks * 86400 * 7); }
+  static DateDiff fromYears(int64_t years) { return DateDiff(years * 86400 * 365); }
+
+  DateDiff() : m_seconds(0) {}
+
   int64_t seconds() const { return m_seconds; }
   bool operator==(const DateDiff& d) const { return m_seconds == d.m_seconds; }
   bool operator!=(const DateDiff& d) const { return m_seconds != d.m_seconds; }
@@ -23,8 +32,12 @@ public:
   bool operator>(const DateDiff& d) const { return m_seconds > d.m_seconds; }
   DateDiff operator+(const DateDiff& diff) const { return DateDiff(m_seconds + diff.m_seconds); }
   DateDiff operator-(const DateDiff& diff) const { return DateDiff(m_seconds - diff.m_seconds); }
+  void operator+=(const DateDiff& diff) { m_seconds += diff.m_seconds; }
+  void operator-=(const DateDiff& diff) { m_seconds -= diff.m_seconds; }
 
 private:
+  explicit DateDiff(int64_t seconds) : m_seconds(seconds) {}
+
   int64_t m_seconds = 0;
 };
 
@@ -56,6 +69,8 @@ public:
   // Not supported for null dates.
   Date operator+(const DateDiff& diff) const;
   Date operator-(const DateDiff& diff) const;
+  void operator+=(const DateDiff& diff);
+  void operator-=(const DateDiff& diff);
   DateDiff operator-(const Date& d) const;
 
   // Serializes in ISO8601 format, e.g. "2001-02-03T04:05:06Z".

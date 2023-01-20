@@ -155,18 +155,18 @@ bool FrenchDateParser::consumeSignatureDate(Lexer& lexer, SignatureDate& date) {
   if (!(lexer.consumeValue(Lexer::TWO_DIGIT_NUMBER, hour) && hour >= 0 && hour < 24)) return false;
   if (!lexer.consumeString(":")) return false;
   if (!(lexer.consumeValue(Lexer::TWO_DIGIT_NUMBER, minute) && minute >= 0 && minute < 60)) return false;
-  date.localTimeDiff = DateDiff(0);
+  date.localTimeDiff = DateDiff::nullDiff();
   if (lexer.consumeString("(")) {
     if (lexer.consumeString("CET") && lexer.consumeString(")")) {
-      date.localTimeDiff = DateDiff(3600);
+      date.localTimeDiff = DateDiff::fromHours(1);
     } else if (lexer.consumeString("CEST") && lexer.consumeString(")")) {
-      date.localTimeDiff = DateDiff(3600 * 2);
+      date.localTimeDiff = DateDiff::fromHours(2);
     }
   }
   date.utcDate = Date(year, month, day, hour, minute) - date.localTimeDiff;
   // Reject dates in the future with some margin (2 hours in case the time zone is not read correctly + 5 minutes of
   // tolerance on the computer clock).
-  return date.utcDate < Date::now() + DateDiff(3600 * 2 + 300);
+  return date.utcDate < Date::now() + DateDiff::fromMinutes(2 * 60 + 5);
 }
 
 SignatureDate FrenchDateParser::findAndConsumeSignatureDate(Lexer& lexer) {
@@ -192,7 +192,7 @@ bool FrenchDateParser::consumeDate(Lexer& lexer, Date& date, int flags) {
     if ((lexer.consumeValue(Lexer::TWO_DIGIT_NUMBER, year) || lexer.consumeValue(Lexer::YEAR, year)) && year >= 1) {
       // year is now set.
     } else if (flags & IMPLICIT_YEAR) {
-      Date minDate = Date::now() - DateDiff(3600 * 24 * 270);
+      Date minDate = Date::now() - DateDiff::fromDays(270);
       year = minDate.year() + (month <= minDate.month() ? 1 : 0);
     } else {
       return false;
@@ -212,14 +212,14 @@ bool FrenchDateParser::consumeDate(Lexer& lexer, Date& date, int flags) {
   }
   if ((flags & AFTER_2000) && year < 2000) return false;
   if (day > getNumDaysInMonth(month, year)) return false;
-  int maxSecondsInTheFuture = 3600 * 2 + 300;  // Time zone + clock error.
+  DateDiff maxDelayInTheFuture = DateDiff::fromMinutes(2 * 60 + 5);  // Time zone + clock error.
   if (flags & END_OF_DAY) {
     date = Date(year, month, day, 23, 59, 59);
-    maxSecondsInTheFuture += 3600 * 24;
+    maxDelayInTheFuture += DateDiff::fromDays(1);
   } else {
     date = Date(year, month, day, 0, 0, 0);
   }
-  if ((flags & BEFORE_NOW) && date >= Date::now() + DateDiff(maxSecondsInTheFuture)) return false;
+  if ((flags & BEFORE_NOW) && date >= Date::now() + maxDelayInTheFuture) return false;
   return true;
 }
 

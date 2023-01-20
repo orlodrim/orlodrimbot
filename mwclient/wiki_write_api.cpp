@@ -282,7 +282,7 @@ void Wiki::setEmergencyStopTest(const EmergencyStopTest& emergencyStopTest) {
 }
 
 void Wiki::enableDefaultEmergencyStopTest() {
-  Date initializationDate = Date::now() - cbl::DateDiff(60);
+  Date initializationDate = Date::now() - cbl::DateDiff::fromMinutes(1);
   m_emergencyStopTest = [this, initializationDate]() {
     if (m_externalUserName.empty()) {
       throw InvalidStateError("Emergency stop works only for logged in users");

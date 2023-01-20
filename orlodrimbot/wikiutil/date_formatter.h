@@ -27,6 +27,7 @@ public:
   static const DateFormatter& getByLang(std::string_view lang);
 
   virtual std::string format(const cbl::Date& date, Format format = LONG, Precision precision = DAY) const = 0;
+  virtual std::string getMonthName(int month) const = 0;
 };
 
 }  // namespace wikiutil

@@ -93,8 +93,16 @@ Date Date::operator-(const DateDiff& diff) const {
   return Date(static_cast<time_t>(toTimeT() - diff.seconds()));
 }
 
+void Date::operator+=(const DateDiff& diff) {
+  *this = Date(static_cast<time_t>(toTimeT() + diff.seconds()));
+}
+
+void Date::operator-=(const DateDiff& diff) {
+  *this = Date(static_cast<time_t>(toTimeT() - diff.seconds()));
+}
+
 DateDiff Date::operator-(const Date& d) const {
-  return DateDiff(toTimeT() - d.toTimeT());
+  return DateDiff::fromSeconds(toTimeT() - d.toTimeT());
 }
 
 Date Date::now() {
