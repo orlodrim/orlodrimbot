@@ -1,0 +1,998 @@
+#
+# Archive using dates in the message, without using the history.
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:BasicTest
+ {{Archivage par bot|algo=old(7d)|counter=}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 6 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 7 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:BasicTest
+CHECK_COMMENT Discussion:BasicTest
+ Archivage de 2 sections non modifiées depuis 7 jours vers [[Discussion:BasicTest/Archive 1]]
+CHECK Discussion:BasicTest
+ {{Archivage par bot|algo=old(7d)|counter=1}}
+ == Section 3 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 6 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 7 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+CHECK_COMMENT Discussion:BasicTest/Archive 1
+ Archivage de 2 sections provenant de [[Discussion:BasicTest]]
+CHECK Discussion:BasicTest/Archive 1
+ {{Archive de discussion}}
+
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+# No other messages will be archived (to few messages on the page).
+DATE 2000-03-01T00:00:00Z
+ARCHIVE Discussion:BasicTest
+CHECK Discussion:BasicTest
+ {{Archivage par bot|algo=old(7d)|counter=1}}
+ == Section 3 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 6 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == Section 7 ==
+ Message. [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+#
+# Archive using history.
+#
+RESET
+DATE 2000-01-10T00:00:00Z
+WRITE Discussion:ArchiveWithHistory
+ == Section 1 ==
+DATE 2000-01-20T00:00:00Z
+WRITE Discussion:ArchiveWithHistory
+ == Section 1 ==
+ == Section 2 ==
+DATE 2000-01-30T00:00:00Z
+WRITE Discussion:ArchiveWithHistory
+ {{Archivage par bot|algo=old(7d)|counter=}}
+ == Section 1 ==
+ == Section 2 ==
+ == Section 3 ==
+ == Section 4 ==
+ == Section 5 ==
+ == Section 6 ==
+ == Section 7 ==
+DATE 2000-02-01T00:00:00Z
+ARCHIVE Discussion:ArchiveWithHistory
+CHECK Discussion:ArchiveWithHistory
+ {{Archivage par bot|algo=old(7d)|counter=1}}
+ == Section 3 ==
+ == Section 4 ==
+ == Section 5 ==
+ == Section 6 ==
+ == Section 7 ==
+CHECK Discussion:ArchiveWithHistory/Archive 1
+ {{Archive de discussion}}
+
+ == Section 1 ==
+ == Section 2 ==
+#
+# Add counter if needed
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:AddCounterTest
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:AddCounterTest
+CHECK Discussion:AddCounterTest
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+#
+# Add counter if needed (multiline version)
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:AddCounterTest2
+ {{Archivage par bot
+ |algo=old(7d)
+ |minthreadstoarchive=1
+ |minthreadsleft=0
+ }}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:AddCounterTest2
+CHECK Discussion:AddCounterTest2
+ {{Archivage par bot
+ |algo=old(7d)
+ |minthreadstoarchive=1
+ |minthreadsleft=0
+ |counter=1
+ }}
+#
+# "check+old" algorithm
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion utilisateur:Exemple
+ {{Archivage par bot|algo=checked+old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Section 1 ==
+ {{fait}} Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 2 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{Fait}} Section 3 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{pas fait}} Section 4 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{Pas fait}} Section 5 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == <!-- {{fait}} --> Section 6 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion utilisateur:Exemple
+CHECK Discussion utilisateur:Exemple
+ {{Archivage par bot|algo=checked+old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ {{fait}} Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == <!-- {{fait}} --> Section 6 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+CHECK Discussion utilisateur:Exemple/Archive 1
+ {{Archive de discussion}}
+
+ == {{fait}} Section 2 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{Fait}} Section 3 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{pas fait}} Section 4 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{Pas fait}} Section 5 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# "fdn" algorithm
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:FdNAlgo
+ {{Archivage par bot|algo=fdn(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Section 1 ==
+ {{Réponse FdN}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ {{Réponse FdN|oui}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ {{FdNHS}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:FdNAlgo
+CHECK Discussion:FdNAlgo
+ {{Archivage par bot|algo=fdn(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ {{Réponse FdN}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+CHECK Discussion:FdNAlgo/Archive 1
+ {{Archive de discussion}}
+
+ == Section 2 ==
+ {{Réponse FdN|oui}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ {{FdNHS}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Do not archive sections with {{Ne pas archiver}} or {{Archivage par bot}}
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:NoArchive
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Section 1 ==
+ {{Ne pas archiver}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ <!-- {{ne pas archiver}} --> [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ {{Archivage par bot}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ <nowiki>{{Archivage par bot}}</nowiki> [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ <!-- ne pas archiver --> [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:NoArchive
+CHECK Discussion:NoArchive
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ {{Ne pas archiver}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ <!-- {{ne pas archiver}} --> [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ {{Archivage par bot}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ <!-- ne pas archiver --> [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Sections with {{Ne pas archiver}} count for the purpose of comparing the number of threads to minthreadsleft.
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:NoArchiveMinThreadsLeft
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=2|counter=1}}
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ = Section 1 =
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ {{Ne pas archiver}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:NoArchiveMinThreadsLeft
+CHECK Discussion:NoArchiveMinThreadsLeft
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=2|counter=1}}
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ = Section 1 =
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ {{Ne pas archiver}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Autodetect the last page
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:SetCounter
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+WRITE Discussion:SetCounter/Archive 1
+ Subpage 1
+WRITE Discussion:SetCounter/Archive 2
+ Subpage 2
+WRITE Discussion:SetCounter/Archive 3
+ Subpage 3
+ARCHIVE Discussion:SetCounter
+CHECK Discussion:SetCounter
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=3}}
+CHECK Discussion:SetCounter/Archive 3
+ Subpage 3
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Autodetect the last page: move the counter backwards if needed
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:SetCounterBackwards
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=50}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+WRITE Discussion:SetCounterBackwards/Archive 1
+ Subpage 1
+WRITE Discussion:SetCounterBackwards/Archive 2
+ Subpage 2
+ARCHIVE Discussion:SetCounterBackwards
+CHECK Discussion:SetCounterBackwards
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=2}}
+CHECK Discussion:SetCounterBackwards/Archive 2
+ Subpage 2
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Skips pages if needed
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:SkipFullArchivePages
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0|maxarchivesize=1K|counter=1}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+WRITE Discussion:SkipFullArchivePages/Archive 1
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+WRITE Discussion:SkipFullArchivePages/Archive 2
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ARCHIVE Discussion:SkipFullArchivePages
+CHECK_COMMENT Discussion:SkipFullArchivePages
+ Archivage d'une section non modifiée depuis 7 jours vers [[Discussion:SkipFullArchivePages/Archive 3]]
+#
+# Archive by month
+#
+RESET
+DATE 2000-12-01T00:00:00Z
+WRITE Discussion:ArchiveByMonth
+ {{Archivage par bot|algo=old(7d)|archive=/%(year)d/%(monthname)s|archiveheader={{MyHeader}}|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 février 2000 à 00:00 (CET)
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 1 mars 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveByMonth
+CHECK_COMMENT Discussion:ArchiveByMonth
+ Archivage de 3 sections non modifiées depuis 7 jours vers [[Discussion:ArchiveByMonth/2000/janvier]] et 2 autres pages
+CHECK Discussion:ArchiveByMonth
+ {{Archivage par bot|algo=old(7d)|archive=/%(year)d/%(monthname)s|archiveheader={{MyHeader}}|minthreadstoarchive=1|minthreadsleft=0}}
+CHECK_COMMENT Discussion:ArchiveByMonth/2000/janvier
+ Archivage d'une section provenant de [[Discussion:ArchiveByMonth]]
+CHECK Discussion:ArchiveByMonth/2000/janvier
+ {{MyHeader}}
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+CHECK Discussion:ArchiveByMonth/2000/février
+ {{MyHeader}}
+
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 février 2000 à 00:00 (CET)
+CHECK Discussion:ArchiveByMonth/2000/mars
+ {{MyHeader}}
+
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 1 mars 2000 à 00:00 (CET)
+#
+# Archive by month number
+#
+RESET
+DATE 2000-12-01T00:00:00Z
+WRITE Discussion:ArchiveByMonthNum
+ {{Archivage par bot|algo=old(7d)|archive=/%(year)d/%(month)d|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveByMonthNum
+CHECK Discussion:ArchiveByMonthNum/2000/1
+ {{Archive de discussion|Discussion=Discussion:ArchiveByMonthNum}}
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Archive by month number with padding
+#
+RESET
+DATE 2000-12-01T00:00:00Z
+WRITE Discussion:ArchiveByMonthPaddedNum
+ {{Archivage par bot|algo=old(7d)|archive=/%(year)d/%(month)02d|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveByMonthPaddedNum
+CHECK Discussion:ArchiveByMonthPaddedNum/2000/01
+ {{Archive de discussion|Discussion=Discussion:ArchiveByMonthPaddedNum}}
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Do not archive in a page that is not a subpage
+#
+RESET
+DATE 2000-12-01T00:00:00Z
+WRITE Discussion:ArchiveOnlyInSubpage
+ {{Archivage par bot|archive=Discussion:SomeOtherPage/Archive|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveOnlyInSubpage
+CHECK Discussion:ArchiveOnlyInSubpage
+ {{Archivage par bot|archive=Discussion:SomeOtherPage/Archive|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Same thing, but with a difference only in the namespace.
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:ArchiveOnlyInSubpage
+ {{Archivage par bot|minthreadstoarchive=1|minthreadsleft=0|archive=Discussion:ArchiveOnlyInSubpage/Archive}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveOnlyInSubpage
+CHECK Discussion:ArchiveOnlyInSubpage
+ {{Archivage par bot|minthreadstoarchive=1|minthreadsleft=0|archive=Discussion:ArchiveOnlyInSubpage/Archive}}
+WRITE Discussion:ArchiveOnlyInSubpage
+ {{Archivage par bot|minthreadstoarchive=1|minthreadsleft=0|archive=Discussion utilisateur:ArchiveOnlyInSubpage/Archive}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveOnlyInSubpage
+CHECK Discussion:ArchiveOnlyInSubpage
+ {{Archivage par bot|minthreadstoarchive=1|minthreadsleft=0|archive=Discussion utilisateur:ArchiveOnlyInSubpage/Archive}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+#
+# Do not archive pages with "/Archive" in the name
+#
+RESET
+DATE 2000-12-01T00:00:00Z
+WRITE Discussion:NoRecursiveArchiving/Archive
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:NoRecursiveArchiving/Archive
+CHECK Discussion:NoRecursiveArchiving/Archive
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Do not archive articles
+#
+RESET
+DATE 2000-12-01T00:00:00Z
+WRITE NoArchiveArticles
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ARCHIVE NoArchiveArticles
+CHECK NoArchiveArticles
+ {{Archivage par bot|algo=old(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Archive by quarter
+#
+RESET
+DATE 2000-12-30T00:00:00Z
+WRITE Discussion:ArchiveByQuarter
+ {{Archivage par bot|algo=old(7d)|archive=/%(year)d trimestre %(quarter)d|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 mars 2000 à 00:00 (CET)
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 1 avril 2000 à 00:00 (CET)
+ == Section 4 ==
+ [[Utilisateur:Exemple]] 1 décembre 2000 à 00:00 (CET)
+ARCHIVE Discussion:ArchiveByQuarter
+CHECK Discussion:ArchiveByQuarter/2000 trimestre 1
+ {{Archive de discussion}}
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 mars 2000 à 00:00 (CET)
+CHECK Discussion:ArchiveByQuarter/2000 trimestre 2
+ {{Archive de discussion}}
+
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 1 avril 2000 à 00:00 (CET)
+CHECK Discussion:ArchiveByQuarter/2000 trimestre 4
+ {{Archive de discussion}}
+
+ == Section 4 ==
+ [[Utilisateur:Exemple]] 1 décembre 2000 à 00:00 (CET)
+#
+# Archive to exactly two different pages
+#
+RESET
+DATE 2002-01-01T00:00:00Z
+WRITE Discussion:ExactlyTwoArchivePages
+ {{Archivage par bot|algo=old(0d)|archive=/%(year)d|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2001 à 00:00 (CET)
+ARCHIVE Discussion:ExactlyTwoArchivePages
+CHECK_COMMENT Discussion:ExactlyTwoArchivePages
+ Archivage de 2 sections vers [[Discussion:ExactlyTwoArchivePages/2000]] et [[Discussion:ExactlyTwoArchivePages/2001]]
+#
+# Archive to exactly two different pages with a counter that goes from 9 to 10
+# (the title of the second page is lexicographically smaller)
+#
+RESET
+DATE 2002-01-01T00:00:00Z
+WRITE Discussion:ExactlyTwoArchivePagesWithCounter/9
+ Header
+WRITE Discussion:ExactlyTwoArchivePagesWithCounter
+ {{Archivage par bot|algo=old(0d)|archive=/%(counter)d|minthreadstoarchive=1|minthreadsleft=0|maxarchivesize=1K|counter=9}}
+ == Section 1 ==
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2001 à 00:00 (CET)
+ARCHIVE Discussion:ExactlyTwoArchivePagesWithCounter
+CHECK_COMMENT Discussion:ExactlyTwoArchivePagesWithCounter
+ Archivage de 2 sections vers [[Discussion:ExactlyTwoArchivePagesWithCounter/9]] et [[Discussion:ExactlyTwoArchivePagesWithCounter/10]]
+CHECK Discussion:ExactlyTwoArchivePagesWithCounter/9
+ Header
+
+ == Section 1 ==
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+CHECK Discussion:ExactlyTwoArchivePagesWithCounter/10
+ {{Archive de discussion}}
+
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2001 à 00:00 (CET)
+#
+# Multiple algorithms (old and checked+old)
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:OldAndCheckedOld
+ {{Archivage par bot|algo=old(20d),checked+old(10d)|archive=/Archive|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 4 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 6 ==
+ [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:OldAndCheckedOld
+CHECK_COMMENT Discussion:OldAndCheckedOld
+ Archivage de 3 sections non modifiées depuis 10 à 20 jours vers [[Discussion:OldAndCheckedOld/Archive]]
+CHECK Discussion:OldAndCheckedOld
+ {{Archivage par bot|algo=old(20d),checked+old(10d)|archive=/Archive|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ == Section 5 ==
+ [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 6 ==
+ [[Utilisateur:Exemple]] 30 janvier 2000 à 00:00 (CET)
+CHECK Discussion:OldAndCheckedOld/Archive
+ {{Archive de discussion}}
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == {{fait}} Section 4 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+#
+# Erase newsletters
+#
+RESET
+DATE 2000-01-20T00:00:00Z
+WRITE Discussion:EraseNewletters
+ {{Archivage par bot|algo=erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ARCHIVE Discussion:EraseNewletters
+CHECK_COMMENT Discussion:EraseNewletters
+ Effacement d'une section non modifiée depuis 7 jours
+CHECK Discussion:EraseNewletters
+ {{Archivage par bot|algo=erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+#
+# Erase newsletters, archive old messages
+#
+RESET
+DATE 2000-01-20T00:00:00Z
+WRITE Discussion:EraseNewlettersAndArchive
+ {{Archivage par bot|algo=old(7d),erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ARCHIVE Discussion:EraseNewlettersAndArchive
+CHECK_COMMENT Discussion:EraseNewlettersAndArchive
+ Effacement ou archivage vers [[Discussion:EraseNewlettersAndArchive/Archive 1]] de 2 sections non modifiées depuis 7 jours
+CHECK Discussion:EraseNewlettersAndArchive
+ {{Archivage par bot|algo=old(7d),erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+CHECK Discussion:EraseNewlettersAndArchive/Archive 1
+ {{Archive de discussion}}
+
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# Erase newsletters, archive old messages with a longer delay
+#
+RESET
+DATE 2000-01-20T00:00:00Z
+WRITE Discussion:EraseNewlettersAndArchive2
+ {{Archivage par bot|algo=old(8d),erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ARCHIVE Discussion:EraseNewlettersAndArchive2
+CHECK_COMMENT Discussion:EraseNewlettersAndArchive2
+ Effacement ou archivage vers [[Discussion:EraseNewlettersAndArchive2/Archive 1]] de 2 sections non modifiées depuis 7 à 8 jours
+CHECK Discussion:EraseNewlettersAndArchive2
+ {{Archivage par bot|algo=old(8d),erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 3 ==
+ [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+#
+# Standard newsletters
+#
+RESET
+DATE 2000-01-20T00:00:00Z
+WRITE Discussion:StandardNewletters
+ {{Archivage par bot|algo=erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Newsletter ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Newsletter&oldid=123456 -->
+ == RAW ==
+ {{RAW/PdD|2015-09-25}} [[Utilisateur:OrlodrimBot|OrlodrimBot]] ([[Discussion utilisateur:Orlodrim|d]]) 1 janvier 2000 à 00:00 (CET)
+ == [[m:Special:MyLanguage/Tech/News/2015/33|Tech News: 2015-33]] ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
+ == ''The Signpost'': 12 August 2015 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Signpost&oldid=13021033 -->
+ == VisualEditor News #4—2015 ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=VisualEditor/Newsletter&oldid=13136840 -->
+ARCHIVE Discussion:StandardNewletters
+CHECK Discussion:StandardNewletters
+ {{Archivage par bot|algo=erasenewsletters(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Newsletter ==
+ [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Newsletter&oldid=123456 -->
+#
+# algo=eraseold(...d)
+#
+RESET
+DATE 2000-01-20T00:00:00Z
+WRITE Discussion:EraseOld
+ {{Archivage par bot|algo=eraseold(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 5 janvier 2000 à 00:00 (CET)
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ == Section 3 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:EraseOld
+CHECK Discussion:EraseOld
+ {{Archivage par bot|algo=eraseold(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=}}
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
+ == Section 4 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+CHECK_COMMENT Discussion:EraseOld
+ Effacement de 2 sections non modifiées depuis 7 jours
+#
+# algo=oldtitle(...d)
+#
+RESET
+DATE 2017-09-21T00:00:00Z
+WRITE Projet:Aide et accueil/Twitter/Tweets
+ {{Archivage par bot|algo=oldtitle(2d)|minthreadstoarchive=1|minthreadsleft=0|archive=/archives/%(monthname)s %(year)d}}
+ == Mercredi 20 septembre ==
+ == Jeudi 21 septembre ==
+ == Vendredi 22 septembre ==
+ == Samedi 23 septembre ==
+ == Dimanche 24 septembre ==
+ == Lundi 25 septembre ==
+ == Mardi 26 septembre ==
+DATE 2017-09-24T00:00:00Z
+WRITE Projet:Aide et accueil/Twitter/Tweets
+ {{Archivage par bot|algo=oldtitle(2d)|minthreadstoarchive=1|minthreadsleft=0|archive=/archives/%(monthname)s %(year)d}}
+ == Mercredi 20 septembre ==
+ Message. [[Utilisateur:Exemple]] 23 septembre 2017 à 00:00 (CET)
+ == Jeudi 21 septembre ==
+ == Vendredi 22 septembre ==
+ == Samedi 23 septembre ==
+ == Dimanche 24 septembre ==
+ == Lundi 25 septembre ==
+ == Mardi 26 septembre ==
+ARCHIVE Projet:Aide et accueil/Twitter/Tweets
+CHECK Projet:Aide et accueil/Twitter/Tweets
+ {{Archivage par bot|algo=oldtitle(2d)|minthreadstoarchive=1|minthreadsleft=0|archive=/archives/%(monthname)s %(year)d}}
+ == Mercredi 20 septembre ==
+ Message. [[Utilisateur:Exemple]] 23 septembre 2017 à 00:00 (CET)
+ == Vendredi 22 septembre ==
+ == Samedi 23 septembre ==
+ == Dimanche 24 septembre ==
+ == Lundi 25 septembre ==
+ == Mardi 26 septembre ==
+#
+# algo=oldtitle(...d), by year
+#
+RESET
+DATE 2017-09-21T00:00:00Z
+WRITE Discussion:PageWithLittleActivity
+ {{Archivage par bot|algo=oldtitle(365d)|minthreadstoarchive=1|minthreadsleft=0|archive=/archives/%(monthname)s %(year)d}}
+ == 2014 ==
+ == 2015 ==
+ == 2016 ==
+ == 2017 ==
+ARCHIVE Discussion:PageWithLittleActivity
+CHECK Discussion:PageWithLittleActivity
+ {{Archivage par bot|algo=oldtitle(365d)|minthreadstoarchive=1|minthreadsleft=0|archive=/archives/%(monthname)s %(year)d}}
+ == 2016 ==
+ == 2017 ==
+#
+# {{Utilisateur:OrlodrimBot/Suivi catégorie}} by day.
+#
+RESET
+DATE 2015-09-30T23:00:00Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=25 septembre 2015}}
+ == 30 septembre 2015 ==
+ *[[Article 2015-09-30]]
+ == 29 septembre 2015 ==
+ *[[Article 2015-09-29]]
+ == 28 septembre 2015 ==
+ *[[Article 2015-09-28]]
+ == 27 septembre 2015 ==
+ *[[Article 2015-09-27]]
+ == 26 septembre 2015 ==
+ *[[Article 2015-09-26]]
+ == 25 septembre 2015 ==
+ *[[Article 2015-09-25]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=28 septembre 2015}}
+ == 30 septembre 2015 ==
+ *[[Article 2015-09-30]]
+ == 29 septembre 2015 ==
+ *[[Article 2015-09-29]]
+ == 28 septembre 2015 ==
+ *[[Article 2015-09-28]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+CHECK Projet:Wiki/Articles/2015
+ {{Archive de discussion}}
+
+ == 27 septembre 2015 ==
+ *[[Article 2015-09-27]]
+ == 26 septembre 2015 ==
+ *[[Article 2015-09-26]]
+ == 25 septembre 2015 ==
+ *[[Article 2015-09-25]]
+#
+# With {{Utilisateur:OrlodrimBot/Suivi catégorie}}, the default minthread* parameters are equal to 1.
+#
+RESET
+DATE 2015-09-30T23:00:00Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(0d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=25 septembre 2015}}
+ == 30 septembre 2015 ==
+ *[[Article 2015-09-30]]
+ == 25 septembre 2015 ==
+ *[[Article 2015-09-25]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(0d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=30 septembre 2015}}
+ == 30 septembre 2015 ==
+ *[[Article 2015-09-30]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+#
+# {{Utilisateur:OrlodrimBot/Suivi catégorie}} is only compatible with the "oldtitle" algorithm.
+#
+RESET
+DATE 2015-09-30T23:00:00Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d),old(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=25 septembre 2015}}
+ == 30 septembre 2015 ==
+ *[[Article 2015-09-30]]
+ == 25 septembre 2015 ==
+ *[[Article 2015-09-25]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d),old(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=25 septembre 2015}}
+ == 30 septembre 2015 ==
+ *[[Article 2015-09-30]]
+ == 25 septembre 2015 ==
+ *[[Article 2015-09-25]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+#
+# {{Utilisateur:OrlodrimBot/Suivi catégorie}} by month (with one page per month).
+#
+RESET
+DATE 2015-10-01T23:00:00Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d/%(monthname)s}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=1 juillet 2015}}
+ == {{1er}} septembre 2015 ==
+ *[[Article 9]]
+ == {{1er}} août 2015 ==
+ *[[Article 8]]
+ == {{1er}} juillet 2015 ==
+ *[[Article 7]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d/%(monthname)s}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=1 septembre 2015}}
+ == {{1er}} septembre 2015 ==
+ *[[Article 9]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+CHECK Projet:Wiki/Articles/2015/juillet
+ {{Archive de discussion|Discussion=Projet:Wiki/Articles}}
+
+ == {{1er}} juillet 2015 ==
+ *[[Article 7]]
+CHECK Projet:Wiki/Articles/2015/août
+ {{Archive de discussion|Discussion=Projet:Wiki/Articles}}
+
+ == {{1er}} août 2015 ==
+ *[[Article 8]]
+#
+# {{Utilisateur:OrlodrimBot/Suivi catégorie}} by month, continuing existing archive.
+#
+RESET
+DATE 2015-10-01T23:00:00Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/Archive}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=1 juillet 2015}}
+ == {{1er}} septembre 2015 ==
+ *[[Article 9]]
+ == {{1er}} août 2015 ==
+ *[[Article 8]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+WRITE Projet:Wiki/Articles/Archive
+ Header
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles/Archive
+ Header
+
+ == {{1er}} août 2015 ==
+ *[[Article 8]]
+RESET
+DATE 2015-10-01T23:00:00Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/Archive}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=1 juillet 2015}}
+ == {{1er}} septembre 2015 ==
+ *[[Article 9]]
+ == {{1er}} août 2015 ==
+ *[[Article 8]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+WRITE Projet:Wiki/Articles/Archive
+ Header
+ == Existing section ==
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles/Archive
+ Header
+ == {{1er}} août 2015 ==
+ *[[Article 8]]
+ == Existing section ==
+#
+# {{Utilisateur:OrlodrimBot/Suivi catégorie}} with implicit years.
+#
+RESET
+DATE 2015-01-02T00:00:01Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=30 décembre 2014}}
+ == 2 janvier ==
+ *[[Article 2]]
+ == {{1er}} janvier ==
+ *[[Article 1]]
+ == 31 décembre ==
+ *[[Article 31]]
+ == 30 décembre ==
+ *[[Article 30]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+WRITE Projet:Wiki/Articles/2014
+ {{Archive de discussion}}
+
+ == 29 décembre ==
+ *[[Article 29]]
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=31 décembre 2014}}
+ == 2 janvier ==
+ *[[Article 2]]
+ == {{1er}} janvier ==
+ *[[Article 1]]
+ == 31 décembre ==
+ *[[Article 31]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+CHECK Projet:Wiki/Articles/2014
+ {{Archive de discussion}}
+
+ == 30 décembre ==
+ *[[Article 30]]
+ == 29 décembre ==
+ *[[Article 29]]
+DATE 2015-01-04T00:00:01Z
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(3d)|archive=/%(year)d}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=2 janvier 2015}}
+ == 2 janvier ==
+ *[[Article 2]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+CHECK Projet:Wiki/Articles/2014
+ {{Archive de discussion}}
+
+ == 31 décembre ==
+ *[[Article 31]]
+ == 30 décembre ==
+ *[[Article 30]]
+ == 29 décembre ==
+ *[[Article 29]]
+CHECK Projet:Wiki/Articles/2015
+ {{Archive de discussion}}
+
+ == {{1er}} janvier ==
+ *[[Article 1]]
+#
+# {{Utilisateur:OrlodrimBot/Suivi catégorie}} with implicit years and no section left.
+#
+RESET
+DATE 2015-01-01T00:00:01Z
+WRITE Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(1d)|archive=/%(year)d|minthreadsleft=0}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=30 décembre 2014}}
+ == 31 décembre ==
+ *[[Article 31]]
+ == 30 décembre ==
+ *[[Article 30]]
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+ARCHIVE Projet:Wiki/Articles
+CHECK Projet:Wiki/Articles
+ {{Archivage par bot|algo=oldtitle(1d)|archive=/%(year)d|minthreadsleft=0}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=1 janvier 2015}}
+ {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
