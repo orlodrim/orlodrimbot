@@ -1,9 +1,11 @@
 // IMPLEMENTS: wiki.h
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <vector>
 #include "cbl/date.h"
 #include "cbl/json.h"
+#include "cbl/log.h"
 #include "request.h"
 #include "wiki.h"
 #include "wiki_base.h"
@@ -136,6 +138,32 @@ void Wiki::writePage(const string& title, const string& content, const WriteToke
 
 void Wiki::appendToPage(const string& title, const string& content, const string& summary, int flags) {
   writePage(title, content, WriteToken::newWithoutConflictDetection(), summary, flags | EDIT_APPEND);
+}
+
+void Wiki::editPage(const string& title, const std::function<void(string&)>& transformContent, const string& summary,
+                    int flags) {
+  bool editSuccessful = false;
+  int attemptsLeft = 2;
+  while (!editSuccessful) {
+    WriteToken writeToken;
+    string oldContent = readPageContentIfExists(title, &writeToken);
+    string newContent = oldContent;
+    transformContent(newContent);
+    if (oldContent == newContent) {
+      break;
+    }
+    try {
+      writePage(title, newContent, writeToken, summary, flags);
+      editSuccessful = true;
+    } catch (const EditConflictError&) {
+      if (attemptsLeft <= 1) {
+        throw;
+      }
+      attemptsLeft--;
+      CBL_WARNING << "Edit conflict detected on page '" << title << "', retrying (" << attemptsLeft
+                  << " attempts left)";
+    }
+  }
 }
 
 void Wiki::movePage(const string& oldTitle, const string& newTitle, const string& summary, int flags) {

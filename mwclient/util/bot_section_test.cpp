@@ -3,6 +3,7 @@
 #include <string_view>
 #include "cbl/log.h"
 #include "cbl/unittest.h"
+#include "mwclient/mock_wiki.h"
 
 using std::string;
 using std::string_view;
@@ -90,6 +91,12 @@ private:
                            "No bot section here\n<!-- BEGIN BOT SECTION -->\nHello\n<!-- END BOT SECTION -->");
     checkReplaceBotSection("No bot section here", "Hello", BS_MUST_EXIST, "<FAILURE>");
     checkReplaceBotSection("<!-- BEGIN BOT SECTIO --><!-- END BOT SECTION -->", "Hello", BS_MUST_EXIST, "<FAILURE>");
+  }
+  CBL_TEST_CASE(replaceBotSectionInPage) {
+    mwc::MockWiki wiki;
+    wiki.setPageContent("Test", "X <!-- BEGIN BOT SECTION -->old<!-- END BOT SECTION --> Y");
+    replaceBotSectionInPage(wiki, "Test", "new");
+    CBL_ASSERT_EQ(wiki.readPageContent("Test"), "X <!-- BEGIN BOT SECTION -->\nnew\n<!-- END BOT SECTION --> Y");
   }
 };
 

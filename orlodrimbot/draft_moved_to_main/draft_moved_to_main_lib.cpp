@@ -253,25 +253,25 @@ void ListOfPublishedDrafts::updateBotSection(const Articles& newArticles, bool d
     return;
   }
 
-  mwc::WriteToken writeToken;
-  string code = m_wiki->readPageContentIfExists(LIST_TITLE, &writeToken);
-
-  string_view oldBotSection = mwc::readBotSection(code);
-  EventsByDay eventsByDay;
-  eventsByDay.addEventsFromCode(oldBotSection);
-  for (const Article& article : newArticles) {
-    eventsByDay.addEvent(article.publishDate, describeNewArticle(article));
-  }
-  eventsByDay.removeOldEvents(m_daysToKeep);
-  mwc::replaceBotSection(code, eventsByDay.toString());
-
   string comment = generateEditSummary(newArticles);
-
-  if (dryRun) {
-    CBL_INFO << "[DRY RUN] comment=" << comment << "\n" << code;
-  } else {
-    m_wiki->writePage(LIST_TITLE, code, writeToken, comment, mwc::EDIT_MINOR);
-  }
+  m_wiki->editPage(
+      LIST_TITLE,
+      [&](string& code) {
+        string_view oldBotSection = mwc::readBotSection(code);
+        EventsByDay eventsByDay;
+        eventsByDay.addEventsFromCode(oldBotSection);
+        for (const Article& article : newArticles) {
+          eventsByDay.addEvent(article.publishDate, describeNewArticle(article));
+        }
+        eventsByDay.removeOldEvents(m_daysToKeep);
+        string newBotSection = eventsByDay.toString();
+        if (dryRun) {
+          CBL_INFO << "[DRY RUN] comment=" << comment << "\n" << newBotSection;
+        } else {
+          mwc::replaceBotSection(code, newBotSection);
+        }
+      },
+      comment);
 }
 
 void ListOfPublishedDrafts::update(bool dryRun) {

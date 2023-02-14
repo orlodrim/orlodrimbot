@@ -352,6 +352,12 @@ public:
   virtual void appendToPage(const std::string& title, const std::string& content,
                             const std::string& summary = std::string(), int flags = 0);
 
+  // Helper function that calls readPageContent and then writePage.
+  // Can create non-existing pages. In that case, transformContent is called with an empty string.
+  // transformContent may be called multiple times in case of an edit conflict.
+  void editPage(const std::string& title, const std::function<void(std::string&)>& transformContent,
+                const std::string& summary = std::string(), int flags = 0);
+
   // Renames a page and possibly its talk page.
   // `flags` is a combination of values from MovePageFlags.
   virtual void movePage(const std::string& oldTitle, const std::string& newTitle,

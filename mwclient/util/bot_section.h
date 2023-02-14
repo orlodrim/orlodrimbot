@@ -6,6 +6,7 @@
 
 #include <string>
 #include <string_view>
+#include "mwclient/wiki.h"
 
 namespace mwc {
 
@@ -27,6 +28,9 @@ enum BotSectionFlags {
 // '\n' is inserted before <!-- END BOT SECTION --> if newBotSection does not already end with '\n'.
 // Unless BS_MUST_EXIST is set, a new bot section is created at the end of the page is none is found.
 bool replaceBotSection(std::string& code, std::string_view newBotSection, int flags = 0);
+
+bool replaceBotSectionInPage(Wiki& wiki, const std::string& title, std::string_view newBotSection,
+                             const std::string& summary = std::string(), int botSectionFlags = 0);
 
 }  // namespace mwc
 

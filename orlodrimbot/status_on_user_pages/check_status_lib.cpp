@@ -140,8 +140,5 @@ void updateListOfStatusInconsistencies(Wiki& wiki, const string& listPage) {
   if (botSection.empty()) {
     botSection = "* ''Aucune page détectée''\n";
   }
-  mwc::WriteToken writeToken;
-  string code = wiki.readPageContentIfExists(listPage, &writeToken);
-  mwc::replaceBotSection(code, botSection);
-  wiki.writePage(listPage, code, writeToken, "Mise à jour");
+  mwc::replaceBotSectionInPage(wiki, listPage, botSection, "Mise à jour");
 }
