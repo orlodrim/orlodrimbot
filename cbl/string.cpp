@@ -304,11 +304,39 @@ string decodeURIComponent(string_view str) {
   return result;
 }
 
-string shellEscape(std::string_view str) {
+string shellEscape(string_view str) {
   string result;
   result += '\'';
   replaceCat(str, "'", R"('"'"')", result);
   result += '\'';
+  return result;
+}
+
+static int getLineIndentation(string_view line) {
+  int lineLength = line.size();
+  for (int indent = 0; indent < lineLength; indent++) {
+    if (line[indent] != ' ') {
+      return indent;
+    }
+  }
+  return INT_MAX;
+}
+
+string unindent(string_view s) {
+  int minIndent = INT_MAX;
+  for (string_view line : split(s, '\n')) {
+    minIndent = std::min(minIndent, getLineIndentation(line));
+  }
+  string result;
+  result.reserve(s.size());
+  for (string_view line : split(s, '\n')) {
+    if (!result.empty()) {
+      result += '\n';
+    }
+    if (minIndent < static_cast<int>(line.size())) {
+      result += line.substr(minIndent);
+    }
+  }
   return result;
 }
 

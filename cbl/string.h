@@ -170,6 +170,8 @@ inline std::string join(const T& items, std::string_view delimiter) {
   return join(items.begin(), items.end(), delimiter);
 }
 
+std::string unindent(std::string_view s);
+
 }  // namespace cbl
 
 #endif
