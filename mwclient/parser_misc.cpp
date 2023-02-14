@@ -47,14 +47,9 @@ void stripCommentsInPlace(string& s) {
 string escape(string_view code) {
   string escapedCode = cbl::replace(code, "&", "&amp;");
   cbl::replaceInPlace(escapedCode, "<", "&lt;");
-  string escapedCodeWithNoWiki;
-  // Predicting if MediaWiki could interpret anything is hard, so we add <nowiki> uncondionally.
+  // Predicting if MediaWiki could interpret anything is hard, so we add <nowiki> unconditionally.
   // For instance, raw URLs and magic strings such as "RFC 1234" are displayed as external links.
-  escapedCodeWithNoWiki.reserve(escapedCode.size() + strlen("<nowiki></nowiki>"));
-  escapedCodeWithNoWiki += "<nowiki>";
-  escapedCodeWithNoWiki += escapedCode;
-  escapedCodeWithNoWiki += "</nowiki>";
-  return escapedCodeWithNoWiki;
+  return cbl::concat("<nowiki>", escapedCode, "</nowiki>");
 }
 
 static string_view stripEqualSigns(string_view line) {
