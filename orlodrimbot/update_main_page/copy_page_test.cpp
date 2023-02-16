@@ -18,7 +18,7 @@ using std::string;
 
 class MockWikiWithParse : public mwc::MockWiki {
 public:
-  json::Value apiGetRequest(const std::string& request) override {
+  json::Value apiGetRequest(const string& request) override {
     // Simulates the result of the custom parse request by extracting templates directly mentioned in the wikicode.
     CBL_ASSERT_EQ(
         request,
@@ -51,9 +51,9 @@ private:
     m_wiki.setPageContent("Modèle:Source", ".");
     m_wiki.setPageContent("Modèle:Target", ".");
     cbl::writeFile(m_stateFile.path(), "{}");
-    Date::setFrozenValueOfNow(Date::fromISO8601("2001-01-01T00:00:00Z"));
+    Date::setFrozenValueOfNow(Date::fromISO8601("2001-01-01T10:00:00Z"));
   }
-  void updateSourceContent(const string& title, const string& content) {
+  void updatePageContent(const string& title, const string& content) {
     m_wiki.setPageContent(title, content);
     mwc::RecentChange rc;
     rc.setType(mwc::RC_EDIT);
@@ -64,7 +64,7 @@ private:
     m_recentChangesReader.addRC(rc);
   }
   CBL_TEST_CASE(StandardUpdates) {
-    updateSourceContent("Modèle:Source", "Test content.");
+    updatePageContent("Modèle:Source", "Test content.");
 
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
     copyPageIfTemplatesAreUnchanged(m_wiki, &m_recentChangesReader, m_stateFile.path(), "Modèle:Source",
@@ -72,32 +72,39 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent("Modèle:Target"), cbl::concat(TARGET_HEADER, "Test content."));
 
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(1));
-    updateSourceContent("Modèle:Source", "Test content 2.");
+    updatePageContent("Modèle:Source", "Test content 2.");
 
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
     copyPageIfTemplatesAreUnchanged(m_wiki, &m_recentChangesReader, m_stateFile.path(), "Modèle:Source",
                                     "Modèle:Target");
     CBL_ASSERT_EQ(m_wiki.readPageContent("Modèle:Target"), cbl::concat(TARGET_HEADER, "Test content 2."));
   }
+  CBL_TEST_CASE(RemoveDocSuffix) {
+    updatePageContent("Modèle:Source", "Test content.<noinclude>{{Documentation}}</noinclude>");
+    Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
+    copyPageIfTemplatesAreUnchanged(m_wiki, &m_recentChangesReader, m_stateFile.path(), "Modèle:Source",
+                                    "Modèle:Target");
+    CBL_ASSERT_EQ(m_wiki.readPageContent("Modèle:Target"), cbl::concat(TARGET_HEADER, "Test content."));
+  }
   CBL_TEST_CASE(NoUpdateJustAfterEdit) {
-    updateSourceContent("Modèle:Source", "Test content.");
+    updatePageContent("Modèle:Source", "Test content.");
     copyPageIfTemplatesAreUnchanged(m_wiki, &m_recentChangesReader, m_stateFile.path(), "Modèle:Source",
                                     "Modèle:Target");
     CBL_ASSERT_EQ(m_wiki.readPageContent("Modèle:Target"), ".");
   }
   CBL_TEST_CASE(UpdateWithTemplate) {
-    updateSourceContent("Modèle:Abc", "Value");
+    updatePageContent("Modèle:Abc", "Value");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
-    updateSourceContent("Modèle:Source", "{{abc}}");
+    updatePageContent("Modèle:Source", "{{abc}}");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
     copyPageIfTemplatesAreUnchanged(m_wiki, &m_recentChangesReader, m_stateFile.path(), "Modèle:Source",
                                     "Modèle:Target");
     CBL_ASSERT_EQ(m_wiki.readPageContent("Modèle:Target"), cbl::concat(TARGET_HEADER, "{{abc}}"));
   }
   CBL_TEST_CASE(NoUpdateDueToRecentlyModifiedTemplate) {
-    updateSourceContent("Modèle:Source", "{{abc}}");
+    updatePageContent("Modèle:Source", "{{abc}}");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(1));
-    updateSourceContent("Modèle:Abc", "Value");
+    updatePageContent("Modèle:Abc", "Value");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
     string errorMessage;
     try {
@@ -110,11 +117,11 @@ private:
     CBL_ASSERT_EQ(errorMessage, "Le modèle récemment modifié [[:Modèle:Abc]] est inclus dans [[Modèle:Source]]");
   }
   CBL_TEST_CASE(MultipleTemplates) {
-    updateSourceContent("Modèle:Abc", "Value1");
+    updatePageContent("Modèle:Abc", "Value1");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
-    updateSourceContent("Modèle:Source", "{{abc}} {{def}}");
+    updatePageContent("Modèle:Source", "{{abc}} {{def}}");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(1));
-    updateSourceContent("Modèle:Def", "Value2");
+    updatePageContent("Modèle:Def", "Value2");
     Date::setFrozenValueOfNow(Date::now() + DateDiff::fromMinutes(5));
     string errorMessage;
     try {

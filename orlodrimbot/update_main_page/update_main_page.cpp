@@ -32,6 +32,8 @@ int main(int argc, char** argv) {
   }
   constexpr pair<const char*, const char*> PAGES_TO_COPY[] = {
       {"Modèle:Accueil actualité", "Modèle:Accueil actualité/Copie protégée"},
+      {"Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil",
+       "Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil/Copie protégée"},
   };
   string errors;
   for (const auto& [sourcePage, targetPage] : PAGES_TO_COPY) {

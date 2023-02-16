@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 #include "cbl/date.h"
+#include "cbl/error.h"
 #include "cbl/file.h"
 #include "cbl/json.h"
 #include "cbl/log.h"
@@ -64,7 +65,7 @@ void copyPageIfTemplatesAreUnchanged(Wiki& wiki, live_replication::RecentChanges
   json::Value& pageState = state.getMutable("pages").getMutable(sourcePage);
   mwc::revid_t lastProcessedRevid = pageState.has("revid") ? pageState["revid"].numberAsInt64() : -1;
 
-  if (recentChangesReader) {
+  if (recentChangesReader && !pageState["pendingchange"].boolean()) {
     bool pageChanged = false;
     recentChangesReader->enumRecentChanges({.type = mwc::RC_EDIT | mwc::RC_NEW,
                                             .properties = mwc::RP_TITLE | mwc::RP_REVID,
@@ -82,11 +83,14 @@ void copyPageIfTemplatesAreUnchanged(Wiki& wiki, live_replication::RecentChanges
     }
   }
 
-  Revision revision = wiki.readPage(sourcePage, mwc::RP_REVID | mwc::RP_TIMESTAMP | mwc::RP_CONTENT);
+  cbl::RunOnDestroy saveState([&] { cbl::writeFile(stateFile, state.toJSON(json::INDENTED) + "\n"); });
+  pageState.getMutable("pendingchange") = true;
+
+  Revision revision = wiki.readPage(sourcePage, mwc::RP_REVID | mwc::RP_TIMESTAMP | mwc::RP_CONTENT | mwc::RP_USER);
   if (revision.revid == lastProcessedRevid) {
     CBL_INFO << "No change on '" << sourcePage << "' since last run";
     return;
-  } else if (Date::now() - revision.timestamp < DateDiff::fromMinutes(2)) {
+  } else if (Date::now() - revision.timestamp < DateDiff::fromMinutes(2) && revision.user != "GhosterBot") {
     // Give users a few minutes to check their own edits.
     CBL_INFO << "The page '" << sourcePage << "' was modified less than 2 minutes ago";
     return;
@@ -100,10 +104,13 @@ void copyPageIfTemplatesAreUnchanged(Wiki& wiki, live_replication::RecentChanges
   }
   string newContent = cbl::concat("<!-- Cette page est mise à jour automatiquement à partir de [[", sourcePage,
                                   "]]. Les changements faits directement ici seront écrasés. -->\n", revision.content);
+  string docSuffix = "<noinclude>{{Documentation}}</noinclude>";
+  if (cbl::endsWith(newContent, docSuffix)) {
+    newContent.resize(newContent.size() - docSuffix.size());
+  }
   CBL_INFO << "Updating '" << targetPage << "' from '" << sourcePage << "'";
   wiki.writePage(targetPage, newContent, mwc::WriteToken::newWithoutConflictDetection(),
                  cbl::concat("Mise à jour à partir de [[", sourcePage, "]]"));
-
+  pageState.erase("pendingchange");
   pageState.getMutable("revid") = revision.revid;
-  cbl::writeFile(stateFile, state.toJSON(json::INDENTED) + "\n");
 }
