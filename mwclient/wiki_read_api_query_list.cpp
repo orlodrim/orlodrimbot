@@ -276,6 +276,7 @@ vector<RecentChange> Wiki::getRecentChanges(const RecentChangesParams& params) {
   pager.setFlagsParam("rctype", params.type, RECENT_CHANGE_TYPES);
   pager.setFlagsParam("rcshow", params.show, RECENT_CHANGE_SHOW);
   pager.setParamWithEmptyDefault("rcuser", params.user);
+  pager.setParamWithEmptyDefault("rctitle", params.title);
   pager.setParamWithEmptyDefault("rctag", params.tag);
   pager.setParamWithEmptyDefault("rcnamespace", params.namespaceList.toString());
   pager.setParam("rcdir", params.direction);

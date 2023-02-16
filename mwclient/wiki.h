@@ -79,6 +79,7 @@ struct RecentChangesParams {
   int type = 0;  // from RecentChangeType
   int show = 0;  // from RecentChangesShow
   std::string user;
+  std::string title;
   std::string tag;
   NamespaceList namespaceList;
   EventsDir direction = NEWEST_FIRST;
