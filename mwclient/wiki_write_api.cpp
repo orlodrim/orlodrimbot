@@ -140,7 +140,7 @@ void Wiki::appendToPage(const string& title, const string& content, const string
   writePage(title, content, WriteToken::newWithoutConflictDetection(), summary, flags | EDIT_APPEND);
 }
 
-void Wiki::editPage(const string& title, const std::function<void(string&)>& transformContent, const string& summary,
+void Wiki::editPage(const string& title, const std::function<void(string& content, string& summary)>& transformContent,
                     int flags) {
   bool editSuccessful = false;
   int attemptsLeft = 2;
@@ -148,7 +148,8 @@ void Wiki::editPage(const string& title, const std::function<void(string&)>& tra
     WriteToken writeToken;
     string oldContent = readPageContentIfExists(title, &writeToken);
     string newContent = oldContent;
-    transformContent(newContent);
+    string summary;
+    transformContent(newContent, summary);
     if (oldContent == newContent) {
       break;
     }

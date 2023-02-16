@@ -97,8 +97,10 @@ bool replaceBotSection(string& code, string_view newBotSection, int flags) {
 bool replaceBotSectionInPage(Wiki& wiki, const string& title, string_view newBotSection, const string& summary,
                              int botSectionFlags) {
   bool result = false;
-  wiki.editPage(
-      title, [&](string& content) { result = replaceBotSection(content, newBotSection, botSectionFlags); }, summary);
+  wiki.editPage(title, [&](string& content, string& editPageSummary) {
+    editPageSummary = summary;
+    result = replaceBotSection(content, newBotSection, botSectionFlags);
+  });
   return result;
 }
 

@@ -356,8 +356,8 @@ public:
   // Helper function that calls readPageContent and then writePage.
   // Can create non-existing pages. In that case, transformContent is called with an empty string.
   // transformContent may be called multiple times in case of an edit conflict.
-  void editPage(const std::string& title, const std::function<void(std::string&)>& transformContent,
-                const std::string& summary = std::string(), int flags = 0);
+  void editPage(const std::string& title,
+                const std::function<void(std::string& content, std::string& summary)>& transformContent, int flags = 0);
 
   // Renames a page and possibly its talk page.
   // `flags` is a combination of values from MovePageFlags.
