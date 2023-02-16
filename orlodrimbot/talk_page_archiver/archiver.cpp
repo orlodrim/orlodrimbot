@@ -250,43 +250,46 @@ void ArchivePage::update(Wiki* wiki, const string& sourcePage, bool dryRun) cons
     CBL_INFO << "[DRY RUN] Writing '" << m_title << "' with comment '" << editSummary << "'";
     return;
   }
-  switch (m_order) {
-    case OLDEST_SECTION_FIRST: {
-      string textToAppend = m_newHeader + "\n\n";
-      for (const string& thread : m_newThreads) {
-        textToAppend += thread;
-      }
-      wiki->appendToPage(m_title, textToAppend, editSummary, mwc::EDIT_MINOR);
-      break;
-    }
-    case NEWEST_SECTION_FIRST: {
-      mwc::WriteToken writeToken;
-      string oldCode = wiki->readPageContentIfExists(m_title, &writeToken);
-      size_t insertionPoint;
-      if (oldCode.empty() || cbl::startsWith(oldCode, "=")) {
-        insertionPoint = 0;
-      } else {
-        size_t firstSection = oldCode.find("\n=");
-        if (firstSection == string::npos) {
-          oldCode += "\n\n";
-          insertionPoint = oldCode.size();
-        } else {
-          insertionPoint = firstSection + 1;
+  wiki->editPage(
+      m_title,
+      [&](string& content, string& summary) {
+        summary = editSummary;
+        if (content.empty()) {
+          content = m_newHeader;
         }
-      }
-      string newCode;
-      newCode.append(oldCode, 0, insertionPoint);
-      if (!m_newHeader.empty()) {
-        cbl::append(newCode, m_newHeader, "\n\n");
-      }
-      for (auto threadIt = m_newThreads.rbegin(); threadIt != m_newThreads.rend(); ++threadIt) {
-        newCode += *threadIt;
-      }
-      newCode.append(oldCode, insertionPoint, oldCode.size() - insertionPoint);
-      wiki->writePage(m_title, newCode, writeToken, editSummary, mwc::EDIT_MINOR);
-      break;
-    }
-  }
+        switch (m_order) {
+          case OLDEST_SECTION_FIRST: {
+            content += "\n\n";
+            for (const string& thread : m_newThreads) {
+              content += thread;
+            }
+            break;
+          }
+          case NEWEST_SECTION_FIRST: {
+            size_t insertionPoint;
+            if (content.empty() || cbl::startsWith(content, "=")) {
+              insertionPoint = 0;
+            } else {
+              size_t firstSection = content.find("\n=");
+              if (firstSection == string::npos) {
+                content += "\n\n";
+                insertionPoint = content.size();
+              } else {
+                insertionPoint = firstSection + 1;
+              }
+            }
+            string newContent;
+            newContent.append(content, 0, insertionPoint);
+            for (auto threadIt = m_newThreads.rbegin(); threadIt != m_newThreads.rend(); ++threadIt) {
+              newContent += *threadIt;
+            }
+            newContent.append(content, insertionPoint, content.size() - insertionPoint);
+            content = std::move(newContent);
+            break;
+          }
+        }
+      },
+      mwc::EDIT_MINOR | mwc::EDIT_BYPASS_NOBOTS);
 }
 
 class ArchivePagesBuffer {
