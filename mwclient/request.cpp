@@ -86,7 +86,7 @@ void WikiRequest::setParam(const string& param, int value) {
 }
 
 void WikiRequest::setRevidParam(const string& param, revid_t value) {
-  setOrClearParam(param, std::to_string(value), value != 0);
+  setOrClearParam(param, std::to_string(value), value != INVALID_REVID);
 }
 
 void WikiRequest::setParam(const string& param, const Date& value) {

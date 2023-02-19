@@ -48,7 +48,7 @@ public:
   void setParam(const std::string& param, const std::string& value);
   void setParam(const std::string& param, int value);
   void setParam(const std::string& param, revid_t value) = delete;
-  // Sets `param` to `revid` if `revid` is non-zero.
+  // Sets `param` to `revid` if `revid` is different from INVALID_REVID.
   void setRevidParam(const std::string& param, revid_t revid);
   void setParam(const std::string& param, const cbl::Date& value);
   void setParam(const std::string& param, EventsDir direction);

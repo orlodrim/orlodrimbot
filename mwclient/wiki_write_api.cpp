@@ -86,7 +86,7 @@ string Wiki::getTokenUncached(TokenType tokenType) {
 
 void Wiki::writePage(const string& title, const string& content, const WriteToken& writeToken, const string& summary,
                      int flags) {
-  Date baseTimestamp;
+  revid_t baseRevid = INVALID_REVID;
   bool createOnly = false;
   switch (writeToken.type()) {
     case WriteToken::UNINITIALIZED:
@@ -102,7 +102,7 @@ void Wiki::writePage(const string& title, const string& content, const WriteToke
       if (writeToken.needsNoBotsBypass() && !(flags & EDIT_BYPASS_NOBOTS)) {
         throw BotExclusionError("Cannot write page '" + title + "' because it contains a bot exclusion template");
       }
-      baseTimestamp = writeToken.timestamp();
+      baseRevid = writeToken.revid();
       break;
     case WriteToken::NO_CONFLICT_DETECTION:
       break;
@@ -122,7 +122,7 @@ void Wiki::writePage(const string& title, const string& content, const WriteToke
   request.setOrClearParam("minor", "1", flags & EDIT_MINOR);
   request.setOrClearParam("bot", "1", !(flags & EDIT_OMIT_BOT_FLAG));
   request.setOrClearParam("createonly", "1", createOnly);
-  request.setParam("basetimestamp", baseTimestamp);
+  request.setRevidParam("baserevid", baseRevid);
 
   try {
     json::Value answer = request.setTokenAndRun(*this);

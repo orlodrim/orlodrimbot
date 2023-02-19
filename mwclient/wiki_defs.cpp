@@ -157,8 +157,8 @@ WriteToken WriteToken::newForCreation() {
   return WriteToken(CREATE);
 }
 
-WriteToken WriteToken::newForEdit(string_view title, const Date& timestamp, bool needsNoBotsBypass) {
-  return WriteToken(EDIT, title, timestamp, needsNoBotsBypass);
+WriteToken WriteToken::newForEdit(string_view title, revid_t revid, bool needsNoBotsBypass) {
+  return WriteToken(EDIT, title, revid, needsNoBotsBypass);
 }
 
 WriteToken WriteToken::newWithoutConflictDetection() {
@@ -174,10 +174,14 @@ WriteToken WriteToken::newFromString(string_view serializedWriteToken) {
     } else if (typeStr == "CREATE") {
       return WriteToken(CREATE);
     } else if (typeStr == "EDIT" && fields.size() >= 3) {
-      string_view dateStr = fields[1];
+      string_view revidStr = fields[1];
+      if (revidStr.find(':') != string_view::npos) {
+        throw cbl::ParseError("Invalid serialized WriteToken '" + string(serializedWriteToken) + "' (obsolete format)");
+      }
+      revid_t revid = !revidStr.empty() ? revidOfString(cbl::legacyStringConv(revidStr)) : INVALID_REVID;
       string_view title = fields[2];
       bool needsNoBotsBypass = fields.size() >= 4 && fields[3] == "1";
-      return WriteToken(EDIT, title, Date::fromISO8601OrEmpty(dateStr), needsNoBotsBypass);
+      return WriteToken(EDIT, title, revid, needsNoBotsBypass);
     } else if (typeStr == "NO_CONFLICT_DETECTION") {
       return WriteToken(NO_CONFLICT_DETECTION);
     }
@@ -204,8 +208,8 @@ string WriteToken::toString() const {
   string serializedWriteToken = typeStr;
   if (m_type == EDIT) {
     serializedWriteToken += '|';
-    if (!m_timestamp.isNull()) {
-      serializedWriteToken += m_timestamp.toISO8601();
+    if (m_revid != INVALID_REVID) {
+      serializedWriteToken += std::to_string(m_revid);
     }
     serializedWriteToken += '|';
     serializedWriteToken += m_title;

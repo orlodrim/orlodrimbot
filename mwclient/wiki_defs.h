@@ -95,6 +95,8 @@ public:
 
 using revid_t = int64_t;
 
+constexpr revid_t INVALID_REVID = 0;
+
 revid_t revidOfString(const std::string& s);
 
 class NamespaceList {
@@ -148,7 +150,7 @@ constexpr const char* INVALID_TITLE = "#";
 
 struct Revision {
   std::string title;
-  revid_t revid = 0;
+  revid_t revid = INVALID_REVID;
   cbl::Date timestamp;
   std::string user;
   int64_t userid = 0;
@@ -350,7 +352,7 @@ public:
   // Allow the edit if there if the diff between the revision at time `timestamp` and the current one does not cause an
   // edit conflict.
   // If needsNoBotsBypass is true, the edit will be rejected unless writePage is called with EDIT_BYPASS_NOBOTS.
-  static WriteToken newForEdit(std::string_view title, const cbl::Date& timestamp, bool needsNoBotsBypass);
+  static WriteToken newForEdit(std::string_view title, revid_t revid, bool needsNoBotsBypass);
   // Bypass all checks. This is a bad idea. The name is intentionally long to make it annoying to use.
   static WriteToken newWithoutConflictDetection();
   // Initializes from a string obtained with toString().
@@ -363,17 +365,17 @@ public:
 
   // For internal use by the Wiki class (the exact list of what is stored might change over time).
   const std::string& title() const { return m_title; }
-  const cbl::Date& timestamp() const { return m_timestamp; }
+  revid_t revid() const { return m_revid; }
   bool needsNoBotsBypass() const { return m_needsNoBotsBypass; }
 
 private:
   explicit WriteToken(Type type) : m_type(type) {}
-  WriteToken(Type type, std::string_view title, const cbl::Date& timestamp, bool needsNoBotsBypass)
-      : m_type(type), m_title(title), m_timestamp(timestamp), m_needsNoBotsBypass(needsNoBotsBypass) {}
+  WriteToken(Type type, std::string_view title, revid_t revid, bool needsNoBotsBypass)
+      : m_type(type), m_title(title), m_revid(revid), m_needsNoBotsBypass(needsNoBotsBypass) {}
 
   Type m_type = UNINITIALIZED;
   std::string m_title;
-  cbl::Date m_timestamp;
+  revid_t m_revid = INVALID_REVID;
   bool m_needsNoBotsBypass = false;
 };
 

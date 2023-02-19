@@ -281,16 +281,16 @@ Revision Wiki::readPage(const string& title, int properties) {
 }
 
 Revision Wiki::readPage(const string& title, int properties, WriteToken* writeToken) {
-  int extraProperties = writeToken != nullptr ? (RP_CONTENT | RP_TIMESTAMP) : 0;
+  int extraProperties = writeToken != nullptr ? (RP_CONTENT | RP_REVID) : 0;
   Revision revision = readPage(title, properties | extraProperties);
   if (writeToken != nullptr) {
     bool needsNoBotsBypass = testBotExclusion(revision.content, m_externalUserName, "");
-    *writeToken = WriteToken::newForEdit(title, revision.timestamp, needsNoBotsBypass);
+    *writeToken = WriteToken::newForEdit(title, revision.revid, needsNoBotsBypass);
     if (!(properties & RP_CONTENT)) {
       revision.content.clear();
     }
-    if (!(properties & RP_TIMESTAMP)) {
-      revision.timestamp = Date();
+    if (!(properties & RP_REVID)) {
+      revision.revid = INVALID_REVID;
     }
   }
   return revision;

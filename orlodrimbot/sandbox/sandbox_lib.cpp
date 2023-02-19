@@ -1,5 +1,6 @@
 #include "sandbox_lib.h"
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -9,7 +10,9 @@
 
 using cbl::Date;
 using cbl::DateDiff;
+using mwc::Revision;
 using std::string;
+using std::string_view;
 using std::unordered_map;
 using std::vector;
 
@@ -34,23 +37,23 @@ void SandboxCleaner::run(bool force, bool dryRun) {
     revisions.emplace_back();
     revisions.back().title = sandbox.templatePage;
   }
-  m_wiki->readPages(mwc::RP_TIMESTAMP, revisions);
-  unordered_map<string, Date> pageTimestamps;
+  m_wiki->readPages(mwc::RP_TIMESTAMP | mwc::RP_REVID, revisions);
+  unordered_map<string_view, const Revision*> revisionsByTitle;
   for (const mwc::Revision& revision : revisions) {
-    pageTimestamps[revision.title] = revision.timestamp;
+    revisionsByTitle.insert({string_view(revision.title), &revision});
   }
 
   // Cleanup
   Date now = Date::now();
   for (const SandboxPage& sandbox : m_sandboxes) {
-    Date pageTimestamp = pageTimestamps.at(sandbox.page);
-    Date templateTimestamp = pageTimestamps.at(sandbox.templatePage);
+    const Revision& pageRevision = *revisionsByTitle.at(sandbox.page);
+    const Revision& templateRevision = *revisionsByTitle.at(sandbox.templatePage);
     Date minTimestamp = now - DateDiff::fromSeconds(sandbox.minSeconds + MAX_AGE_FOR_CLEANUP);
     Date maxTimestampOfPage = now - DateDiff::fromSeconds(sandbox.minSeconds);
 
-    if (!force && pageTimestamp < minTimestamp && templateTimestamp < minTimestamp) {
+    if (!force && pageRevision.timestamp < minTimestamp && templateRevision.timestamp < minTimestamp) {
       CBL_INFO << "Skipping cleanup of '" << sandbox.page << "' because it was not edited after " << minTimestamp;
-    } else if (sandbox.minSeconds != 0 && pageTimestamp > maxTimestampOfPage) {
+    } else if (sandbox.minSeconds != 0 && pageRevision.timestamp > maxTimestampOfPage) {
       CBL_INFO << "Skipping cleanup of '" << sandbox.page << "' because it was edited less than " << sandbox.minSeconds
                << " seconds ago";
     } else {
@@ -59,7 +62,7 @@ void SandboxCleaner::run(bool force, bool dryRun) {
       if (!dryRun) {
         try {
           mwc::WriteToken writeToken =
-              mwc::WriteToken::newForEdit(sandbox.page, pageTimestamp, /* needsNoBotsBypass = */ false);
+              mwc::WriteToken::newForEdit(sandbox.page, pageRevision.revid, /* needsNoBotsBypass = */ false);
           m_wiki->writePage(sandbox.page, content, writeToken, EDIT_SUMMARY, mwc::EDIT_MINOR);
         } catch (const mwc::WikiError& error) {
           CBL_ERROR << error.what();
