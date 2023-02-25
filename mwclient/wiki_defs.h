@@ -189,7 +189,7 @@ enum LogEventType {
 class LogEvent {
 public:
   LogEventType type() const { return m_type; }
-  void setType(LogEventType newType) { m_type = newType; }
+  void setType(LogEventType newType);
 
   int64_t logid = 0;
   std::string action;

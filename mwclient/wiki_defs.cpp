@@ -44,6 +44,13 @@ string NamespaceList::toString() const {
   return buffer;
 }
 
+void LogEvent::setType(LogEventType newType) {
+  if (m_type == LE_MOVE && newType != LE_MOVE) {
+    m_moveParams = MoveParams();
+  }
+  m_type = newType;
+}
+
 void RecentChange::setType(RecentChangeType newType) {
   m_type = newType;
   m_revision.reset();

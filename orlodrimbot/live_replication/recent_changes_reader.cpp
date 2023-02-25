@@ -200,6 +200,8 @@ void RecentChangesReader::enumRecentChanges(const RecentChangesOptions& options,
                 logEvent.mutableMoveParams().suppressRedirect = true;
               }
             }
+          } else if (!options.includeLogDetails) {
+            logEvent.setType(mwc::LE_UNDEFINED);  // Clears moveParams.
           }
           columnIndex++;
         }
