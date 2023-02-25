@@ -88,68 +88,79 @@ void BotRequestsArchiver::initPage(YearMonth yearMonth) {
 }
 
 void BotRequestsArchiver::archiveMonth(YearMonth yearMonth, bool archiveAll, RedirectToArchive canRedirectToArchive) {
-  string titleSuffix = yearMonth.toString();
-  string title = REQUESTS_ROOT + titleSuffix;
-  string archiveTitle = REQUESTS_ARCHIVES_ROOT + titleSuffix;
-  int numCurrent = 0;
+  const string titleSuffix = yearMonth.toString();
+  const string title = REQUESTS_ROOT + titleSuffix;
+  const string archiveTitle = REQUESTS_ARCHIVES_ROOT + titleSuffix;
+
   int numToArchive = 0;
+  string commentBase;
+  string archivedRequests;
 
   CBL_INFO << "Reading '" << title << "'";
-  mwc::WriteToken writeToken;
-  string oldCode = m_wiki->readPageContent(title, &writeToken);
+  m_wiki->editPage(
+      title,
+      [&](string& content, string& summary) {
+        numToArchive = 0;
+        if (content.empty()) {
+          // The page does not exist (or it was intentionally blanked).
+          return;
+        }
 
-  string currentRequests;
-  string archivedRequests;
-  splitRequests(oldCode, archiveAll, currentRequests, archivedRequests, numCurrent, numToArchive);
+        // This code may run multiple times in case of edit conflict, so it is important that splitRequests does not
+        // depend on any output parameter being initialized to a specific value.
+        string currentRequests;
+        int numCurrent = 0;
+        splitRequests(content, archiveAll, currentRequests, archivedRequests, numCurrent, numToArchive);
 
-  bool redirectToArchive = false;
-  if (numCurrent == 0 && !m_wiki->readRedirect(currentRequests, nullptr, nullptr)) {
-    switch (canRedirectToArchive) {
-      case RedirectToArchive::NO:
-        break;
-      case RedirectToArchive::IF_CHANGED:
-        redirectToArchive = numToArchive > 0;
-        break;
-      case RedirectToArchive::YES:
-        redirectToArchive = true;
-        break;
-    }
-  }
-  if (numToArchive == 0 && !redirectToArchive) {
-    CBL_INFO << "No request to archive";
-    return;
-  }
-  string commentBase =
-      numToArchive == 1 ? "Archivage d'une requête" : "Archivage de " + std::to_string(numToArchive) + " requêtes";
-  string currentRequestsComment;
-  if (redirectToArchive) {
-    CBL_INFO << "Redirecting '" << title << "' to its archive page";
-    currentRequests = "#REDIRECTION [[" + archiveTitle + "]]";
-    if (numToArchive > 0) {
-      currentRequestsComment =
-          commentBase + " et transformation en redirection vers la page d'archives [[" + archiveTitle + "]]";
-    } else {
-      currentRequestsComment = "Page redirigée vers [[" + archiveTitle + "]]";
-    }
-  } else {
-    currentRequestsComment = commentBase + " vers [[" + archiveTitle + "]]";
-  }
-  CBL_INFO << "Writing '" << title << "' with comment '" << currentRequestsComment << "'";
-  if (!m_dryRun) {
-    m_wiki->writePage(title, currentRequests, writeToken, currentRequestsComment, mwc::EDIT_MINOR);
-  }
+        bool redirectToArchive = false;
+        if (numCurrent == 0 && !m_wiki->readRedirect(currentRequests, nullptr, nullptr)) {
+          switch (canRedirectToArchive) {
+            case RedirectToArchive::NO:
+              break;
+            case RedirectToArchive::IF_CHANGED:
+              redirectToArchive = numToArchive > 0;
+              break;
+            case RedirectToArchive::YES:
+              redirectToArchive = true;
+              break;
+          }
+        }
+        if (numToArchive == 0 && !redirectToArchive) {
+          CBL_INFO << "No request to archive";
+          return;
+        }
+        commentBase = numToArchive == 1 ? "Archivage d'une requête"
+                                        : cbl::concat("Archivage de ", std::to_string(numToArchive), " requêtes");
+        if (redirectToArchive) {
+          CBL_INFO << "Redirecting '" << title << "' to its archive page";
+          currentRequests = cbl::concat("#REDIRECTION [[", archiveTitle, "]]");
+          if (numToArchive > 0) {
+            summary = cbl::concat(commentBase, " et transformation en redirection vers la page d'archives [[",
+                                  archiveTitle, "]]");
+          } else {
+            summary = cbl::concat("Page redirigée vers [[", archiveTitle, "]]");
+          }
+        } else {
+          summary = cbl::concat(commentBase, " vers [[", archiveTitle, "]]");
+        }
+        CBL_INFO << "Writing '" << title << "' with comment '" << summary << "'";
+        if (!m_dryRun) {
+          content = std::move(currentRequests);
+        }
+      },
+      mwc::EDIT_MINOR);
+
   if (numToArchive > 0) {
-    string archiveContent = m_wiki->readPageContentIfExists(archiveTitle, &writeToken);
-    if (archiveContent.empty()) {
-      archiveContent = BOT_PAGE_HEADER;
-    }
-    archiveContent += "\n\n";
-    archiveContent += archivedRequests;
-    string archiveComment = commentBase + " depuis [[" + title + "]]";
-    CBL_INFO << "Writing '" << archiveTitle << "' with comment '" << archiveComment << "'";
-    if (!m_dryRun) {
-      m_wiki->writePage(archiveTitle, archiveContent, writeToken, archiveComment, mwc::EDIT_MINOR);
-    }
+    m_wiki->editPage(
+        archiveTitle,
+        [&](string& content, string& summary) {
+          summary = cbl::concat(commentBase, " depuis [[", title, "]]");
+          CBL_INFO << "Writing '" << archiveTitle << "' with comment '" << summary << "'";
+          if (!m_dryRun) {
+            cbl::append(content, content.empty() ? BOT_PAGE_HEADER : "", "\n\n", archivedRequests);
+          }
+        },
+        mwc::EDIT_MINOR);
   }
 }
 
