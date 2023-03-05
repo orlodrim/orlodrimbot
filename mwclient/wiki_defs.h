@@ -316,12 +316,7 @@ enum PageProtectionLevel {
   PRL_AUTOPATROLLED = 4,
 };
 
-class PageProtection {
-public:
-  PageProtection() {}
-  PageProtection(PageProtectionType t, PageProtectionLevel l, cbl::Date e = cbl::Date())
-      : type(t), level(l), expiry(e) {}
-
+struct PageProtection {
   PageProtectionType type;
   PageProtectionLevel level;
   cbl::Date expiry;
