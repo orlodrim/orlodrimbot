@@ -10,10 +10,11 @@ using std::string;
 
 namespace mwc {
 
-string Wiki::expandTemplates(const string& code, const string& title) {
+string Wiki::expandTemplates(const string& code, const string& title, revid_t revid) {
   WikiRequest request("expandtemplates");
   request.setMethod(WikiRequest::METHOD_POST_NO_SIDE_EFFECT);
   request.setParam("title", title);
+  request.setRevidParam("revid", revid);
   request.setParam("text", code);
   request.setParam("prop", "wikitext");
 
