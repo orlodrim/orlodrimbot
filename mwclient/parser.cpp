@@ -55,6 +55,7 @@ const unordered_map<string, ParserExtensionTagContent> PARSER_EXTENSION_TAGS = {
     {"source", RAW_TAG},
     {"syntaxhighlight", RAW_TAG},
     {"templatedata", RAW_TAG},
+    {"templatestyles", RAW_TAG},
     {"timeline", RAW_TAG},
 };
 
