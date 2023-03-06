@@ -142,6 +142,9 @@ mwclient/util/bot_section_test.o: mwclient/util/bot_section_test.cpp cbl/date.h 
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 mwclient/util/bot_section_test: mwclient/util/bot_section_test.o cbl/unittest.o mwclient/libmwclient.a
 	$(CXX) -o $@ $^ -lcurl
+mwclient/util/include_tags.o: mwclient/util/include_tags.cpp cbl/error.h cbl/generated_range.h cbl/string.h \
+	mwclient/util/include_tags.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 mwclient/util/init_wiki.o: mwclient/util/init_wiki.cpp cbl/args_parser.h cbl/date.h cbl/error.h cbl/file.h \
 	cbl/generated_range.h cbl/json.h cbl/log.h cbl/path.h cbl/string.h mwclient/site_info.h \
 	mwclient/titles_util.h mwclient/util/init_wiki.h mwclient/wiki.h mwclient/wiki_base.h \
@@ -472,9 +475,10 @@ mwclient/libmwclient.a: cbl/args_parser.o cbl/date.o cbl/error.o cbl/file.o cbl/
 	cbl/http_client.o cbl/json.o cbl/log.o cbl/path.o cbl/string.o cbl/unicode_fr.o cbl/utf8.o \
 	mwclient/bot_exclusion.o mwclient/mock_wiki.o mwclient/parser.o mwclient/parser_misc.o \
 	mwclient/parser_nodes.o mwclient/request.o mwclient/site_info.o mwclient/titles_util.o \
-	mwclient/util/bot_section.o mwclient/util/init_wiki.o mwclient/util/templates_by_name.o mwclient/wiki.o \
-	mwclient/wiki_base.o mwclient/wiki_defs.o mwclient/wiki_read_api.o mwclient/wiki_read_api_query_list.o \
-	mwclient/wiki_read_api_query_prop.o mwclient/wiki_session.o mwclient/wiki_write_api.o
+	mwclient/util/bot_section.o mwclient/util/include_tags.o mwclient/util/init_wiki.o \
+	mwclient/util/templates_by_name.o mwclient/wiki.o mwclient/wiki_base.o mwclient/wiki_defs.o \
+	mwclient/wiki_read_api.o mwclient/wiki_read_api_query_list.o mwclient/wiki_read_api_query_prop.o \
+	mwclient/wiki_session.o mwclient/wiki_write_api.o
 	ar rcs $@ $^
 orlodrimbot/wikiutil/libwikiutil.a: orlodrimbot/wikiutil/date_formatter.o orlodrimbot/wikiutil/date_parser.o
 	ar rcs $@ $^
