@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
   string stateFile;
   bool fromRC = false;
   string rcDatabaseFile;
-  mwc::WikiFlags wikiFlags(mwc::FRENCH_WIKIPEDIA_SYSOP);
-  cbl::parseArgs(argc, argv, &wikiFlags, "--statefile,required", &stateFile, "--fromrc", &fromRC, "--rcdatabasefile",
+  mwc::WikiFlags wikiFlags(mwc::FRENCH_WIKIPEDIA_BOT);
+  cbl::parseArgs(argc, argv, &wikiFlags, "--statefile", &stateFile, "--fromrc", &fromRC, "--rcdatabasefile",
                  &rcDatabaseFile);
   mwc::Wiki wiki;
   mwc::initWikiFromFlags(wikiFlags, wiki);
@@ -30,10 +30,10 @@ int main(int argc, char** argv) {
   if (fromRC) {
     recentChangesReader = make_unique<live_replication::RecentChangesReader>(rcDatabaseFile);
   }
-  constexpr pair<const char*, const char*> PAGES_TO_COPY[] = {
-      {"Modèle:Accueil actualité", "Modèle:Accueil actualité/Copie protégée"},
+  constexpr std::pair<const char*, const char*> PAGES_TO_COPY[] = {
+      {"Modèle:Accueil actualité", "Modèle:Accueil actualité/Copie sans modèles"},
       {"Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil",
-       "Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil/Copie protégée"},
+       "Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil/Copie sans modèles"},
   };
   string errors;
   for (const auto& [sourcePage, targetPage] : PAGES_TO_COPY) {
