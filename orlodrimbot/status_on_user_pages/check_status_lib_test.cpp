@@ -28,14 +28,14 @@ private:
   CBL_TEST_CASE(update) {
     StatusCheckMockWiki wiki;
     wiki.usersByGroup[mwc::UG_SYSOP] = {"Sysop 1", "Sysop 3"};
-    wiki.categoryMembers["Catégorie:Administrateur Wikipédia"] = {
+    wiki.categoryMembers["Catégorie:Wikipédia:Administrateur Wikipédia"] = {
         "Utilisateur:Sysop 1",
         "Utilisateur:Sysop 1/Présentation",
         "Discussion utilisateur:Sysop 1",
         "Utilisateur:Sysop 2",
         "Utilisateur:Sysop 2/Présentation",
         "Discussion utilisateur:Sysop 2",
-        "Catégorie:Ancien administrateur Wikipédia",
+        "Catégorie:Wikipédia:Ancien administrateur Wikipédia",
     };
     wiki.transclusions["Modèle:Icône Administrateur"] = {
         "Utilisateur:Sysop 1",         "Utilisateur:Sysop 1/Présentation",
@@ -46,14 +46,14 @@ private:
     CBL_ASSERT_EQ(
         wiki.readPageContent("Test page"),
         "<!-- BEGIN BOT SECTION -->\n"
-        "* La page [[Utilisateur:Sysop 2]] contient {{m|Icône Administrateur}} mais "
-        "{{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
-        "* La page [[Utilisateur:Sysop 2]] est dans [[:Catégorie:Administrateur Wikipédia]] mais "
-        "{{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
-        "* La page [[Discussion utilisateur:Sysop 2]] est dans [[:Catégorie:Administrateur Wikipédia]] mais "
-        "{{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
-        "* La page [[Utilisateur:Sysop 2/Présentation]] est dans [[:Catégorie:Administrateur Wikipédia]] mais "
-        "{{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
+        "* La page [[Utilisateur:Sysop 2]] contient {{m|Icône Administrateur}} "
+        "mais {{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
+        "* La page [[Utilisateur:Sysop 2]] est dans [[:Catégorie:Wikipédia:Administrateur Wikipédia]] "
+        "mais {{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
+        "* La page [[Discussion utilisateur:Sysop 2]] est dans [[:Catégorie:Wikipédia:Administrateur Wikipédia]] "
+        "mais {{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
+        "* La page [[Utilisateur:Sysop 2/Présentation]] est dans [[:Catégorie:Wikipédia:Administrateur Wikipédia]] "
+        "mais {{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
         "<!-- END BOT SECTION -->");
   }
 

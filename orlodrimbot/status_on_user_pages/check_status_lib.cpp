@@ -106,7 +106,7 @@ pair<string, int> getTitleSortKey(Wiki& wiki, const string& title) {
 
 vector<Inconsistency> enumInconsistencies(Wiki& wiki) {
   vector<Inconsistency> inconsistencies;
-  enumInconsistenciesForGroup(wiki, mwc::UG_SYSOP, {"Catégorie:Administrateur Wikipédia"},
+  enumInconsistenciesForGroup(wiki, mwc::UG_SYSOP, {"Catégorie:Wikipédia:Administrateur Wikipédia"},
                               {"Modèle:Icône Administrateur", "Modèle:Icône Opérateur"}, inconsistencies);
   enumInconsistenciesForGroup(wiki, mwc::UG_BUREAUCRAT, {"Catégorie:Bureaucrate Wikipédia"}, {}, inconsistencies);
   enumInconsistenciesForGroup(wiki, mwc::UG_CHECKUSER, {"Catégorie:Wikipédia:Vérificateur d'adresses IP"}, {},
