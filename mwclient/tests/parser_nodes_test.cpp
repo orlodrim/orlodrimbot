@@ -412,7 +412,7 @@ private:
   }
 
   CBL_TEST_CASE(MemoryManagement) {
-    // The previous content of replaced list items can be kept in a buffer so that it is not destructed immediatly.
+    // The previous content of replaced list items can be kept in a buffer so that it is not destructed immediately.
     {
       MemoryTestText* text = new MemoryTestText("test");
       List list;

@@ -36,7 +36,7 @@
 // After parsing, it is possible to modify nodes and convert the result back to a string.
 // In addition to base properties that are used when converting nodes back to strings, some types of nodes have derived
 // properties provided for convenience, such as name() for Template. Base properties are always mutable, whereas derived
-// properties are sometimes read-only and can get out of sync with base properties when the node changes afer parsing.
+// properties are sometimes read-only and can get out of sync with base properties when the node changes after parsing.
 //
 // Limitations:
 // - Magic words and parser functions are represented in the same way as templates.

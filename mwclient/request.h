@@ -98,7 +98,7 @@ public:
   // If there is no explicit limit parameter, limitParam should be set to NO_LIMIT_PARAM.
   explicit WikiPager(const std::string& limitParam);
   void setLimit(int limit);
-  // Opaque string to get the next results of the same request, in case a finite limite was set.
+  // Opaque string to get the next results of the same request, in case a finite limit was set.
   const std::string& queryContinue() const;
   void setQueryContinue(const std::string& value);
   void runPager(WikiBase& wiki, const std::function<int(const json::Value& answer)>& callback);
