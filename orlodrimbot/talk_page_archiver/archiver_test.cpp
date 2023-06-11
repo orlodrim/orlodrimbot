@@ -13,6 +13,7 @@
 #include "mwclient/wiki.h"
 
 using cbl::Date;
+using cbl::DateDiff;
 using mwc::MockWiki;
 using std::string;
 using std::unique_ptr;
@@ -137,7 +138,7 @@ private:
     m_archiver->archiveAll();
     CBL_ASSERT_EQ(cbl::readFile(m_stableRevidsPath), "1\n");
     // Archive 'Discussion utilisateur:User2'.
-    Date::setFrozenValueOfNow(Date::fromISO8601("2000-02-09T00:00:00Z"));
+    Date::advanceFrozenClock(DateDiff::fromDays(8));
     m_archiver->archiveAll();  // Writes revid 3 (archive) and revid 4 (archived page).
     CBL_ASSERT_EQ(cbl::readFile(m_stableRevidsPath), "1\n");
     // Detect that 'Discussion utilisateur:User2' is also stable.

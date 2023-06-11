@@ -88,6 +88,7 @@ public:
 
   // Freezes the value returned by Date::now() for testing purposes.
   static void setFrozenValueOfNow(const Date& d);
+  static void advanceFrozenClock(const DateDiff& dateDiff);
 
 private:
   explicit Date(time_t t);

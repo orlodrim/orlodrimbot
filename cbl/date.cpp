@@ -114,6 +114,11 @@ void Date::setFrozenValueOfNow(const Date& d) {
   frozenValueOfNow = d;
 }
 
+void Date::advanceFrozenClock(const DateDiff& dateDiff) {
+  CBL_ASSERT(!frozenValueOfNow.isNull());
+  frozenValueOfNow += dateDiff;
+}
+
 Date Date::fromISO8601(string_view s) {
   if (s.size() != ISO8601_PATTERN.size()) {
     throw ParseError("Invalid ISO8601 date '" + string(s) + "'");
