@@ -150,8 +150,8 @@ public:
   Value& getMutable(const std::string& key);
   const Value& operator[](const std::string& key) const { return object()[key]; }
   void erase(const std::string& key);
-  typedef std::map<std::string, Value>::iterator iterator;
-  typedef std::map<std::string, Value>::const_iterator const_iterator;
+  using iterator = std::map<std::string, Value>::iterator;
+  using const_iterator = std::map<std::string, Value>::const_iterator;
   iterator begin();
   const_iterator begin() const;
   iterator end();
