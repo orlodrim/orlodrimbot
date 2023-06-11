@@ -123,7 +123,7 @@ MockWiki::MockWiki() : m_nextRevid(1), m_verboseWrite(false) {
 Revision MockWiki::readPage(const std::string& title, int properties) {
   const Page& page = getPage(title);
   if (page.revisions.empty()) {
-    throw PageNotFoundError("title=" + title);
+    throw PageNotFoundError(cbl::concat("Page '", title, "' not found"));
   }
   Revision revision;
   partialRevisionCopy(m_revisions[page.revisions.back()], properties, revision);
