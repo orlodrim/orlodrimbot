@@ -126,7 +126,7 @@ static const char* getStringOfUserGroup(UserGroup userGroup) {
     case UG_CHECKUSER:
       return "checkuser";
     case UG_OVERSIGHT:
-      return "oversight";
+      return "suppress";
     case UG_INTERFACE_ADMIN:
       return "interface-admin";
     default:
