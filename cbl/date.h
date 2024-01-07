@@ -13,15 +13,15 @@ namespace cbl {
 // Represents a difference between two dates, with the same granularity as Date (1 second).
 class DateDiff {
 public:
-  static DateDiff nullDiff() { return DateDiff(0); }
-  static DateDiff fromSeconds(int64_t seconds) { return DateDiff(seconds); }
-  static DateDiff fromMinutes(int64_t minutes) { return DateDiff(minutes * 60); }
-  static DateDiff fromHours(int64_t hours) { return DateDiff(hours * 3600); }
-  static DateDiff fromDays(int64_t days) { return DateDiff(days * 86400); }
-  static DateDiff fromWeeks(int64_t weeks) { return DateDiff(weeks * 86400 * 7); }
-  static DateDiff fromYears(int64_t years) { return DateDiff(years * 86400 * 365); }
+  static constexpr DateDiff nullDiff() { return DateDiff(0); }
+  static constexpr DateDiff fromSeconds(int64_t seconds) { return DateDiff(seconds); }
+  static constexpr DateDiff fromMinutes(int64_t minutes) { return DateDiff(minutes * 60); }
+  static constexpr DateDiff fromHours(int64_t hours) { return DateDiff(hours * 3600); }
+  static constexpr DateDiff fromDays(int64_t days) { return DateDiff(days * 86400); }
+  static constexpr DateDiff fromWeeks(int64_t weeks) { return DateDiff(weeks * 86400 * 7); }
+  static constexpr DateDiff fromYears(int64_t years) { return DateDiff(years * 86400 * 365); }
 
-  DateDiff() : m_seconds(0) {}
+  constexpr DateDiff() : m_seconds(0) {}
 
   int64_t seconds() const { return m_seconds; }
   bool operator==(const DateDiff& d) const { return m_seconds == d.m_seconds; }
@@ -36,7 +36,7 @@ public:
   void operator-=(const DateDiff& diff) { m_seconds -= diff.m_seconds; }
 
 private:
-  explicit DateDiff(int64_t seconds) : m_seconds(seconds) {}
+  explicit constexpr DateDiff(int64_t seconds) : m_seconds(seconds) {}
 
   int64_t m_seconds = 0;
 };
@@ -106,6 +106,10 @@ private:
 
   static Date frozenValueOfNow;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const DateDiff& dateDiff) {
+  return os << dateDiff.seconds() << "s";
+}
 
 inline std::ostream& operator<<(std::ostream& os, const Date& w) {
   return os << w.toISO8601();
