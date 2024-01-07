@@ -403,6 +403,7 @@ vector<string> Wiki::getBacklinks(const BacklinksParams& params) {
   pager.setParam("bltitle", params.title);
   pager.setOrClearParam("blfilterredir", getStringOfFilterRedirMode(params.filterRedir), params.filterRedir != FR_ALL);
   pager.setParamWithEmptyDefault("blnamespace", params.namespaceList.toString());
+  pager.setLimit(params.limit);
 
   try {
     return pager.runListPager<string>(*this, convertJSONToTitle);

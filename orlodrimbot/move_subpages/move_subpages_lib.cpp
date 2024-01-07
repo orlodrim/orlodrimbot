@@ -13,7 +13,6 @@
 using cbl::Date;
 using mwc::LE_MOVE;
 using mwc::LogEvent;
-using mwc::MOVE_NOREDIRECT;
 using mwc::RP_TIMESTAMP;
 using mwc::RP_TITLE;
 using std::string;
@@ -143,14 +142,24 @@ void SubpagesMover::processMove(const LogEvent& logEvent) {
       } else if (m_wiki->readRedirect(oldSubpageCode, nullptr, nullptr)) {
         CBL_INFO << "Ignoring subpage '" << oldSubpage << "' because it is a redirect";
       } else {
-        const string newSubpage = newTalkPage + subpageSuffix;
-        const int flags = subpageSuffix == "/À faire" ? MOVE_NOREDIRECT : 0;
+        string newSubpage = newTalkPage + subpageSuffix;
+        bool createRedirect = true;
+        if (subpageSuffix == "/À faire") {
+          // Never create a redirect for todo pages because:
+          // - Their content is not permanent, so any link to them eventually becomes obsolete anyway.
+          // - They are displayed by transclusion in the talk page, so leaving redirects is confusing.
+          createRedirect = false;
+        } else if (subpageSuffix == "/Archive Commons") {
+          // Archive of bot-generated content that should rarely be useful. Avoid creating a redirect if possible.
+          vector<string> backlinks = m_wiki->getBacklinks(mwc::BacklinksParams{.title = oldSubpage, .limit = 2});
+          createRedirect = !backlinks.empty();
+        }
         if (m_dryRun) {
           CBL_INFO << "[DRY RUN] Moving '" << oldSubpage << "' to '" << newSubpage
-                   << "' (flags=" << (flags == MOVE_NOREDIRECT ? "MOVE_NOREDIRECT" : "0") << ")";
+                   << "' (createRedirect=" << createRedirect << ")";
         } else {
           try {
-            m_wiki->movePage(oldSubpage, newSubpage, comment, flags);
+            m_wiki->movePage(oldSubpage, newSubpage, comment, createRedirect ? 0 : mwc::MOVE_NOREDIRECT);
             anyMoveDone = true;
           } catch (const mwc::PageAlreadyExistsError&) {
             CBL_INFO << "Could not rename '" << oldSubpage << "' because '" << newSubpage << "' already exists";

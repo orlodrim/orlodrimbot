@@ -30,9 +30,7 @@ LogEvent createMoveEvent(const string& oldTitle, const string& newTitle, int tim
 
 class MockWikiForSubpagesMover : public mwc::MockWiki {
 public:
-  vector<LogEvent> getLogEvents(const mwc::LogEventsParams& params) override {
-    return logEvents;
-  }
+  vector<LogEvent> getLogEvents(const mwc::LogEventsParams& params) override { return logEvents; }
   void movePage(const string& oldTitle, const string& newTitle, const string& summary, int flags) override {
     if (!moves.empty()) moves += "|";
     cbl::append(moves, oldTitle, " -> ", newTitle, flags & mwc::MOVE_NOREDIRECT ? " [noredirect]" : "");
@@ -44,8 +42,12 @@ public:
     }
     return result;
   }
+  vector<string> getBacklinks(const mwc::BacklinksParams& params) override {
+    return backlinks[params.title];
+  }
 
   vector<LogEvent> logEvents;
+  unordered_map<string, vector<string>> backlinks;
   string moves;
 };
 
@@ -55,6 +57,7 @@ private:
     MockWikiForSubpagesMover wiki;
     wiki.setPageContent("Page 1", "#redirect[[Page 2]]");
     wiki.setPageContent("Discussion:Page 1/Archive", "Talk page archive");
+    wiki.setPageContent("Discussion:Page 1/Archive Commons", "Commons deletions archive");
     wiki.setPageContent("Discussion:Page 1/À faire", "Some tasks");
     wiki.setPageContent("Page 2", "Article content");
     wiki.logEvents = {createMoveEvent("Page 1", "Page 2", 0)};
@@ -62,19 +65,18 @@ private:
     subpagesMover.processAllMoves();
     CBL_ASSERT_EQ(wiki.moves,
                   "Discussion:Page 1/Archive -> Discussion:Page 2/Archive|"
+                  "Discussion:Page 1/Archive Commons -> Discussion:Page 2/Archive Commons [noredirect]|"
                   "Discussion:Page 1/À faire -> Discussion:Page 2/À faire [noredirect]");
   }
   CBL_TEST_CASE(StandardMoveWithoutRedirect) {
     MockWikiForSubpagesMover wiki;
     wiki.setPageContent("Discussion:Page 1/Archive", "Talk page archive");
-    wiki.setPageContent("Discussion:Page 1/À faire", "Some tasks");
     wiki.setPageContent("Page 2", "Article content");
     wiki.logEvents = {createMoveEvent("Page 1", "Page 2", 0)};
     SubpagesMover subpagesMover(&wiki, START_DATE, false);
     subpagesMover.processAllMoves();
     CBL_ASSERT_EQ(wiki.moves,
-                  "Discussion:Page 1/Archive -> Discussion:Page 2/Archive|"
-                  "Discussion:Page 1/À faire -> Discussion:Page 2/À faire [noredirect]");
+                  "Discussion:Page 1/Archive -> Discussion:Page 2/Archive");
   }
   CBL_TEST_CASE(ConsecutiveMoves) {
     MockWikiForSubpagesMover wiki;
@@ -169,6 +171,20 @@ private:
     SubpagesMover subpagesMover(&wiki, START_DATE, false);
     subpagesMover.processAllMoves();
     CBL_ASSERT_EQ(wiki.moves, "");
+  }
+  CBL_TEST_CASE(CheckBacklinks) {
+    MockWikiForSubpagesMover wiki;
+    wiki.setPageContent("Discussion:Page 1/Archive Commons", "Commons deletions archive");
+    wiki.setPageContent("Page 2", "Article content");
+    wiki.setPageContent("Discussion:Page 3/Archive Commons", "Commons deletions archive");
+    wiki.setPageContent("Page 4", "Article content");
+    wiki.logEvents = {createMoveEvent("Page 1", "Page 2", 1), createMoveEvent("Page 3", "Page 4", 0)};
+    wiki.backlinks["Discussion:Page 3/Archive Commons"].push_back("Some page");
+    SubpagesMover subpagesMover(&wiki, START_DATE, false);
+    subpagesMover.processAllMoves();
+    CBL_ASSERT_EQ(wiki.moves,
+                  "Discussion:Page 1/Archive Commons -> Discussion:Page 2/Archive Commons [noredirect]|"
+                  "Discussion:Page 3/Archive Commons -> Discussion:Page 4/Archive Commons");
   }
 };
 

@@ -145,6 +145,7 @@ struct BacklinksParams {
   std::string title;
   FilterRedirMode filterRedir = FR_ALL;
   NamespaceList namespaceList;
+  int limit = PAGER_ALL;
 };
 
 struct TransclusionsParams {
