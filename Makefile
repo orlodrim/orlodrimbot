@@ -7,6 +7,7 @@ BINARIES= \
 	orlodrimbot/draft_moved_to_main/draft_moved_to_main \
 	orlodrimbot/live_replication/live_replication \
 	orlodrimbot/monthly_categories_init/monthly_categories_init \
+	orlodrimbot/move_subpages/move_subpages \
 	orlodrimbot/sandbox/sandbox \
 	orlodrimbot/status_on_user_pages/check_status \
 	orlodrimbot/talk_page_archiver/talk_page_archiver \
@@ -306,6 +307,19 @@ orlodrimbot/monthly_categories_init/monthly_categories_init.o: \
 orlodrimbot/monthly_categories_init/monthly_categories_init: \
 	orlodrimbot/monthly_categories_init/monthly_categories_init.o mwclient/libmwclient.a
 	$(CXX) -o $@ $^ -lcurl
+orlodrimbot/move_subpages/move_subpages.o: orlodrimbot/move_subpages/move_subpages.cpp cbl/args_parser.h \
+	cbl/date.h cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/path.h \
+	cbl/string.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h mwclient/wiki.h \
+	mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/move_subpages/move_subpages_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/move_subpages/move_subpages: orlodrimbot/move_subpages/move_subpages.o \
+	orlodrimbot/move_subpages/move_subpages_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/move_subpages/move_subpages_lib.o: orlodrimbot/move_subpages/move_subpages_lib.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h mwclient/site_info.h \
+	mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/move_subpages/move_subpages_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 orlodrimbot/sandbox/sandbox.o: orlodrimbot/sandbox/sandbox.cpp cbl/args_parser.h cbl/date.h cbl/error.h \
 	cbl/json.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h mwclient/wiki.h \
 	mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/sandbox/sandbox_lib.h
@@ -427,9 +441,11 @@ orlodrimbot/talk_page_archiver/thread_util_test: orlodrimbot/talk_page_archiver/
 	orlodrimbot/talk_page_archiver/thread_util.o orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
 	$(CXX) -o $@ $^ -lre2
 orlodrimbot/update_main_page/copy_page.o: orlodrimbot/update_main_page/copy_page.cpp cbl/date.h cbl/error.h \
-	cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h mwclient/request.h \
-	mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
-	orlodrimbot/live_replication/recent_changes_reader.h orlodrimbot/update_main_page/copy_page.h
+	cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/request.h mwclient/site_info.h \
+	mwclient/titles_util.h mwclient/util/bot_section.h mwclient/util/include_tags.h mwclient/wiki.h \
+	mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/live_replication/recent_changes_reader.h \
+	orlodrimbot/update_main_page/copy_page.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 orlodrimbot/update_main_page/copy_page_test.o: orlodrimbot/update_main_page/copy_page_test.cpp cbl/date.h \
 	cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h \
@@ -452,7 +468,7 @@ orlodrimbot/update_main_page/update_main_page.o: orlodrimbot/update_main_page/up
 orlodrimbot/update_main_page/update_main_page: orlodrimbot/update_main_page/update_main_page.o cbl/sqlite.o \
 	orlodrimbot/live_replication/continue_token.o orlodrimbot/live_replication/recent_changes_reader.o \
 	orlodrimbot/update_main_page/copy_page.o mwclient/libmwclient.a
-	$(CXX) -o $@ $^ -lcurl -lsqlite3
+	$(CXX) -o $@ $^ -lcurl -lre2 -lsqlite3
 orlodrimbot/wikiutil/date_formatter.o: orlodrimbot/wikiutil/date_formatter.cpp cbl/date.h \
 	orlodrimbot/wikiutil/date_formatter.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
