@@ -292,9 +292,11 @@ vector<string> MockWiki::getAllPages(const AllPagesParams& params) {
 void MockWiki::writePage(const string& title, const string& content, const WriteToken& writeToken,
                          const string& summary, int flags) {
   if (!(flags & (EDIT_APPEND | EDIT_ALLOW_BLANKING)) & content.empty()) {
-    throw InvalidParameterError("Empty content passed to MockWiki::writePage (title=" + title + ")");
+    throw InvalidParameterError(cbl::concat("Empty content passed to MockWiki::writePage (title=", title, ")"));
+  } else if (writeToken.type() == WriteToken::UNINITIALIZED) {
+    throw std::invalid_argument("Uninitialized writeToken passed to Wiki::writePage");
   } else if (writeToken.needsNoBotsBypass() && !(flags & EDIT_BYPASS_NOBOTS)) {
-    throw BotExclusionError("title=" + title);
+    throw BotExclusionError(cbl::concat("BotExclusionError(title=", title, ")"));
   }
   Page& page = getMutablePage(title);
   const PageProtection* editProtection = getProtectionByType(page.protections, PRT_EDIT);
