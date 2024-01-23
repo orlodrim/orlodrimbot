@@ -17,6 +17,7 @@
 #include "cbl/string.h"
 #include "mwclient/parser.h"
 #include "mwclient/titles_util.h"
+#include "mwclient/util/templates_by_name.h"
 #include "mwclient/wiki.h"
 #include "orlodrimbot/wikiutil/date_formatter.h"
 #include "archive_template.h"
@@ -36,6 +37,7 @@ using std::string;
 using std::string_view;
 using std::unique_ptr;
 using std::vector;
+using wikiutil::DateFormatter;
 
 namespace talk_page_archiver {
 namespace {
@@ -65,7 +67,7 @@ string replaceCounter(const string& format, int counter) {
 
 string padWithZeros(int number, int zeros) {
   const string numberAsString = std::to_string(number);
-  return string(std::max(zeros - (int)numberAsString.size(), 0), '0') + numberAsString;
+  return string(std::max(zeros - (int) numberAsString.size(), 0), '0') + numberAsString;
 }
 
 set<revid_t> loadStableRevids(const string& path) {
@@ -115,6 +117,34 @@ void filterStablePages(Wiki& wiki, const vector<string>& pages, const set<revid_
     } else {
       pagesToUpdate.push_back(revision.title);
     }
+  }
+}
+
+void tryToUpdateDatesInHeader(Wiki& wiki, string& content, const Date& oldestAddedThread,
+                              const Date& newestAddedThread) {
+  size_t endOfHeader = content.find("\n=");
+  if (endOfHeader == string::npos) {
+    endOfHeader = content.size();
+  }
+  wikicode::List parsedCode = wikicode::parse(string_view(content).substr(0, endOfHeader));
+  for (wikicode::Template& template_ : wikicode::getTemplatesByName(wiki, parsedCode, "Archive de discussion")) {
+    wikicode::ParsedFields parsedFields = template_.getParsedFields();
+    int startIndex = parsedFields.indexOf("Début");
+    int endIndex = parsedFields.indexOf("Fin");
+    const DateFormatter& dateFormatter = DateFormatter::getByLang("fr");
+    bool hasStart = startIndex != wikicode::FIND_PARAM_NONE;
+    if (!hasStart && !oldestAddedThread.isNull()) {
+      template_.addField("Début=" + dateFormatter.format(oldestAddedThread, DateFormatter::LONG_1ST_TEMPLATE));
+      hasStart = true;
+    }
+    string endValue = dateFormatter.format(newestAddedThread, DateFormatter::LONG_1ST_TEMPLATE);
+    if (endIndex != wikicode::FIND_PARAM_NONE) {
+      template_.setFieldValue(endIndex, endValue);
+    } else if (hasStart) {
+      template_.addField("Fin=" + endValue);
+    }
+    content = parsedCode.toString() + content.substr(endOfHeader);
+    break;
   }
 }
 
@@ -185,8 +215,7 @@ string PageToArchive::generateCode() const {
                   << "tracking template";
     } else {
       int dateField = m_categoryTrackingTemplate->getParsedFields().indexOf("date min");
-      const wikiutil::DateFormatter& dateFormatter = wikiutil::DateFormatter::getByLang("fr");
-      string newMinDateStr = dateFormatter.format(newMinDate);
+      string newMinDateStr = DateFormatter::getByLang("fr").format(newMinDate);
       if (dateField == wikicode::FIND_PARAM_NONE) {
         m_categoryTrackingTemplate->addField("date min = " + newMinDateStr);
       } else {
@@ -204,7 +233,7 @@ class ArchivePage {
 public:
   ArchivePage(const string& title, ArchiveOrder order) : m_title(title), m_order(order) {}
   void load(Wiki* wiki);
-  void addThread(const string& threadText, const string& archiveHeader);
+  void addThread(const Thread& thread, const string& archiveHeader, bool insertDatesInHeader);
   void update(Wiki* wiki, const string& sourcePage, bool dryRun) const;
 
   const string& title() const { return m_title; }
@@ -218,6 +247,10 @@ private:
   string m_newHeader;
   vector<string> m_newThreads;
   int m_numThreads = 0;
+
+  bool m_justCreated = false;
+  Date m_oldestAddedThread;
+  Date m_newestAddedThread;
 };
 
 void ArchivePage::load(Wiki* wiki) {
@@ -229,16 +262,24 @@ void ArchivePage::load(Wiki* wiki) {
   }
 }
 
-void ArchivePage::addThread(const string& threadText, const string& archiveHeader) {
+void ArchivePage::addThread(const Thread& thread, const string& archiveHeader, bool insertDatesInHeader) {
   if (m_size == 0) {
     m_newHeader = archiveHeader;
     m_size += archiveHeader.size();
+    m_justCreated = true;
   }
   if (m_newThreads.empty() && m_order == OLDEST_SECTION_FIRST) {
     m_size += 2;  // For the "\n\n" before the first new thread.
   }
-  m_newThreads.push_back(threadText);
-  m_size += threadText.size();
+  m_newThreads.push_back(thread.text());
+  m_size += thread.text().size();
+  const Date& threadDate = thread.date().localDate();
+  if (insertDatesInHeader) {
+    if (m_justCreated && (m_oldestAddedThread.isNull() || m_oldestAddedThread > threadDate)) {
+      m_oldestAddedThread = threadDate;
+    }
+    m_newestAddedThread = std::max(m_newestAddedThread, threadDate);
+  }
   m_numThreads++;
 }
 
@@ -256,6 +297,9 @@ void ArchivePage::update(Wiki* wiki, const string& sourcePage, bool dryRun) cons
         summary = editSummary;
         if (content.empty()) {
           content = m_newHeader;
+        }
+        if (!m_newestAddedThread.isNull()) {
+          tryToUpdateDatesInHeader(*wiki, content, m_oldestAddedThread, m_newestAddedThread);
         }
         switch (m_order) {
           case OLDEST_SECTION_FIRST: {
@@ -332,7 +376,6 @@ void ArchivePagesBuffer::addThread(const Thread& thread, const ArchiveParams& pa
       if (archivePage->size() < maxSize) break;
     }
   } else {
-    const wikiutil::DateFormatter& dateFormatter = wikiutil::DateFormatter::getByLang("fr");
     // Compute the archive page based on the local time because it is the less surprising behavior. For instance, if the
     // last message contains "1 janvier 2010 à 00:04 (CET)", the UTC date is 2009-12-31T23:04:00Z but the thread should
     // be archived to /2010, not /2009.
@@ -342,7 +385,7 @@ void ArchivePagesBuffer::addThread(const Thread& thread, const ArchiveParams& pa
     cbl::replaceInPlace(archiveTitle, "%(year)d", std::to_string(localDate.year()));
     cbl::replaceInPlace(archiveTitle, "%(month)d", std::to_string(month));
     cbl::replaceInPlace(archiveTitle, "%(month)02d", padWithZeros(month, 2));
-    cbl::replaceInPlace(archiveTitle, "%(monthname)s", dateFormatter.getMonthName(month));
+    cbl::replaceInPlace(archiveTitle, "%(monthname)s", DateFormatter::getByLang("fr").getMonthName(month));
     cbl::replaceInPlace(archiveTitle, "%(quarter)d", std::to_string((month - 1) / 3 + 1));
     if (archiveTitle.find("%(monthnameshort)s") != string::npos) {
       throw ArchiverError("'%(monthnameshort)s' is not supported");
@@ -353,7 +396,7 @@ void ArchivePagesBuffer::addThread(const Thread& thread, const ArchiveParams& pa
     m_usedArchivePagesSet.insert(archivePage->title());
     m_usedArchivePages.push_back(archivePage);
   }
-  archivePage->addThread(thread.text(), params.archiveheader());
+  archivePage->addThread(thread, params.archiveheader(), params.hasAutoArchiveHeader() && m_useCounter);
 }
 
 ArchivePage* ArchivePagesBuffer::loadArchivePage(const string& title) {

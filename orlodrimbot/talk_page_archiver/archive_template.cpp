@@ -121,6 +121,7 @@ ArchiveParams::ArchiveParams(Wiki& wiki, const Algorithms& algorithms, const str
     } else {
       m_archiveheader = cbl::concat("{{Archive de discussion|Discussion=", title, "}}");
     }
+    m_hasAutoArchiveHeader = true;
   }
 
   m_key = parsedFields["key"];

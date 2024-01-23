@@ -37,7 +37,7 @@ CHECK Discussion:BasicTest
 CHECK_COMMENT Discussion:BasicTest/Archive 1
  Archivage de 2 sections provenant de [[Discussion:BasicTest]]
 CHECK Discussion:BasicTest/Archive 1
- {{Archive de discussion}}
+ {{Archive de discussion|Début=10 janvier 2000|Fin=20 janvier 2000}}
 
  == Section 1 ==
  Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
@@ -89,7 +89,7 @@ CHECK Discussion:ArchiveWithHistory
  == Section 6 ==
  == Section 7 ==
 CHECK Discussion:ArchiveWithHistory/Archive 1
- {{Archive de discussion}}
+ {{Archive de discussion|Début=25 janvier 2000|Fin=25 janvier 2000}}
 
  == Section 1 ==
  == Section 2 ==
@@ -153,7 +153,7 @@ CHECK Discussion utilisateur:Exemple
  == <!-- {{fait}} --> Section 6 ==
  Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
 CHECK Discussion utilisateur:Exemple/Archive 1
- {{Archive de discussion}}
+ {{Archive de discussion|Début={{1er}} janvier 2000|Fin={{1er}} janvier 2000}}
 
  == {{fait}} Section 2 ==
  Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
@@ -182,7 +182,7 @@ CHECK Discussion:FdNAlgo
  == Section 1 ==
  {{Réponse FdN}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
 CHECK Discussion:FdNAlgo/Archive 1
- {{Archive de discussion}}
+ {{Archive de discussion|Début={{1er}} janvier 2000|Fin={{1er}} janvier 2000}}
 
  == Section 2 ==
  {{Réponse FdN|oui}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
@@ -540,7 +540,7 @@ CHECK Discussion:ExactlyTwoArchivePagesWithCounter/9
  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
  [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
 CHECK Discussion:ExactlyTwoArchivePagesWithCounter/10
- {{Archive de discussion}}
+ {{Archive de discussion|Début={{1er}} janvier 2001|Fin={{1er}} janvier 2001}}
 
  == Section 2 ==
  [[Utilisateur:Exemple]] 1 janvier 2001 à 00:00 (CET)
@@ -632,7 +632,7 @@ CHECK Discussion:EraseNewlettersAndArchive
  [[Utilisateur:Exemple]] 15 janvier 2000 à 00:00 (CET)
  <!-- Message envoyé par ... https://meta.wikimedia.org/w/index.php?title=Global_message_delivery/Targets/Tech_ambassadors&oldid=13062514 -->
 CHECK Discussion:EraseNewlettersAndArchive/Archive 1
- {{Archive de discussion}}
+ {{Archive de discussion|Début={{1er}} janvier 2000|Fin={{1er}} janvier 2000}}
 
  == Section 1 ==
  [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
@@ -996,3 +996,68 @@ CHECK Projet:Wiki/Articles
  {{Archivage par bot|algo=oldtitle(1d)|archive=/%(year)d|minthreadsleft=0}}
  {{Utilisateur:OrlodrimBot/Suivi catégorie|format sections= == %(jour) %(mois) %(année) ==|date min=1 janvier 2015}}
  {{Utilisateur:OrlodrimBot/Suivi catégorie/fin}}
+#
+# Add "Début=" and then update "Fin=" in {{Archive de discussion}}
+#
+RESET
+DATE 2000-01-19T00:00:00Z
+WRITE Discussion:UpdateHeader
+ {{Archivage par bot|algo=old(7d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:UpdateHeader
+CHECK Discussion:UpdateHeader/Archive 1
+ {{Archive de discussion|Début=10 janvier 2000|Fin=10 janvier 2000}}
+
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:UpdateHeader
+ {{Archivage par bot|algo=old(7d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:UpdateHeader
+CHECK Discussion:UpdateHeader/Archive 1
+ {{Archive de discussion|Début=10 janvier 2000|Fin=20 janvier 2000}}
+
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+#
+# Do not update {{Archive de discussion}} if the page already exists but the template has no parameters.
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:DoNotUpdateHeader
+ {{Archivage par bot|algo=old(7d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+WRITE Discussion:DoNotUpdateHeader/Archive 1
+ {{Archive de discussion}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:DoNotUpdateHeader
+CHECK Discussion:DoNotUpdateHeader/Archive 1
+ {{Archive de discussion}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+
+ == Section 2 ==
+ Message. [[Utilisateur:Exemple]] 20 janvier 2000 à 00:00 (CET)
+#
+# Do not update {{Archive de discussion}} if the header is explicitly specified.
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:DoNotUpdateHeader2
+ {{Archivage par bot|algo=old(7d)|counter=|minthreadstoarchive=1|minthreadsleft=0|archiveheader={{Archive de discussion}}}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:DoNotUpdateHeader2
+CHECK Discussion:DoNotUpdateHeader2/Archive 1
+ {{Archive de discussion}}
+
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)

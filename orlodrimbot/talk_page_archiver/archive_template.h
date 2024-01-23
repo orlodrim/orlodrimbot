@@ -42,6 +42,7 @@ public:
   int minthreadsleft() const { return m_minthreadsleft; }
   int minthreadstoarchive() const { return m_minthreadstoarchive; }
   const std::string& archiveheader() const { return m_archiveheader; }
+  bool hasAutoArchiveHeader() const { return m_hasAutoArchiveHeader; }
   const std::string& key() const { return m_key; }
 
 private:
@@ -53,6 +54,7 @@ private:
   int m_minthreadsleft = ARCHIVE_PARAM_NOT_SET;
   int m_minthreadstoarchive = ARCHIVE_PARAM_NOT_SET;
   std::string m_archiveheader;
+  bool m_hasAutoArchiveHeader = false;
   std::string m_key;
 };
 
