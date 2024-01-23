@@ -313,7 +313,8 @@ vector<LogEvent> Wiki::getLogEvents(const LogEventsParams& params) {
   try {
     return pager.runListPager<LogEvent>(*this, convertJSONToLogEvent);
   } catch (WikiError& error) {
-    error.addContext("Cannot enumerate log events");
+    error.addContext(params.title.empty() ? "Cannot enumerate log events"
+                                          : cbl::concat("Cannot enumerate log events on '", params.title, "'"));
     throw;
   }
 }
