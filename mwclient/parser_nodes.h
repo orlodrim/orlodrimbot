@@ -480,7 +480,7 @@ public:
   // where equal signs are aligned.
   List setFieldName(int i, const std::string& name);
   // Changes the value of field i without changing the parameter name.
-  // If there is already a value, space before and after the value are be preserved. However, if a value is set for a
+  // If there is already a value, space before and after the value are preserved. However, if a value is set for a
   // previously empty parameter, the formatting may not be consistent with other fields.
   List setFieldValue(int i, const std::string& value);
 
