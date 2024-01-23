@@ -123,8 +123,16 @@ TitleMap parseTitleMap(const json::Value& value) {
 }
 
 const string* followTitleMapping(const TitleMap& titleMap, const string* title) {
-  TitleMap::const_iterator it = titleMap.find(*title);
-  return it != titleMap.end() ? &it->second : title;
+  const string* resolvedTitle = title;
+  // Unlike the UI, the API will resolve multi-hop redirects when redirects=1 is set. This is usually a transient
+  // situation as double redirects are eventually fixed by bots. To keep things simple, we only follow redirects and
+  // double redirects.
+  for (int i = 0; i < 2; i++) {
+    TitleMap::const_iterator it = titleMap.find(*resolvedTitle);
+    if (it == titleMap.end()) break;
+    resolvedTitle = &it->second;
+  }
+  return resolvedTitle;
 }
 
 static void readPagesPropertiesOneRequest(WikiBase& wiki, const WikiPropPager& pager, StringRange titlesRange,
