@@ -13,6 +13,7 @@ BINARIES= \
 	orlodrimbot/talk_page_archiver/talk_page_archiver \
 	orlodrimbot/update_main_page/update_main_page
 TESTS= \
+	cbl/directory_test \
 	cbl/path_test \
 	mwclient/tests/parser_misc_test \
 	mwclient/tests/parser_nodes_test \
@@ -23,6 +24,7 @@ TESTS= \
 	orlodrimbot/draft_moved_to_main/draft_moved_to_main_lib_test \
 	orlodrimbot/live_replication/recent_changes_reader_test \
 	orlodrimbot/live_replication/recent_changes_sync_test \
+	orlodrimbot/move_subpages/move_subpages_lib_test \
 	orlodrimbot/status_on_user_pages/check_status_lib_test \
 	orlodrimbot/talk_page_archiver/archiver_test \
 	orlodrimbot/talk_page_archiver/frwiki_algorithms_test \
@@ -46,6 +48,13 @@ cbl/args_parser.o: cbl/args_parser.cpp cbl/args_parser.h cbl/error.h cbl/generat
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/date.o: cbl/date.cpp cbl/date.h cbl/error.h cbl/log.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/directory.o: cbl/directory.cpp cbl/directory.h cbl/error.h cbl/generated_range.h cbl/string.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/directory_test.o: cbl/directory_test.cpp cbl/directory.h cbl/error.h cbl/file.h cbl/generated_range.h \
+	cbl/log.h cbl/string.h cbl/tempfile.h cbl/unittest.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/directory_test: cbl/directory_test.o cbl/directory.o cbl/tempfile.o cbl/unittest.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^
 cbl/error.o: cbl/error.cpp cbl/error.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/file.o: cbl/file.cpp cbl/error.h cbl/file.h
@@ -320,6 +329,14 @@ orlodrimbot/move_subpages/move_subpages_lib.o: orlodrimbot/move_subpages/move_su
 	mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
 	orlodrimbot/move_subpages/move_subpages_lib.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/move_subpages/move_subpages_lib_test.o: orlodrimbot/move_subpages/move_subpages_lib_test.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h cbl/unittest.h \
+	mwclient/mock_wiki.h mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h \
+	mwclient/wiki_defs.h orlodrimbot/move_subpages/move_subpages_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/move_subpages/move_subpages_lib_test: orlodrimbot/move_subpages/move_subpages_lib_test.o cbl/unittest.o \
+	orlodrimbot/move_subpages/move_subpages_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
 orlodrimbot/sandbox/sandbox.o: orlodrimbot/sandbox/sandbox.cpp cbl/args_parser.h cbl/date.h cbl/error.h \
 	cbl/json.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h mwclient/wiki.h \
 	mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/sandbox/sandbox_lib.h
@@ -365,11 +382,11 @@ orlodrimbot/talk_page_archiver/archive_template.o: orlodrimbot/talk_page_archive
 orlodrimbot/talk_page_archiver/archiver.o: orlodrimbot/talk_page_archiver/archiver.cpp cbl/date.h cbl/error.h \
 	cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/path.h cbl/string.h mwclient/parser.h \
 	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
-	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/talk_page_archiver/algorithm.h \
-	orlodrimbot/talk_page_archiver/archive_template.h orlodrimbot/talk_page_archiver/archiver.h \
-	orlodrimbot/talk_page_archiver/frwiki_algorithms.h orlodrimbot/talk_page_archiver/thread.h \
-	orlodrimbot/talk_page_archiver/thread_util.h orlodrimbot/wikiutil/date_formatter.h \
-	orlodrimbot/wikiutil/date_parser.h
+	mwclient/util/templates_by_name.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/talk_page_archiver/algorithm.h orlodrimbot/talk_page_archiver/archive_template.h \
+	orlodrimbot/talk_page_archiver/archiver.h orlodrimbot/talk_page_archiver/frwiki_algorithms.h \
+	orlodrimbot/talk_page_archiver/thread.h orlodrimbot/talk_page_archiver/thread_util.h \
+	orlodrimbot/wikiutil/date_formatter.h orlodrimbot/wikiutil/date_parser.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 orlodrimbot/talk_page_archiver/archiver_test.o: orlodrimbot/talk_page_archiver/archiver_test.cpp cbl/date.h \
 	cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h cbl/tempfile.h \
