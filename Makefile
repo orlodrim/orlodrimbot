@@ -13,6 +13,9 @@ BINARIES= \
 	orlodrimbot/sandbox/sandbox \
 	orlodrimbot/status_on_user_pages/check_status \
 	orlodrimbot/talk_page_archiver/talk_page_archiver \
+	orlodrimbot/templates_stats/extract_templates \
+	orlodrimbot/templates_stats/parse_templates \
+	orlodrimbot/templates_stats/stat \
 	orlodrimbot/update_main_page/update_main_page
 TESTS= \
 	cbl/directory_test \
@@ -32,6 +35,11 @@ TESTS= \
 	orlodrimbot/talk_page_archiver/frwiki_algorithms_test \
 	orlodrimbot/talk_page_archiver/thread_test \
 	orlodrimbot/talk_page_archiver/thread_util_test \
+	orlodrimbot/templates_stats/extract_templates_lib_test \
+	orlodrimbot/templates_stats/parse_templates_lib_test \
+	orlodrimbot/templates_stats/regexp_of_range_test \
+	orlodrimbot/templates_stats/side_template_data_test \
+	orlodrimbot/templates_stats/templateinfo_test \
 	orlodrimbot/update_main_page/copy_page_test \
 	orlodrimbot/wikiutil/date_formatter_test \
 	orlodrimbot/wikiutil/date_parser_test
@@ -509,6 +517,107 @@ orlodrimbot/talk_page_archiver/thread_util_test.o: orlodrimbot/talk_page_archive
 orlodrimbot/talk_page_archiver/thread_util_test: orlodrimbot/talk_page_archiver/thread_util_test.o cbl/unittest.o \
 	orlodrimbot/talk_page_archiver/thread_util.o orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
 	$(CXX) -o $@ $^ -lre2
+orlodrimbot/templates_stats/extract_templates.o: orlodrimbot/templates_stats/extract_templates.cpp cbl/args_parser.h \
+	cbl/date.h cbl/error.h cbl/generated_range.h cbl/json.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/templates_stats/extract_templates_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/extract_templates: orlodrimbot/templates_stats/extract_templates.o \
+	orlodrimbot/templates_stats/extract_templates_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/templates_stats/extract_templates_lib.o: orlodrimbot/templates_stats/extract_templates_lib.cpp \
+	cbl/date.h cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/include_tags.h mwclient/util/xml_dump.h mwclient/wiki.h mwclient/wiki_base.h \
+	mwclient/wiki_defs.h orlodrimbot/templates_stats/extract_templates_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/extract_templates_lib_test.o: orlodrimbot/templates_stats/extract_templates_lib_test.cpp \
+	cbl/date.h cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/tempfile.h \
+	mwclient/mock_wiki.h mwclient/parser.h mwclient/parser_misc.h mwclient/parser_nodes.h \
+	mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/templates_stats/extract_templates_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/extract_templates_lib_test: orlodrimbot/templates_stats/extract_templates_lib_test.o \
+	cbl/tempfile.o orlodrimbot/templates_stats/extract_templates_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/templates_stats/json.o: orlodrimbot/templates_stats/json.cpp cbl/json.h \
+	orlodrimbot/templates_stats/json.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/parse_templates.o: orlodrimbot/templates_stats/parse_templates.cpp cbl/args_parser.h \
+	cbl/date.h cbl/error.h cbl/json.h cbl/log.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/init_wiki.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/templates_stats/parse_templates_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/parse_templates: orlodrimbot/templates_stats/parse_templates.o \
+	orlodrimbot/templates_stats/parse_templates_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/templates_stats/parse_templates_lib.o: orlodrimbot/templates_stats/parse_templates_lib.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/include_tags.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/templates_stats/parse_templates_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/parse_templates_lib_test.o: orlodrimbot/templates_stats/parse_templates_lib_test.cpp \
+	cbl/date.h cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h \
+	cbl/tempfile.h mwclient/mock_wiki.h mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h \
+	mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/templates_stats/parse_templates_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/parse_templates_lib_test: orlodrimbot/templates_stats/parse_templates_lib_test.o \
+	cbl/tempfile.o orlodrimbot/templates_stats/parse_templates_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/templates_stats/regexp_of_range.o: orlodrimbot/templates_stats/regexp_of_range.cpp cbl/generated_range.h \
+	cbl/log.h cbl/string.h orlodrimbot/templates_stats/regexp_of_range.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/regexp_of_range_test.o: orlodrimbot/templates_stats/regexp_of_range_test.cpp \
+	cbl/generated_range.h cbl/log.h cbl/string.h cbl/unittest.h \
+	orlodrimbot/templates_stats/regexp_of_range.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/regexp_of_range_test: orlodrimbot/templates_stats/regexp_of_range_test.o cbl/unittest.o \
+	orlodrimbot/templates_stats/regexp_of_range.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lre2
+orlodrimbot/templates_stats/side_template_data.o: orlodrimbot/templates_stats/side_template_data.cpp cbl/error.h \
+	cbl/file.h cbl/generated_range.h cbl/string.h cbl/unicode_fr.h cbl/utf8.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h orlodrimbot/templates_stats/regexp_of_range.h \
+	orlodrimbot/templates_stats/side_template_data.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/side_template_data_test.o: orlodrimbot/templates_stats/side_template_data_test.cpp \
+	cbl/file.h cbl/generated_range.h cbl/log.h cbl/string.h cbl/tempfile.h cbl/unittest.h \
+	orlodrimbot/templates_stats/side_template_data.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/side_template_data_test: orlodrimbot/templates_stats/side_template_data_test.o \
+	cbl/tempfile.o cbl/unittest.o orlodrimbot/templates_stats/regexp_of_range.o \
+	orlodrimbot/templates_stats/side_template_data.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lre2
+orlodrimbot/templates_stats/stat.o: orlodrimbot/templates_stats/stat.cpp cbl/args_parser.h cbl/date.h \
+	cbl/directory.h cbl/error.h cbl/file.h cbl/generated_range.h cbl/html_entities.h cbl/json.h \
+	cbl/log.h cbl/string.h cbl/unicode_fr.h cbl/utf8.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/templates_stats/side_template_data.h \
+	orlodrimbot/templates_stats/templateinfo.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/stat: orlodrimbot/templates_stats/stat.o cbl/directory.o \
+	orlodrimbot/templates_stats/json.o orlodrimbot/templates_stats/regexp_of_range.o \
+	orlodrimbot/templates_stats/side_template_data.o orlodrimbot/templates_stats/templateinfo.o \
+	mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/templates_stats/templateinfo.o: orlodrimbot/templates_stats/templateinfo.cpp cbl/date.h cbl/error.h \
+	cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h cbl/utf8.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/templates_stats/json.h \
+	orlodrimbot/templates_stats/side_template_data.h orlodrimbot/templates_stats/templateinfo.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/templateinfo_test.o: orlodrimbot/templates_stats/templateinfo_test.cpp cbl/date.h \
+	cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h mwclient/mock_wiki.h \
+	mwclient/parser.h mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h \
+	mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/templates_stats/side_template_data.h orlodrimbot/templates_stats/templateinfo.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/templates_stats/templateinfo_test: orlodrimbot/templates_stats/templateinfo_test.o \
+	orlodrimbot/templates_stats/json.o orlodrimbot/templates_stats/regexp_of_range.o \
+	orlodrimbot/templates_stats/side_template_data.o orlodrimbot/templates_stats/templateinfo.o \
+	mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
 orlodrimbot/update_main_page/copy_page.o: orlodrimbot/update_main_page/copy_page.cpp cbl/date.h cbl/error.h \
 	cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h mwclient/parser.h \
 	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/request.h mwclient/site_info.h \

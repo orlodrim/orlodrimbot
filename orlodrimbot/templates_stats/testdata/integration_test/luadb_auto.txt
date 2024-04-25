@@ -1,0 +1,1 @@
+Infobox|{{Infobox|titre=|titre en italique=}}

@@ -1,0 +1,24 @@
+========Modèle:Lien========
+{{{lang}}} {{{trad}}} {{{fr}}}
+========Modèle:Lien/Documentation========
+The templatedata below should be ignored, because [[Modèle:Lien]] is not using #invoke, so we know that all valid
+parameters must appear in the code.
+<templatedata>{"params":{"invalid-param":{}}}</templatedata>
+========Modèle:Link========
+#redirect[[Modèle:Lien]]
+========Modèle:Infobox========
+{{#invoke:Infobox|create|some_param}}
+========Modèle:Infobox/Documentation========
+<templatedata>{"params":{"titre":{},"titre en italique":{}}}</templatedata>
+========Module:Infobox========
+-- Some Lua code.
+local p = {}
+========Vénus (planète)========
+{{Infobox|titre=Vénus}}
+========Utilisateur:Bob/P1========
+Vénus est une planète située entre {{Lien|lang=en|trad=Mercury (planet)|fr=Mercure (planète)}} et la
+{{Lien|langg=en|trad=Earth|fr=Terre}}.
+========Utilisateur:Bob/P2========
+{{Infobox|titre=|image=}}
+========Utilisateur:Bob/P3========
+{{Lien|invalid-param=test}}

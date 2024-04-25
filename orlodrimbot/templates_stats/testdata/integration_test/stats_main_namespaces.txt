@@ -1,0 +1,3 @@
+{"name":"Infobox","inclusions":1,"pages":1,"parameters":[{"name":"titre","pages":1,"nonemptypages":1,"valid":2,"examples":[{"title":"Vénus (planète)","type":"nonempty"}]}]}
+{"name":"Lien","inclusions":0,"pages":0,"parameters":[{"name":"fr","pages":0,"nonemptypages":0,"valid":1,"examples":[]},{"name":"lang","pages":0,"nonemptypages":0,"valid":1,"examples":[]},{"name":"trad","pages":0,"nonemptypages":0,"valid":1,"examples":[]}]}
+{"name":"Module:Infobox","inclusions":1,"pages":1,"namespace":"module","functions":[{"name":"create","pages":1,"examples":["Modèle:Infobox"]}]}

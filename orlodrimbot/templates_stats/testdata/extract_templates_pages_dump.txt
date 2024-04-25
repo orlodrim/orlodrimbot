@@ -1,0 +1,40 @@
+<mediawiki>
+  <page>
+    <title>Page 1</title>
+    <revision>
+      <id>1</id>
+      <timestamp>2000-01-01T00:00:00Z</timestamp>
+      <text xml:space="preserve">Word {{Test1|{{Test2}}}}
+{{#invoke:Wikiprojet|someFunction|abc}}
+{{#invoquE :Wikiprojet|someFunction2|def}}
+{{{{{|safesubst:}}}#invoke:Wikiprojet|someFunction3|ghi}}
+{{subst:TemplateWithSubst1}}
+{{ {{{|safesubst:}}} TemplateWithSubst2}}
+</text>
+    </revision>
+  </page>
+  <page>
+    <title>Page 2</title>
+    <revision>
+      <id>1</id>
+      <timestamp>2000-01-01T00:00:00Z</timestamp>
+      <text xml:space="preserve">{{&lt;includeonly&gt;Other&lt;/includeonly&gt;RedirectToTest1|abc}}</text>
+    </revision>
+  </page>
+  <page>
+    <title>Module:Test</title>
+    <revision>
+      <id>1</id>
+      <timestamp>2000-01-01T00:00:00Z</timestamp>
+      <text xml:space="preserve">{{Test1}}</text>
+    </revision>
+  </page>
+  <page>
+    <title>Module:Test/Documentation</title>
+    <revision>
+      <id>1</id>
+      <timestamp>2000-01-01T00:00:00Z</timestamp>
+      <text xml:space="preserve">{{Test1}}</text>
+    </revision>
+  </page>
+</mediawiki>
