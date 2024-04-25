@@ -165,6 +165,8 @@ mwclient/util/templates_by_name.o: mwclient/util/templates_by_name.cpp cbl/date.
 	mwclient/site_info.h mwclient/titles_util.h mwclient/util/templates_by_name.h mwclient/wiki.h \
 	mwclient/wiki_base.h mwclient/wiki_defs.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+mwclient/util/xml_dump.o: mwclient/util/xml_dump.cpp cbl/date.h mwclient/util/xml_dump.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 mwclient/wiki.o: mwclient/wiki.cpp cbl/date.h cbl/error.h cbl/http_client.h cbl/json.h cbl/unicode_fr.h \
 	cbl/utf8.h mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h \
 	mwclient/wiki_defs.h
@@ -509,9 +511,9 @@ mwclient/libmwclient.a: cbl/args_parser.o cbl/date.o cbl/error.o cbl/file.o cbl/
 	mwclient/bot_exclusion.o mwclient/mock_wiki.o mwclient/parser.o mwclient/parser_misc.o \
 	mwclient/parser_nodes.o mwclient/request.o mwclient/site_info.o mwclient/titles_util.o \
 	mwclient/util/bot_section.o mwclient/util/include_tags.o mwclient/util/init_wiki.o \
-	mwclient/util/templates_by_name.o mwclient/wiki.o mwclient/wiki_base.o mwclient/wiki_defs.o \
-	mwclient/wiki_read_api.o mwclient/wiki_read_api_query_list.o mwclient/wiki_read_api_query_prop.o \
-	mwclient/wiki_session.o mwclient/wiki_write_api.o
+	mwclient/util/templates_by_name.o mwclient/util/xml_dump.o mwclient/wiki.o mwclient/wiki_base.o \
+	mwclient/wiki_defs.o mwclient/wiki_read_api.o mwclient/wiki_read_api_query_list.o \
+	mwclient/wiki_read_api_query_prop.o mwclient/wiki_session.o mwclient/wiki_write_api.o
 	ar rcs $@ $^
 orlodrimbot/wikiutil/libwikiutil.a: orlodrimbot/wikiutil/date_formatter.o orlodrimbot/wikiutil/date_parser.o
 	ar rcs $@ $^
