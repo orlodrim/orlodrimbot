@@ -5,6 +5,8 @@ CXXFLAGS=-std=c++2a -Wall -Werror -O2 -I.
 BINARIES= \
 	orlodrimbot/bot_requests_archiver/bot_requests_archiver \
 	orlodrimbot/draft_moved_to_main/draft_moved_to_main \
+	orlodrimbot/dump/processing/processing \
+	orlodrimbot/dump/processing/testtools/create_xml_dump \
 	orlodrimbot/live_replication/live_replication \
 	orlodrimbot/monthly_categories_init/monthly_categories_init \
 	orlodrimbot/move_subpages/move_subpages \
@@ -256,6 +258,54 @@ orlodrimbot/draft_moved_to_main/draft_moved_to_main_lib_test: \
 	orlodrimbot/live_replication/mock_recent_changes_reader.o orlodrimbot/live_replication/recent_changes_reader.o \
 	orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
 	$(CXX) -o $@ $^ -lcurl -lre2 -lsqlite3
+orlodrimbot/dump/processing/processes/modules.o: orlodrimbot/dump/processing/processes/modules.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/xml_dump.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/dump/processing/processes/modules.h \
+	orlodrimbot/dump/processing/processes/process.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/processes/process.o: orlodrimbot/dump/processing/processes/process.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/xml_dump.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/dump/processing/processes/process.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/processes/templates.o: orlodrimbot/dump/processing/processes/templates.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/xml_dump.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/dump/processing/processes/process.h \
+	orlodrimbot/dump/processing/processes/templates.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/processes/titles.o: orlodrimbot/dump/processing/processes/titles.cpp cbl/date.h \
+	cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/xml_dump.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/dump/processing/processes/process.h orlodrimbot/dump/processing/processes/titles.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/processing.o: orlodrimbot/dump/processing/processing.cpp cbl/args_parser.h cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h cbl/string.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h \
+	mwclient/util/xml_dump.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/dump/processing/processes/process.h orlodrimbot/dump/processing/processing_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/processing: orlodrimbot/dump/processing/processing.o \
+	orlodrimbot/dump/processing/processes/modules.o orlodrimbot/dump/processing/processes/process.o \
+	orlodrimbot/dump/processing/processes/templates.o orlodrimbot/dump/processing/processes/titles.o \
+	orlodrimbot/dump/processing/processing_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/dump/processing/processing_lib.o: orlodrimbot/dump/processing/processing_lib.cpp cbl/date.h \
+	cbl/error.h cbl/generated_range.h cbl/json.h cbl/log.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/xml_dump.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/dump/processing/processes/modules.h \
+	orlodrimbot/dump/processing/processes/process.h orlodrimbot/dump/processing/processes/templates.h \
+	orlodrimbot/dump/processing/processes/titles.h orlodrimbot/dump/processing/processing_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/testtools/create_xml_dump.o: orlodrimbot/dump/processing/testtools/create_xml_dump.cpp \
+	cbl/generated_range.h cbl/html_entities.h cbl/string.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/dump/processing/testtools/create_xml_dump: orlodrimbot/dump/processing/testtools/create_xml_dump.o \
+	mwclient/libmwclient.a
+	$(CXX) -o $@ $^
 orlodrimbot/live_replication/continue_token.o: orlodrimbot/live_replication/continue_token.cpp cbl/error.h \
 	cbl/generated_range.h cbl/string.h orlodrimbot/live_replication/continue_token.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
