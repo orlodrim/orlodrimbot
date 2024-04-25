@@ -248,7 +248,7 @@ def main():
     )
     args = parser.parse_args()
     create_templates_stats(
-        args.dumpdir, args.dumpdate, has_templates_dump=args.hastemplatesdump, compact_format=args.compact_format,
+        args.dumpdir, args.dumpdate, has_templates_dump=args.hastemplatesdump, compact_format=args.compactformat,
     )
 
 
