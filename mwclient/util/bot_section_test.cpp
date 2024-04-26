@@ -37,6 +37,7 @@ private:
 
     CBL_ASSERT_EQ(readBotSection("<!-- BEGIN BOT SECTION -->\n<!-- END BOT SECTION -->"), "");
     CBL_ASSERT_EQ(readBotSection("<!-- BEGIN BOT SECTION -->\nTest\n<!-- END BOT SECTION -->"), "Test\n");
+    CBL_ASSERT_EQ(readBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->"), "A\n");
   }
   CBL_TEST_CASE(readBotSection_longInput) {
     string text;
@@ -87,10 +88,74 @@ private:
         "A<!-- BEGIN BOT SECTION -->B<!-- END BOT SECTION -->C<!-- BEGIN BOT SECTION -->D<!-- END BOT SECTION -->E",
         "Hello", 0, "A<!-- BEGIN BOT SECTION -->\nHello\n<!-- END BOT SECTION -->E");
     // Bot section not found.
+    checkReplaceBotSection("", "Hello", 0, "<!-- BEGIN BOT SECTION -->\nHello\n<!-- END BOT SECTION -->");
     checkReplaceBotSection("No bot section here", "Hello", 0,
                            "No bot section here\n<!-- BEGIN BOT SECTION -->\nHello\n<!-- END BOT SECTION -->");
     checkReplaceBotSection("No bot section here", "Hello", BS_MUST_EXIST, "<FAILURE>");
     checkReplaceBotSection("<!-- BEGIN BOT SECTIO --><!-- END BOT SECTION -->", "Hello", BS_MUST_EXIST, "<FAILURE>");
+    // Update counter is not present yet.
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- END BOT SECTION -->", "A", BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
+    // Update counter is present and must be updated because the content changes.
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->", "B",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #2 -->\nB\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1-->\nA\n<!-- END BOT SECTION -->", "B",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #2 -->\nB\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection(
+        "<!-- BEGIN BOT SECTION --><!-- update #1 some extra content -->\nA\n<!-- END BOT SECTION -->", "B",
+        BS_UPDATE_COUNTER, "<!-- BEGIN BOT SECTION --><!-- update #2 -->\nB\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #123456 -->\nA\n<!-- END BOT SECTION -->", "B",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #123457 -->\nB\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection(
+        "<!-- BEGIN BOT SECTION --><!-- update #9223372036854775806 --><!-- END BOT SECTION -->", "B",
+        BS_UPDATE_COUNTER,
+        "<!-- BEGIN BOT SECTION --><!-- update #9223372036854775807 -->\nB\n<!-- END BOT SECTION -->");
+    // Update counter is present but remains unchanged because the content remains the same.
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->", "A\n",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\n<!-- END BOT SECTION -->", "",
+                           BS_UPDATE_COUNTER, "<!-- BEGIN BOT SECTION --><!-- update #1 -->\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->A<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER | BS_COMPACT,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->A<!-- END BOT SECTION -->");
+    // Update counter not present yet but the content does not change, so there is no need to add it yet.
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION -->\nA\n<!-- END BOT SECTION -->", "A", BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION -->\nA\n<!-- END BOT SECTION -->");
+    // Edge cases where new lines at the beginning or at the end change.
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->A\n<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #2 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #2 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 --><!-- END BOT SECTION -->", "",
+                           BS_UPDATE_COUNTER, "<!-- BEGIN BOT SECTION --><!-- update #2 -->\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER | BS_COMPACT,
+                           "<!-- BEGIN BOT SECTION --><!-- update #2 -->A<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #1 -->A\n<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER | BS_COMPACT,
+                           "<!-- BEGIN BOT SECTION --><!-- update #2 -->A<!-- END BOT SECTION -->");
+    // Invalid update counter.
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #-5 -->A<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #9223372036854775807 -->A<!-- END BOT SECTION -->",
+                           "A", BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #100000000000000000000 -->A<!-- END BOT SECTION -->",
+                           "A", BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
+    checkReplaceBotSection("<!-- BEGIN BOT SECTION --><!-- update #X -->A<!-- END BOT SECTION -->", "A",
+                           BS_UPDATE_COUNTER,
+                           "<!-- BEGIN BOT SECTION --><!-- update #1 -->\nA\n<!-- END BOT SECTION -->");
   }
   CBL_TEST_CASE(replaceBotSectionInPage) {
     mwc::MockWiki wiki;

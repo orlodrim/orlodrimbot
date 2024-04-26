@@ -21,6 +21,12 @@ enum BotSectionFlags {
   BS_MUST_EXIST = 1,
   // Do not add any '\n' before or after the content.
   BS_COMPACT = 2,
+  // Include a counter in the bot section to prevent MediaWiki from detecting edits as a rollback.
+  // This is intended for pages that are regularly reset to a base state. For instance, on a page where the bot
+  // publishes a list of errors each month and humans fixes them one by one (removing them from the list), having a
+  // counter prevents edits that clear the page from being detected as a rollbacks.
+  // This may become more important if T154637 is resolved (https://phabricator.wikimedia.org/T154637#6489777).
+  BS_UPDATE_COUNTER = 4,
 };
 
 // Replaces the content of the bot section in `code` with `newBotSection`.

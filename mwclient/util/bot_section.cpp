@@ -11,13 +11,15 @@ using std::string;
 using std::string_view;
 
 namespace mwc {
+namespace {
 
 // Extracts the first wikicode comment in `code` from `position`.
 // Sets `comment` to the full comment including delimiters and `normalizedContent` to the normalized inner text.
 // If there are multiple "<!--" before the first "-->", assumes that the comment starts from the last one.
-static bool extractComment(string_view code, size_t& position, string_view& comment, string& normalizedContent) {
+bool extractComment(string_view code, size_t& position, size_t& commentStart, string_view& comment,
+                    string& normalizedContent) {
   constexpr string_view OPENING = "<!--", CLOSURE = "-->";
-  size_t commentStart = code.find(OPENING, position);
+  commentStart = code.find(OPENING, position);
   while (commentStart != string_view::npos) {
     size_t textStart = commentStart + OPENING.size();
     position = code.find(OPENING, textStart);
@@ -32,65 +34,119 @@ static bool extractComment(string_view code, size_t& position, string_view& comm
   return false;
 }
 
-// Returns pointers to the beginning and the end of the bot section, i.e. text between <!-- BEGIN BOT SECTION --> and
-// <!-- END BOT SECTION -->.
-// Returns {nullptr, nullptr} if there is no bot section or {<pointer>, nullptr} if the bot section is not closed.
-static pair<const char*, const char*> getBotSectionBoundaries(string_view code) {
+struct SplitPage {
+  string_view prefix;
+  string_view botSection;
+  string_view suffix;
+  bool hasBeginMarker = false;
+  bool hasEndMarker = false;
+  int64_t updateCounter = 0;
+};
+
+SplitPage parseBotSection(string_view code) {
+  constexpr string_view UPDATE_COUNTER_PREFIX = "UPDATE #";
+
+  SplitPage splitPage;
   size_t position = 0;
+  size_t commentStart = 0;
   string_view comment;
   string normalizedContent;
-  const char* sectionStart = nullptr;
-  const char* sectionEnd = nullptr;
-  while (extractComment(code, position, comment, normalizedContent)) {
-    if (normalizedContent == "BEGIN BOT SECTION" || normalizedContent == "DÉBUT DE LA ZONE DE TRAVAIL DU BOT") {
-      sectionStart = comment.data() + comment.size();
+  int state = 0;
+  size_t sectionStart = 0;
+
+  while (extractComment(code, position, commentStart, comment, normalizedContent)) {
+    switch (state) {
+      case 0:
+        if (normalizedContent == "BEGIN BOT SECTION" || normalizedContent == "DÉBUT DE LA ZONE DE TRAVAIL DU BOT") {
+          splitPage.hasBeginMarker = true;
+          sectionStart = commentStart + comment.size();
+          splitPage.prefix = code.substr(0, sectionStart);
+          state = 1;
+        }
+        break;
+      case 1:
+        state = 2;
+        if (commentStart == splitPage.prefix.size() && cbl::startsWith(normalizedContent, UPDATE_COUNTER_PREFIX)) {
+          splitPage.updateCounter = atoll(normalizedContent.c_str() + UPDATE_COUNTER_PREFIX.size());
+          if (splitPage.updateCounter < 0 || splitPage.updateCounter >= 0x7FFF'FFFF'FFFF'FFFF) {
+            splitPage.updateCounter = 0;
+          }
+          sectionStart += comment.size();
+          break;
+        }
+        [[fallthrough]];
+      case 2:
+      case 3:
+        if (normalizedContent == "END BOT SECTION" || normalizedContent == "FIN DE LA ZONE DE TRAVAIL DU BOT") {
+          splitPage.hasEndMarker = true;
+          splitPage.botSection = code.substr(sectionStart, commentStart - sectionStart);
+          splitPage.suffix = code.substr(commentStart);
+          state = 3;
+        }
+        break;
+    }
+  }
+  switch (state) {
+    case 0:
+      splitPage.prefix = code;
       break;
-    }
+    case 1:
+    case 2:
+      splitPage.botSection = code.substr(sectionStart);
+      break;
   }
-  if (sectionStart != nullptr) {
-    while (extractComment(code, position, comment, normalizedContent)) {
-      if (normalizedContent == "END BOT SECTION" || normalizedContent == "FIN DE LA ZONE DE TRAVAIL DU BOT") {
-        sectionEnd = comment.data();
-      }
-    }
-  }
-  return {sectionStart, sectionEnd};
+
+  return splitPage;
 }
 
-string_view readBotSection(string_view code) {
-  auto [start, end] = getBotSectionBoundaries(code);
-  if (start != nullptr && end == nullptr) {
-    end = code.data() + code.size();
+bool botSectionChanged(string_view oldBotSection, string_view newBotSection, int flags) {
+  if (!(flags & BS_COMPACT)) {
+    if (!cbl::startsWith(oldBotSection, "\n")) {
+      return true;
+    }
+    oldBotSection.remove_prefix(1);
+    if (!newBotSection.empty() && newBotSection.back() != '\n') {
+      if (!cbl::endsWith(oldBotSection, "\n")) {
+        return true;
+      }
+      oldBotSection.remove_suffix(1);
+    }
   }
-  string_view botSection(start, end - start);
-  if (!botSection.empty() && botSection.front() == '\n') {
+  return oldBotSection != newBotSection;
+}
+
+}  // namespace
+
+string_view readBotSection(string_view code) {
+  string_view botSection = parseBotSection(code).botSection;
+  if (cbl::startsWith(botSection, "\n")) {
     botSection.remove_prefix(1);
   }
   return botSection;
 }
 
 bool replaceBotSection(string& code, string_view newBotSection, int flags) {
-  auto [start, end] = getBotSectionBoundaries(code);
-  if (start == nullptr && (flags & BS_MUST_EXIST)) {
+  SplitPage splitPage = parseBotSection(code);
+
+  if (!splitPage.hasBeginMarker && (flags & BS_MUST_EXIST)) {
     return false;
+  } else if (!botSectionChanged(splitPage.botSection, newBotSection, flags)) {
+    // Exit early if there is no change. With BS_UPDATE_COUNTER, this prevents changing the page only to increment the
+    // counter.
+    return true;
   }
-  string codeAfterBotSection = end != nullptr ? code.substr(end - code.data()) : "<!-- END BOT SECTION -->";
-  if (start != nullptr) {
-    code.resize(start - code.data());
-  } else {
-    if (!code.empty() && code.back() != '\n') {
-      code += "\n";
-    }
-    code += "<!-- BEGIN BOT SECTION -->";
-  }
-  if (!(flags & BS_COMPACT)) {
-    code += '\n';
-  }
-  code += newBotSection;
-  if (!(flags & BS_COMPACT) && !newBotSection.empty() && newBotSection.back() != '\n') {
-    code += '\n';
-  }
-  code += codeAfterBotSection;
+
+  string_view newLine1 = !splitPage.hasBeginMarker && !code.empty() && code.back() != '\n' ? "\n" : "";
+  string_view beginMarker = !splitPage.hasBeginMarker ? "<!-- BEGIN BOT SECTION -->" : "";
+  string updaterCounterComment = (flags & BS_UPDATE_COUNTER)
+                                     ? cbl::concat("<!-- update #", std::to_string(splitPage.updateCounter + 1), " -->")
+                                     : "";
+  string_view newLine2 = !(flags & BS_COMPACT) ? "\n" : "";
+  string_view endMarker = !splitPage.hasEndMarker ? "<!-- END BOT SECTION -->" : "";
+  string_view newLine3 = !(flags & BS_COMPACT) && !newBotSection.empty() && newBotSection.back() != '\n' ? "\n" : "";
+
+  code = cbl::concat(splitPage.prefix, newLine1, beginMarker, updaterCounterComment, newLine2, newBotSection, newLine3,
+                     endMarker, splitPage.suffix);
   return true;
 }
 
