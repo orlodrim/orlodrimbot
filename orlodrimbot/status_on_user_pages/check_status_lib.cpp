@@ -108,10 +108,11 @@ vector<Inconsistency> enumInconsistencies(Wiki& wiki) {
   vector<Inconsistency> inconsistencies;
   enumInconsistenciesForGroup(wiki, mwc::UG_SYSOP, {"Catégorie:Wikipédia:Administrateur Wikipédia"},
                               {"Modèle:Icône Administrateur", "Modèle:Icône Opérateur"}, inconsistencies);
-  enumInconsistenciesForGroup(wiki, mwc::UG_BUREAUCRAT, {"Catégorie:Bureaucrate Wikipédia"}, {}, inconsistencies);
-  enumInconsistenciesForGroup(wiki, mwc::UG_CHECKUSER, {"Catégorie:Wikipédia:Vérificateur d'adresses IP"}, {},
-                              inconsistencies);
-  enumInconsistenciesForGroup(wiki, mwc::UG_OVERSIGHT, {"Catégorie:Masqueur Wikipédia"}, {}, inconsistencies);
+  enumInconsistenciesForGroup(wiki, mwc::UG_BUREAUCRAT, {"Catégorie:Wikipédia:Bureaucrate Wikipédia"},
+                              {"Modèle:Icône Bureaucrate"}, inconsistencies);
+  enumInconsistenciesForGroup(wiki, mwc::UG_CHECKUSER, {"Catégorie:Wikipédia:Vérificateur d'adresses IP"},
+                              {"Modèle:Icône Checkuser"}, inconsistencies);
+  enumInconsistenciesForGroup(wiki, mwc::UG_OVERSIGHT, {"Catégorie:Wikipédia:Masqueur Wikipédia"}, {}, inconsistencies);
   enumInconsistenciesForGroup(
       wiki, mwc::UG_INTERFACE_ADMIN, {},
       {"Modèle:Utilisateur Wikipédia:Administrateur d'interface", "Modèle:Icône Administrateur d'interface"},
@@ -140,5 +141,5 @@ void updateListOfStatusInconsistencies(Wiki& wiki, const string& listPage) {
   if (botSection.empty()) {
     botSection = "* ''Aucune page détectée''\n";
   }
-  mwc::replaceBotSectionInPage(wiki, listPage, botSection, "Mise à jour");
+  mwc::replaceBotSectionInPage(wiki, listPage, botSection, "Mise à jour", mwc::BS_UPDATE_COUNTER);
 }

@@ -45,7 +45,7 @@ private:
     updateListOfStatusInconsistencies(wiki, "Test page");
     CBL_ASSERT_EQ(
         wiki.readPageContent("Test page"),
-        "<!-- BEGIN BOT SECTION -->\n"
+        "<!-- BEGIN BOT SECTION --><!-- update #1 -->\n"
         "* La page [[Utilisateur:Sysop 2]] contient {{m|Icône Administrateur}} "
         "mais {{u'|Sysop 2}} n'est pas membre du groupe « Administrateurs ».\n"
         "* La page [[Utilisateur:Sysop 2]] est dans [[:Catégorie:Wikipédia:Administrateur Wikipédia]] "
@@ -61,7 +61,7 @@ private:
     StatusCheckMockWiki wiki;
     updateListOfStatusInconsistencies(wiki, "Test page");
     CBL_ASSERT_EQ(wiki.readPageContent("Test page"),
-                  "<!-- BEGIN BOT SECTION -->\n"
+                  "<!-- BEGIN BOT SECTION --><!-- update #1 -->\n"
                   "* ''Aucune page détectée''\n"
                   "<!-- END BOT SECTION -->");
   }
