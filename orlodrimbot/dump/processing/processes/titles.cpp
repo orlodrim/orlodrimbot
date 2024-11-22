@@ -21,6 +21,7 @@ void Titles::prepare() {
 
 void Titles::processPage(Page& page) {
   static const re2::RE2 rePortal(R"(\{\{\s*[Pp]ortail(\s|\|))");
+  static const re2::RE2 reStub(R"(\{\{\s*[ÉEée]bauche\s*[|}])");
   static const re2::RE2 reCategory(R"((?i:\[\[\s*(Catégorie|Category)\s*:))");
   static const re2::RE2 reEvaluation(R"(\{\{\s*[Ww]ikiprojet\s*[|}])");
   static const re2::RE2 reNonEmptyTodo(R"(\{\{(\s|\n)*([Àà] +faire|[Tt]odo|[Tt]ODO)(\s|\n)*\|(\s|\n)*[^\s\n\}])");
@@ -31,6 +32,7 @@ void Titles::processPage(Page& page) {
   string redirTarget, redirAnchor;
   bool isRedirect = environment().wiki().readRedirect(code, &redirTarget, &redirAnchor);
   bool isDisambiguation = RE2::PartialMatch(code, *m_reDisambiguation);
+  bool isStub = RE2::PartialMatch(code, reStub);
   bool hasPortal = namespace_ == mwc::NS_MAIN && RE2::PartialMatch(code, rePortal);
   bool hasCat = RE2::PartialMatch(code, reCategory);
   bool hasEval = namespace_ == mwc::NS_TALK && RE2::PartialMatch(code, reEvaluation);
@@ -42,6 +44,7 @@ void Titles::processPage(Page& page) {
   properties += '|';
   if (isRedirect) properties += 'R';
   if (isDisambiguation) properties += 'H';
+  if (isStub) properties += 'S';
   if (hasPortal) properties += 'P';
   if (hasCat) properties += 'C';
   if (hasEval) properties += 'E';

@@ -15,9 +15,6 @@ public:
 
 private:
   std::unique_ptr<re2::RE2> m_reDisambiguation;
-  std::unique_ptr<re2::RE2> m_rePortal;
-  std::unique_ptr<re2::RE2> m_reCategory;
-  std::unique_ptr<re2::RE2> m_reEvaluation;
 };
 
 }  // namespace dump_processing
