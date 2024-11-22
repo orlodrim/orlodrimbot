@@ -245,6 +245,7 @@ private:
 
   sqlite3* m_db = nullptr;
   Transaction* m_transaction = nullptr;
+  int64_t m_transactionStartTime = 0;
 
   static bool synchronousModeForcedOff;
 

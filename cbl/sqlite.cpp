@@ -2,6 +2,7 @@
 #include <sqlite3.h>
 #include <cstdint>
 #include <cstring>
+#include <ctime>
 #include <string>
 #include <utility>
 #include "error.h"
@@ -11,6 +12,9 @@
 using std::string;
 
 namespace sqlite {
+
+constexpr int LONG_TRANSACTION_WARNING_THRESHOLD_SECS = 240;
+constexpr int BUSY_TIMEOUT_SECS = 300;
 
 [[noreturn]] static void throwSqliteError(int code, const string& message) {
   char codeStr[14];
@@ -223,7 +227,7 @@ void Database::openInternal(const string& path, const OpenParams& params, const 
     throwSqliteError(openResult, errorPrefix + errorMessage);
   }
   CBL_ASSERT(m_db != nullptr);
-  sqlite3_busy_timeout(m_db, 300000);
+  sqlite3_busy_timeout(m_db, BUSY_TIMEOUT_SECS * 1000);
   sqlite3_extended_result_codes(m_db, 1);
   setSynchronousMode(synchronousModeForcedOff ? SYNC_OFF : params.synchronousMode);
   if (params.openMode == OPEN_OR_CREATE) {
@@ -306,9 +310,16 @@ void Database::beginTransaction(Transaction* transaction) {
     throwSqliteError(execResult, string("Failed to start transaction '") + transaction->name() + "': " + errorMessage);
   }
   m_transaction = transaction;
+  m_transactionStartTime = static_cast<int64_t>(time(nullptr));
 }
 
 void Database::endTransaction(bool commit) {
+  if (m_transaction != nullptr) {
+    int64_t duration = static_cast<int64_t>(time(nullptr)) - m_transactionStartTime;
+    if (duration >= LONG_TRANSACTION_WARNING_THRESHOLD_SECS) {
+      CBL_WARNING << "Long transaction '" << m_transaction->name() << "': " << duration << " seconds";
+    }
+  }
   string errorMessage;
   int execResult = execManyInternal(commit ? "END TRANSACTION;" : "ROLLBACK;", errorMessage);
   Transaction* oldTransaction = m_transaction;
