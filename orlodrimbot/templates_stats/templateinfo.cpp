@@ -34,7 +34,7 @@ bool containsInvoke(const string& code) {
 
 void pushInVector(vector<string>& v, int& size, const string& value, int maxCount) {
   if (v.empty() || v.back() != value) {
-    if ((int)v.size() >= maxCount) {
+    if ((int) v.size() >= maxCount) {
       v.pop_back();
     }
     v.push_back(value);

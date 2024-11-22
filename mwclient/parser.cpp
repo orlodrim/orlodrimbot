@@ -170,8 +170,7 @@ static bool parseTagNameAndType(const char*& position, const char* codeEnd, stri
   }
   if (PARSER_EXTENSION_TAGS.count(tagName) == 0) return false;
   if (p >= codeEnd || (*p != ' ' && *p != '/' && *p != '>')) return false;
-  for (; p < codeEnd && *p != '<' && *p != '>'; p++) {
-  }
+  for (; p < codeEnd && *p != '<' && *p != '>'; p++) {}
   if (p >= codeEnd || *p != '>') return false;
   // Now, p <= codeEnd - 1;
   if (tagType == OPENING_TAG && *(p - 1) == '/') {
@@ -420,10 +419,8 @@ private:
   }
   void updateOpeningElementsAfterRemoval() {
     int size = m_elements.size();
-    for (; m_linkOpenings.back() >= size; m_linkOpenings.pop_back()) {
-    }
-    for (; m_templateOpenings.back() >= size; m_templateOpenings.pop_back()) {
-    }
+    for (; m_linkOpenings.back() >= size; m_linkOpenings.pop_back()) {}
+    for (; m_templateOpenings.back() >= size; m_templateOpenings.pop_back()) {}
   }
   vector<Element> m_elements;
   // -1 acts as a sentinel value for updateOpeningElementsAfterRemoval and is never removed.
@@ -580,8 +577,7 @@ bool CodeParser::parseToken() {
       break;
     case '{':
       if (m_position + 1 < m_codeEnd && tokenBegin[1] == '{') {
-        for (m_position += 2; m_position < m_codeEnd && *m_position == '{'; m_position++) {
-        }
+        for (m_position += 2; m_position < m_codeEnd && *m_position == '{'; m_position++) {}
         m_stack.pushToken(TOKEN_TEMPLATE_BEGIN, tokenBegin, m_position);
         return true;
       }
@@ -595,8 +591,7 @@ bool CodeParser::parseToken() {
       break;
     case '}':
       if (m_position + 1 < m_codeEnd && tokenBegin[1] == '}') {
-        for (m_position += 2; m_position < m_codeEnd && *m_position == '}'; m_position++) {
-        }
+        for (m_position += 2; m_position < m_codeEnd && *m_position == '}'; m_position++) {}
         m_stack.pushToken(TOKEN_TEMPLATE_END, tokenBegin, m_position);
         return true;
       }

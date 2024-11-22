@@ -22,8 +22,7 @@ using std::vector;
 namespace mwc {
 
 static void skipSpace(string_view& code) {
-  for (; !code.empty() && isspace(static_cast<unsigned char>(code[0])); code.remove_prefix(1)) {
-  }
+  for (; !code.empty() && isspace(static_cast<unsigned char>(code[0])); code.remove_prefix(1)) {}
 }
 
 static bool parseChar(string_view& code, char c) {

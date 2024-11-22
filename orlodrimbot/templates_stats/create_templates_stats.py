@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Compute template statistics for wstat.fr from an XML dump if the French Wikipedia."""
+"""Compute template statistics for wstat.fr from an XML dump of the French Wikipedia."""
 
 import argparse
 import glob

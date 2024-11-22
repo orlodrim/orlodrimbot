@@ -1,7 +1,7 @@
 // Converts ../testdata/frwiki-20000101-pages-meta-current1.txt to an XML file similar to public Wikipedia dumps.
 // Many fields that are not used by the dump parser are omitted.
-#include <iostream>
 #include <cstdio>
+#include <iostream>
 #include <string>
 #include "cbl/html_entities.h"
 #include "cbl/string.h"
