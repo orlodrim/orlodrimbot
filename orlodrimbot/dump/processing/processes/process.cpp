@@ -144,7 +144,7 @@ const string& Process::getParameter(const string& key) const {
 }
 
 string Process::getAbsolutePath(const string& fileName) {
-  return cbl::startsWith(fileName, "/") ? fileName : m_environment->dataDir() + fileName;
+  return fileName.starts_with("/") ? fileName : m_environment->dataDir() + fileName;
 }
 
 void Process::openMainOutputFileFromParam(const string& key) {

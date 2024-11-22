@@ -41,8 +41,8 @@ void TemplateExtractor::readRedirects(const string& fileName) {
     CBL_ASSERT(i != -1);
     title = line.substr(0, i);
     target = line.substr(i + 1);
-    CBL_ASSERT(cbl::startsWith(title, templatePrefix));
-    if (!cbl::startsWith(target, templatePrefix)) continue;
+    CBL_ASSERT(title.starts_with(templatePrefix));
+    if (!target.starts_with(templatePrefix)) continue;
     target = target.substr(templatePrefix.size());
     CBL_ASSERT(!target.empty());
     unordered_map<string, string>::iterator it = m_templatesAndRedirects.find(target);
@@ -67,7 +67,7 @@ void TemplateExtractor::processDump(const string& outputFileName) {
     if (iPage % 10000 == 0) {
       CBL_INFO << iPage << " pages lues";
     }
-    if (cbl::startsWith(dump.title(), "Module:") && !cbl::endsWith(dump.title(), "/Documentation")) {
+    if (dump.title().starts_with("Module:") && !dump.title().ends_with("/Documentation")) {
       // Do not try to find template inclusions in modules as they are often built dynamically by concatenating strings.
       // For instance, '{{' .. variable .. '}}' is not an inclusion of a template named "' .. variable .. '".
       // Documentation pages of modules contain normal wikicode so they are not skipped.

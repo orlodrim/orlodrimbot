@@ -36,16 +36,6 @@ void concatHelper(std::string& buffer, std::string_view firstArg, Args... args) 
 // should go away as the called function is updated to take a string_view.
 using legacyStringConv = std::string;
 
-inline bool startsWith(std::string_view s, std::string_view prefix) {
-  size_t n = prefix.size();
-  return n <= s.size() && memcmp(s.data(), prefix.data(), n) == 0;
-}
-
-inline bool endsWith(std::string_view s, std::string_view suffix) {
-  size_t n = suffix.size();
-  return n <= s.size() && memcmp(s.data() + s.size() - n, suffix.data(), n) == 0;
-}
-
 // Concatenates multiple string_views (or anything convertible to string_view).
 template <typename... Args>
 std::string concat(Args... args) {

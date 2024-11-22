@@ -83,7 +83,7 @@ ArchiveParams::ArchiveParams(Wiki& wiki, const Algorithms& algorithms, const str
 
   m_rawArchive = parsedFields["archive"];
   m_archive = wiki.normalizeTitle(m_rawArchive);
-  if (cbl::startsWith(m_archive, "/")) {
+  if (m_archive.starts_with("/")) {
     m_archive = title + m_archive;
   } else if (m_archive.empty()) {
     m_archive = title + "/Archive %(counter)d";
@@ -115,7 +115,7 @@ ArchiveParams::ArchiveParams(Wiki& wiki, const Algorithms& algorithms, const str
   m_archiveheader = parsedFields["archiveheader"];
   if (m_archiveheader.empty()) {
     const bool directSubPage =
-        cbl::startsWith(m_archive, title + "/") && m_archive.find('/', title.size() + 1) == string::npos;
+        m_archive.starts_with(title + "/") && m_archive.find('/', title.size() + 1) == string::npos;
     if (directSubPage) {
       m_archiveheader = "{{Archive de discussion}}";
     } else {

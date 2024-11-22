@@ -36,7 +36,7 @@ int main() {
   bool afterTitle = false;
   printf("<mediawiki>\n");
   while (getline(std::cin, line)) {
-    if (line.size() > 16 && cbl::startsWith(line, "========") && cbl::endsWith(line, "========")) {
+    if (line.size() > 16 && line.starts_with("========") && line.ends_with("========")) {
       if (!title.empty()) {
         generatePage(title, code, ++pageId);
       }

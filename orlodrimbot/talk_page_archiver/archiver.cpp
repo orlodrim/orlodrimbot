@@ -311,7 +311,7 @@ void ArchivePage::update(Wiki* wiki, const string& sourcePage, bool dryRun) cons
           }
           case NEWEST_SECTION_FIRST: {
             size_t insertionPoint;
-            if (content.empty() || cbl::startsWith(content, "=")) {
+            if (content.empty() || content.starts_with("=")) {
               insertionPoint = 0;
             } else {
               size_t firstSection = content.find("\n=");
@@ -544,7 +544,7 @@ void Archiver::checkArchiveName(const string& title, const string& archive, cons
   string_view unprefixedTitle = titleParts.unprefixedTitle();
   string_view archiveUnprefixedTitle = archiveParts.unprefixedTitle();
   bool isSubPage = titleParts.namespaceNumber == archiveParts.namespaceNumber &&
-                   cbl::startsWith(archiveUnprefixedTitle, cbl::concat(unprefixedTitle, "/"));
+                   archiveUnprefixedTitle.starts_with(cbl::concat(unprefixedTitle, "/"));
   if (!isSubPage) {
     throw ArchiverError(cbl::concat("The archive page '", archive, "' is not a subpage of '", title, "'"));
   }
@@ -674,7 +674,7 @@ void Archiver::archivePageWithCode(const string& title, const ArchiveParams& par
 
   // Pattern where a short subpage is archived to its parent page containing the full list.
   // Example: https://fr.wikipedia.org/w/index.php?title=Projet:Football/Articles_r%C3%A9cents&oldid=166990970
-  if (cbl::startsWith(title, params.archive() + "/")) {
+  if (title.starts_with(params.archive() + "/")) {
     CBL_INFO << "Purging '" << params.archive() << "'";
     if (!m_dryRun) {
       try {

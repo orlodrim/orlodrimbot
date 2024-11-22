@@ -18,8 +18,6 @@
 #include "mwclient/util/include_tags.h"
 #include "mwclient/wiki.h"
 
-using cbl::endsWith;
-using cbl::startsWith;
 using mwc::Wiki;
 using std::istream;
 using std::ofstream;
@@ -67,13 +65,13 @@ void processSimpleDump(istream& inputStream,
 // baseTitle is the title with that suffix removed.
 pair<string, bool> parseDocPageTitle(const string& title) {
   constexpr string_view DOC_PAGE_SUFFIX = "/Documentation";
-  bool isDocPage = cbl::endsWith(title, DOC_PAGE_SUFFIX);
+  bool isDocPage = title.ends_with(DOC_PAGE_SUFFIX);
   return {isDocPage ? title.substr(0, title.size() - DOC_PAGE_SUFFIX.size()) : title, isDocPage};
 }
 
 bool shouldProcessTemplate(const string& title) {
-  if (cbl::startsWith(title, "Modèle:Données/") &&
-      (cbl::endsWith(title, "/évolution population") || cbl::endsWith(title, "/informations générales"))) {
+  if (title.starts_with("Modèle:Données/") &&
+      (title.ends_with("/évolution population") || title.ends_with("/informations générales"))) {
     return false;
   }
   return true;

@@ -198,7 +198,7 @@ vector<Revision> MockWiki::getHistory(const HistoryParams& params) {
   }
   bool afterStartId = true;
   if (!params.queryContinue.empty()) {
-    CBL_ASSERT(cbl::startsWith(params.queryContinue, "I"));
+    CBL_ASSERT(params.queryContinue.starts_with("I"));
     startIndex = atoi(params.queryContinue.c_str() + 1);
     CBL_ASSERT(startIndex >= 0 && startIndex < numRevisions);
   } else {
@@ -265,7 +265,7 @@ vector<string> MockWiki::getAllPages(const AllPagesParams& params) {
       (params.namespace_ == NS_MAIN ? "" : m_siteInfo.namespaces().at(params.namespace_).name + ":") + params.prefix;
   vector<string> pages;
   for (const auto& [pageTitle, page] : m_pages) {
-    if (!cbl::startsWith(pageTitle, prefix)) continue;
+    if (!pageTitle.starts_with(prefix)) continue;
     if (page.revisions.empty()) continue;
     if (params.filterRedir != FR_ALL) {
       bool isRedirect = readRedirect(readRevisionContent(page.revisions.back()), nullptr, nullptr);

@@ -52,9 +52,9 @@ static bool extractDummyVariableText(const Variable& variable, string& rawText) 
 
 static string_view stripSubst(string_view name) {
   string_view strippedName = cbl::trim(name, cbl::TRIM_LEFT);
-  if (cbl::startsWith(strippedName, "subst:")) {
+  if (strippedName.starts_with("subst:")) {
     return strippedName.substr(strlen("subst:"));
-  } else if (cbl::startsWith(strippedName, "safesubst:")) {
+  } else if (strippedName.starts_with("safesubst:")) {
     return strippedName.substr(strlen("safesubst:"));
   }
   return name;
@@ -327,7 +327,7 @@ void Tag::addToBuffer(std::string& buffer) const {
 /* == Link == */
 
 bool Link::targetStartsWithColon() const {
-  return cbl::startsWith(m_target, ":");
+  return m_target.starts_with(":");
 }
 
 LinkPtr Link::copy() const {

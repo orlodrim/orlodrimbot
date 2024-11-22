@@ -28,25 +28,25 @@ public:
     readLine();
   }
   bool readCommand(string& command) {
-    while (!m_eof && cbl::startsWith(m_line, "#")) {
+    while (!m_eof && m_line.starts_with("#")) {
       readLine();
     }
     if (m_eof) return false;
-    CBL_ASSERT(!cbl::startsWith(m_line, " "));
+    CBL_ASSERT(!m_line.starts_with(" "));
     command = m_line;
     readLine();
     return true;
   }
   void readCommandCode(string& code) {
     code.clear();
-    while (!m_eof && (m_line.empty() || cbl::startsWith(m_line, " "))) {
+    while (!m_eof && (m_line.empty() || m_line.starts_with(" "))) {
       if (!m_line.empty()) {
         code.append(m_line, 1, m_line.size() - 1);
       }
       code += '\n';
       readLine();
     }
-    if (cbl::endsWith(code, "\n")) {
+    if (code.ends_with("\n")) {
       code.resize(code.size() - 1);
     }
   }

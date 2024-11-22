@@ -106,7 +106,7 @@ void SubpagesMover::processMove(const LogEvent& logEvent) {
     oldPageCode.clear();
   }
 
-  if (cbl::startsWith(newPageTitle, oldPageTitle + "/")) {
+  if (newPageTitle.starts_with(oldPageTitle + "/")) {
     CBL_INFO << "Ignoring subpages of '" << oldPageTitle << "' because the new page '" << newPageTitle
              << "' is a subpage of the old one";
     return;
@@ -128,7 +128,7 @@ void SubpagesMover::processMove(const LogEvent& logEvent) {
   bool anyMoveDone = false;
 
   for (const string& oldSubpage : subpages) {
-    if (!cbl::startsWith(oldSubpage, talkPage + "/")) {
+    if (!oldSubpage.starts_with(talkPage + "/")) {
       CBL_ERROR << "Internal error: '" << oldSubpage << "' is not a subpage of '" << talkPage << "'";
       continue;
     }

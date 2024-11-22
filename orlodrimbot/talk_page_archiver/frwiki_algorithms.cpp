@@ -43,7 +43,7 @@ public:
     for (string_view line : cbl::splitLines(threadContent)) {
       if (line.empty()) continue;
       isNewsletter = false;
-      if (cbl::startsWith(line, "<!-- Message envoyé par ")) {
+      if (line.starts_with("<!-- Message envoyé par ")) {
         size_t titleParam = line.find("title=");
         if (titleParam == string_view::npos) continue;
         size_t titleValueStart = titleParam + strlen("title=");
@@ -56,7 +56,7 @@ public:
         } else {
           CBL_INFO << "Unknown massmessage list: " << title;
         }
-      } else if (cbl::startsWith(line, "{{RAW/PdD|") || cbl::startsWith(line, "{{Wikimag message|")) {
+      } else if (line.starts_with("{{RAW/PdD|") || line.starts_with("{{Wikimag message|")) {
         isNewsletter = true;
       }
     }

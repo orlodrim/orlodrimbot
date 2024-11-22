@@ -22,7 +22,6 @@
 #include "templateinfo.h"
 
 using cbl::encodeURIComponent;
-using cbl::endsWith;
 using mwc::NS_MEDIAWIKI;
 using mwc::NS_USER;
 using mwc::Wiki;
@@ -147,7 +146,7 @@ void processExtraction(const string& templatesCodeFileName, const string& inclus
       } else if (noTalk && mwc::isTalkNamespace(namespace_)) {
         continue;
       } else if ((namespace_ == NS_USER || namespace_ == NS_MEDIAWIKI) &&
-                 (endsWith(inclusionPage, ".js") || endsWith(inclusionPage, ".css"))) {
+                 (inclusionPage.ends_with(".js") || inclusionPage.ends_with(".css"))) {
         continue;
       }
       wikicode::List parsedCode = wikicode::parse(inclusionCode);
@@ -160,12 +159,12 @@ void processExtraction(const string& templatesCodeFileName, const string& inclus
       }
     }
     if (templateInfo.namespace_() == TemplateInfo::TN_TEMPLATE) {
-      if (!templateInfo.hasParameters() && endsWith(templateName, "/Documentation")) {
+      if (!templateInfo.hasParameters() && templateName.ends_with("/Documentation")) {
         continue;
       }
     } else if (templateInfo.namespace_() == TemplateInfo::TN_MODULE) {
       // HACK (à mettre en liste noire avant)
-      if (endsWith(templateName, "/Documentation")) {
+      if (templateName.ends_with("/Documentation")) {
         continue;
       }
     }
@@ -235,7 +234,7 @@ int main(int argc, char** argv) {
   } else if ((outputFormats & OF_JSON) && jsonOutputDir.empty()) {
     CBL_FATAL << "Missing parameter --jsonoutput <dir>.";
   }
-  if (!jsonOutputDir.empty() && !endsWith(jsonOutputDir, "/")) {
+  if (!jsonOutputDir.empty() && !jsonOutputDir.ends_with("/")) {
     jsonOutputDir += '/';
   }
 

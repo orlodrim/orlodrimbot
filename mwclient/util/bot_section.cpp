@@ -66,7 +66,7 @@ SplitPage parseBotSection(string_view code) {
         break;
       case 1:
         state = 2;
-        if (commentStart == splitPage.prefix.size() && cbl::startsWith(normalizedContent, UPDATE_COUNTER_PREFIX)) {
+        if (commentStart == splitPage.prefix.size() && normalizedContent.starts_with(UPDATE_COUNTER_PREFIX)) {
           splitPage.updateCounter = atoll(normalizedContent.c_str() + UPDATE_COUNTER_PREFIX.size());
           if (splitPage.updateCounter < 0 || splitPage.updateCounter >= 0x7FFF'FFFF'FFFF'FFFF) {
             splitPage.updateCounter = 0;
@@ -101,12 +101,12 @@ SplitPage parseBotSection(string_view code) {
 
 bool botSectionChanged(string_view oldBotSection, string_view newBotSection, int flags) {
   if (!(flags & BS_COMPACT)) {
-    if (!cbl::startsWith(oldBotSection, "\n")) {
+    if (!oldBotSection.starts_with("\n")) {
       return true;
     }
     oldBotSection.remove_prefix(1);
     if (!newBotSection.empty() && newBotSection.back() != '\n') {
-      if (!cbl::endsWith(oldBotSection, "\n")) {
+      if (!oldBotSection.ends_with("\n")) {
         return true;
       }
       oldBotSection.remove_suffix(1);
@@ -119,7 +119,7 @@ bool botSectionChanged(string_view oldBotSection, string_view newBotSection, int
 
 string_view readBotSection(string_view code) {
   string_view botSection = parseBotSection(code).botSection;
-  if (cbl::startsWith(botSection, "\n")) {
+  if (botSection.starts_with("\n")) {
     botSection.remove_prefix(1);
   }
   return botSection;

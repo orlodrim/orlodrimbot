@@ -14,7 +14,7 @@ bool isSpaceOrComment(string_view s) {
   while (!s.empty()) {
     if (isspace(static_cast<unsigned char>(s[0]))) {
       s.remove_prefix(1);
-    } else if (cbl::startsWith(s, "<!--")) {
+    } else if (s.starts_with("<!--")) {
       size_t commentEnd = s.find("-->", 4);
       if (commentEnd == string_view::npos) break;
       s.remove_prefix(commentEnd + 3);

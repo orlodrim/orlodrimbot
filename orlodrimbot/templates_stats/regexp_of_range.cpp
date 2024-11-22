@@ -69,7 +69,7 @@ static void appendRegExpForRange(string_view min, string_view max, string& buffe
     if (!upperBoundIsTrivial) {
       appendRegExpForRange(string(1, max[0]) + string(tailSize, '0'), max, buffer);
     }
-    CBL_ASSERT(cbl::endsWith(buffer, "|"));
+    CBL_ASSERT(buffer.ends_with("|"));
     buffer.pop_back();
     if (commonPrefix) {
       buffer += ')';
@@ -81,7 +81,7 @@ static void appendRegExpForRange(string_view min, string_view max, string& buffe
 string buildRegExpForRange(string_view min, string_view max) {
   string buffer;
   appendRegExpForRange(min, max, buffer);
-  CBL_ASSERT(cbl::endsWith(buffer, "|"));
+  CBL_ASSERT(buffer.ends_with("|"));
   buffer.pop_back();
   return buffer;
 }

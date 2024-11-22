@@ -187,8 +187,8 @@ string TitlesUtil::getSubjectPage(const string& title) const {
 
 string TitlesUtil::makeLink(const string& target) const {
   int namespace_ = getTitleNamespace(target);
-  bool colonNeeded = !cbl::startsWith(target, ":") &&
-                     (namespace_ == NS_CATEGORY || namespace_ == NS_FILE || cbl::startsWith(target, "/"));
+  bool colonNeeded =
+      !target.starts_with(":") && (namespace_ == NS_CATEGORY || namespace_ == NS_FILE || target.starts_with("/"));
   string link;
   link.reserve(target.size() + 4 + (colonNeeded ? 1 : 0));
   link += colonNeeded ? "[[:" : "[[";

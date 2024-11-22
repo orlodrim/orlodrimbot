@@ -71,7 +71,7 @@ public:
   string post(const string& url, const string& data) override {
     CBL_ASSERT(m_inTestCase);
     string response = stripServedBy(HTTPClient::post(url, data));
-    if (!isLoginError(response) && !cbl::startsWith(data, "action=login&")) {
+    if (!isLoginError(response) && !data.starts_with("action=login&")) {
       startNewRequest();
       m_outputStream << "    {\n"
                      << "      \"method\": \"POST\",\n"

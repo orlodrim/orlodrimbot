@@ -204,7 +204,7 @@ void Wiki::logIn(const LoginParams& loginParams, const string& sessionFile) {
   m_lastEdit = Date::now().toTimeT();
 
   string url = loginParams.url;
-  if (cbl::endsWith(url, "/")) {
+  if (url.ends_with("/")) {
     url.pop_back();
   }
 

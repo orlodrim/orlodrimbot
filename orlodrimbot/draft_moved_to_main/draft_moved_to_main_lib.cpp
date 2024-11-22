@@ -59,7 +59,7 @@ void EventsByDay::addEventsFromCode(string_view code) {
     if (wikicode::getTitleLevel(line) != 0) {
       Date dateOfSection = dateParser.parseDate(wikicode::getTitleContent(line), DateParser::AFTER_2000);
       currentSection = !dateOfSection.isNull() ? &m_sections[dateOfSection] : nullptr;
-    } else if (currentSection && cbl::startsWith(line, "*")) {
+    } else if (currentSection && line.starts_with("*")) {
       currentSection->emplace_back(line);
     }
   }
@@ -79,7 +79,7 @@ string EventsByDay::toString() const {
 }
 
 void EventsByDay::addEvent(const Date& date, const string& event) {
-  CBL_ASSERT(cbl::startsWith(event, "*"));
+  CBL_ASSERT(event.starts_with("*"));
   m_sections[date.extractDay()].push_front(event);
 }
 

@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 
   mwc::Wiki wiki;
   mwc::initWikiFromFlags(wikiFlags, wiki);
-  if (!dataDir.empty() && !cbl::endsWith(dataDir, "/")) {
+  if (!dataDir.empty() && !dataDir.ends_with("/")) {
     dataDir += '/';
   }
   dump_processing::Environment environment(wiki, dataDir);

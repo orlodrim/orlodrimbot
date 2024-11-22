@@ -15,7 +15,6 @@
 #include "json.h"
 #include "side_template_data.h"
 
-using cbl::startsWith;
 using mwc::Wiki;
 using std::make_pair;
 using std::map;
@@ -67,7 +66,7 @@ TemplateInfo::TemplateInfo(const string& templateName, const string& templateCod
     : m_templateName(templateName), m_numInclusions(0), m_numErrors(-1), m_numArticles(0), m_numArticlesNP(0),
       m_sideTemplateData(&sideTemplateData) {
   // HACK
-  if (startsWith(templateName, "Module:")) {
+  if (templateName.starts_with("Module:")) {
     m_fullPageName = templateName;
     m_namespace = TN_MODULE;
   } else {
