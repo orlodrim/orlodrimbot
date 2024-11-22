@@ -22,7 +22,7 @@ private:
     CBL_ASSERT(!containsFdNTemplate("{{Réponse FdN|autre}}"));
     CBL_ASSERT(containsFdNTemplate("{{Réponse FdN|oui}}"));
     CBL_ASSERT(containsFdNTemplate("{{Réponse FdN|attente}}"));
-    CBL_ASSERT(containsFdNTemplate("{{Réponse FdN|encours}}"));
+    CBL_ASSERT(!containsFdNTemplate("{{Réponse FdN|encours}}"));
     CBL_ASSERT(containsFdNTemplate("{{ template : réponse_FdN\n| 1 = oui }}"));
     CBL_ASSERT(containsFdNTemplate("{{Répondu}}"));
     CBL_ASSERT(containsFdNTemplate("{{ répondu }}"));

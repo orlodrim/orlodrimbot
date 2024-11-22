@@ -78,16 +78,27 @@ public:
         "Modèle:FdNBrouillon",
         "Modèle:Forum des nouveaux déjà publié",
         "Modèle:FdNDP",
+        "Modèle:Forum des nouveaux copyvio",
         "Modèle:CopyvioFdN",
         "Modèle:FdNadm",
+        "Modèle:Réponse wikicode",
+    };
+    static const unordered_set<string> NON_FINAL_STATES = {
+        "non",
+        // "en attente",
+        // "attente",
+        "autre avis",
+        "autre",
+        "en cours",
+        "encours",
     };
     wikicode::List parsedContent = wikicode::parse(threadContent);
     bool templateFound = false;
     for (const wikicode::Template& template_ : parsedContent.getTemplates()) {
       string templateName = wiki.normalizeTitle(template_.name(), mwc::NS_TEMPLATE);
-      if (templateName == "Modèle:Réponse FdN") {
+      if (templateName == "Modèle:Réponse wikicode" || templateName == "Modèle:Réponse FdN") {
         string valueOfParam1 = template_.getParsedFields()["1"];
-        if (valueOfParam1 == "oui" || valueOfParam1 == "attente" || valueOfParam1 == "encours") {
+        if (!valueOfParam1.empty() && NON_FINAL_STATES.count(valueOfParam1) == 0) {
           templateFound = true;
           break;
         }
