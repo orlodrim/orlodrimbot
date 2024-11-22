@@ -6,6 +6,7 @@
 #include "cbl/date.h"
 #include "cbl/json.h"
 #include "cbl/log.h"
+#include "cbl/string.h"
 #include "request.h"
 #include "wiki.h"
 #include "wiki_base.h"
@@ -84,33 +85,10 @@ string Wiki::getTokenUncached(TokenType tokenType) {
   }
 }
 
-void Wiki::writePage(const string& title, const string& content, const WriteToken& writeToken, const string& summary,
-                     int flags) {
-  revid_t baseRevid = INVALID_REVID;
-  bool createOnly = false;
-  switch (writeToken.type()) {
-    case WriteToken::UNINITIALIZED:
-      throw std::invalid_argument("Uninitialized writeToken passed to Wiki::writePage");
-    case WriteToken::CREATE:
-      createOnly = true;
-      break;
-    case WriteToken::EDIT:
-      if (writeToken.title() != title) {
-        throw std::invalid_argument("Cannot write page '" + title + "' with a WriteToken created for page '" +
-                                    writeToken.title() + "'");
-      }
-      if (writeToken.needsNoBotsBypass() && !(flags & EDIT_BYPASS_NOBOTS)) {
-        throw BotExclusionError("Cannot write page '" + title + "' because it contains a bot exclusion template");
-      }
-      baseRevid = writeToken.revid();
-      break;
-    case WriteToken::NO_CONFLICT_DETECTION:
-      break;
-  }
-  if (!(flags & (EDIT_APPEND | EDIT_ALLOW_BLANKING)) & content.empty()) {
-    throw InvalidParameterError("Empty content passed to Wiki::writePage while trying to write '" + title +
-                                "'. If this is not a bug, pass EDIT_ALLOW_BLANKING in flags.");
-  }
+void Wiki::writePageInternal(const string& title, const string& content, const WriteToken& writeToken,
+                             const string& summary, int flags) {
+  revid_t baseRevid = writeToken.type() == WriteToken::EDIT ? writeToken.revid() : INVALID_REVID;
+  bool createOnly = writeToken.type() == WriteToken::CREATE;
 
   WikiWriteRequest request("edit", TOK_CSRF);
   request.setMethod((flags & EDIT_APPEND) ? WikiRequest::METHOD_POST : WikiRequest::METHOD_POST_IDEMPOTENT);
@@ -128,12 +106,56 @@ void Wiki::writePage(const string& title, const string& content, const WriteToke
     json::Value answer = request.setTokenAndRun(*this);
     const string& editResult = answer["edit"]["result"].str();
     if (editResult != "Success") {
-      throw APIError(APIError::CODELESS_ERROR, "Server returned unexpected code '" + editResult + "'");
+      throw APIError(APIError::CODELESS_ERROR, cbl::concat("Server returned unexpected code '", editResult, "'"));
     }
   } catch (WikiError& error) {
-    error.addContext("Cannot write page '" + title + "'");
+    error.addContext(cbl::concat("Cannot write page '", title, "'"));
     throw;
   }
+}
+
+void Wiki::writePage(const string& title, const string& content, const WriteToken& writeToken, const string& summary,
+                     int flags) {
+  switch (writeToken.type()) {
+    case WriteToken::UNINITIALIZED:
+      throw std::invalid_argument("Uninitialized writeToken passed to Wiki::writePage");
+      break;
+    case WriteToken::EDIT:
+      if (writeToken.title() != title) {
+        throw std::invalid_argument("Cannot write page '" + title + "' with a WriteToken created for page '" +
+                                    writeToken.title() + "'");
+      }
+      if (writeToken.needsNoBotsBypass() && !(flags & EDIT_BYPASS_NOBOTS)) {
+        throw BotExclusionError("Cannot write page '" + title + "' because it contains a bot exclusion template");
+      }
+      break;
+    case WriteToken::CREATE:
+    case WriteToken::NO_CONFLICT_DETECTION:
+      break;
+  }
+
+  const string* finalContent;
+  const string* finalSummary;
+  string contentBuffer, summaryBuffer;
+  if (m_writeHooks.empty() || (flags & EDIT_APPEND)) {
+    finalContent = &content;
+    finalSummary = &summary;
+  } else {
+    contentBuffer = content;
+    summaryBuffer = summary;
+    for (const WriteHook& writeHook : m_writeHooks) {
+      writeHook(title, contentBuffer, summaryBuffer);
+    }
+    finalContent = &contentBuffer;
+    finalSummary = &summaryBuffer;
+  }
+
+  if (!(flags & (EDIT_APPEND | EDIT_ALLOW_BLANKING)) & finalContent->empty()) {
+    throw InvalidParameterError(cbl::concat("Empty content passed to Wiki::writePage while trying to write '", title,
+                                            "'. If this is not a bug, pass EDIT_ALLOW_BLANKING in flags."));
+  }
+
+  writePageInternal(title, *finalContent, writeToken, *finalSummary, flags);
 }
 
 void Wiki::appendToPage(const string& title, const string& content, const string& summary, int flags) {
@@ -323,6 +345,10 @@ void Wiki::enableDefaultEmergencyStopTest() {
 
 void Wiki::clearEmergencyStopTest() {
   m_emergencyStopTest = []() { return false; };
+}
+
+vector<WriteHook>& Wiki::writeHooks() {
+  return m_writeHooks;
 }
 
 }  // namespace mwc

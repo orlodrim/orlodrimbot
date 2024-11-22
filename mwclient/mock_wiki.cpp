@@ -289,15 +289,8 @@ vector<string> MockWiki::getAllPages(const AllPagesParams& params) {
   return pages;
 }
 
-void MockWiki::writePage(const string& title, const string& content, const WriteToken& writeToken,
-                         const string& summary, int flags) {
-  if (!(flags & (EDIT_APPEND | EDIT_ALLOW_BLANKING)) & content.empty()) {
-    throw InvalidParameterError(cbl::concat("Empty content passed to MockWiki::writePage (title=", title, ")"));
-  } else if (writeToken.type() == WriteToken::UNINITIALIZED) {
-    throw std::invalid_argument("Uninitialized writeToken passed to Wiki::writePage");
-  } else if (writeToken.needsNoBotsBypass() && !(flags & EDIT_BYPASS_NOBOTS)) {
-    throw BotExclusionError(cbl::concat("BotExclusionError(title=", title, ")"));
-  }
+void MockWiki::writePageInternal(const string& title, const string& content, const WriteToken& writeToken,
+                                 const string& summary, int flags) {
   Page& page = getMutablePage(title);
   const PageProtection* editProtection = getProtectionByType(page.protections, PRT_EDIT);
   if (editProtection != nullptr && editProtection->level == PRL_SYSOP) {
@@ -325,7 +318,6 @@ void MockWiki::writePage(const string& title, const string& content, const Write
     std::cout << "Writing '" << title << "'\n" << revision.content << "\n";
   }
   m_nextRevid++;
-  return;
 }
 
 void MockWiki::setPageProtection(const string& title, const vector<PageProtection>& protections, const string& reason) {

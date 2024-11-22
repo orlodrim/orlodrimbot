@@ -190,6 +190,7 @@ struct RenderParams {
 };
 
 using EmergencyStopTest = std::function<bool()>;
+using WriteHook = std::function<void(const std::string& title, std::string& content, std::string& summary)>;
 
 // Client class for MediaWiki API.
 class Wiki : public WikiBase {
@@ -345,8 +346,10 @@ public:
   // - The edit is rejected if `content` is empty.
   // - The edit is rejected if the page contained {{nobots}} before the change (this information is stored in
   //   writeToken).
-  virtual void writePage(const std::string& title, const std::string& content, const WriteToken& writeToken,
-                         const std::string& summary = std::string(), int flags = 0);
+  // This function cannot be overloaded, but afer running writeHooks and doing checks based on the token, it internally
+  // calls writePageInternal which is virtual.
+  void writePage(const std::string& title, const std::string& content, const WriteToken& writeToken,
+                 const std::string& summary = std::string(), int flags = 0);
 
   // Appends some text to a page. No new line is automatically added between the previous content and the new text.
   // In most cases, readPage(Content)/writePage should be used instead of this function. Unlike writePage, appendToPage
@@ -392,6 +395,7 @@ public:
   void clearEmergencyStopTest();
   // If an emergency stop test is active, calls it and returns its result. Otherwise, returns false.
   bool isEmergencyStopTriggered() override;
+  std::vector<WriteHook>& writeHooks();
 
   // == HTTP ==
   cbl::HTTPClient& httpClient() override;
@@ -438,6 +442,9 @@ public:
 
 protected:
   void setInternalUserName(std::string_view userName);
+  // The core part of writePage after calling hooks and doing some validation. This can be overloaded in subclasses.
+  virtual void writePageInternal(const std::string& title, const std::string& content, const WriteToken& writeToken,
+                                 const std::string& summary, int flags);
 
   SiteInfo m_siteInfo;
 
@@ -475,6 +482,7 @@ private:
 
   std::string m_tokenCache[TOK_MAX];
   EmergencyStopTest m_emergencyStopTest;
+  std::vector<WriteHook> m_writeHooks;
 };
 
 }  // namespace mwc

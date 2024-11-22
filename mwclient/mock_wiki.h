@@ -17,7 +17,6 @@ namespace mwc {
 class MockWiki : public Wiki {
 public:
   using Wiki::readPage;
-  using Wiki::writePage;
 
   MockWiki();
 
@@ -32,8 +31,6 @@ public:
   std::vector<std::string> getTransclusions(const std::string& title) override;
   std::vector<std::string> getAllPages(const AllPagesParams& params) override;
 
-  void writePage(const std::string& title, const std::string& content, const WriteToken& writeToken,
-                 const std::string& summary = std::string(), int flags = 0) override;
   void setPageProtection(const std::string& title, const std::vector<PageProtection>& protections,
                          const std::string& reason = std::string()) override;
   void deletePage(const std::string& title, const std::string& reason = std::string()) override;
@@ -51,6 +48,10 @@ public:
   json::Value apiRequest(const std::string& request, const std::string& data, bool canRetry) override;
   // Returns immediately instead of sleeping.
   void sleep(int seconds) override;
+
+protected:
+  void writePageInternal(const std::string& title, const std::string& content, const WriteToken& writeToken,
+                         const std::string& summary = std::string(), int flags = 0) override;
 
 private:
   struct Page {
