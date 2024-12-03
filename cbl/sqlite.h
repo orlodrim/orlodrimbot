@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <string_view>
 #include "error.h"
 
 namespace sqlite {
@@ -91,10 +92,11 @@ public:
   void bind(int parameter, int value);
   void bind(int parameter, int64_t value);
   void bind(int parameter, double value);
-  void bind(int parameter, const std::string& value) { bind(parameter, value.c_str()); }
+  // value must not contain '\0'.
+  void bind(int parameter, std::string_view value);
   // Passing value = nullptr is allowed and equivalent to bindNull().
   void bind(int parameter, const char* value);
-  void bindBlob(int parameter, const std::string& value) { bindBlob(parameter, value.c_str(), value.size()); }
+  void bindBlob(int parameter, std::string_view value) { bindBlob(parameter, value.data(), value.size()); }
   void bindBlob(int parameter, const char* value, int length);
   void bindNull(int parameter);
   template <typename... Args>

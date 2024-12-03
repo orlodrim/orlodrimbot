@@ -150,7 +150,7 @@ bool replaceBotSection(string& code, string_view newBotSection, int flags) {
   return true;
 }
 
-bool replaceBotSectionInPage(Wiki& wiki, const string& title, string_view newBotSection, const string& summary,
+bool replaceBotSectionInPage(Wiki& wiki, string_view title, string_view newBotSection, const string& summary,
                              int botSectionFlags) {
   bool result = false;
   wiki.editPage(title, [&](string& content, string& editPageSummary) {

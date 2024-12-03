@@ -4,6 +4,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 #include "cbl/date.h"
@@ -26,7 +27,7 @@ std::vector<StringRange> splitVectorIntoRanges(const std::vector<std::string>& v
 // Helper function for building error messages.
 std::string quoteAndJoin(StringRange range);
 
-cbl::Date parseAPITimestamp(const std::string& timestamp);
+cbl::Date parseAPITimestamp(std::string_view timestamp);
 
 // Base class for all requests. Can be used directly for a basic request that can be executed in a single call and does
 // not require a token.
@@ -42,28 +43,28 @@ public:
     // The request will cause a change on the wiki and retrying it is not safe (example: appending some text to a page).
     METHOD_POST,
   };
-  explicit WikiRequest(const std::string& action);
+  explicit WikiRequest(std::string_view action);
   virtual ~WikiRequest() {}
   void setMethod(Method method);
-  void setParam(const std::string& param, const std::string& value);
-  void setParam(const std::string& param, int value);
-  void setParam(const std::string& param, revid_t value) = delete;
+  void setParam(std::string_view param, std::string_view value);
+  void setParam(std::string_view param, int value);
+  void setParam(std::string_view param, revid_t value) = delete;
   // Sets `param` to `revid` if `revid` is different from INVALID_REVID.
-  void setRevidParam(const std::string& param, revid_t revid);
-  void setParam(const std::string& param, const cbl::Date& value);
-  void setParam(const std::string& param, EventsDir direction);
+  void setRevidParam(std::string_view param, revid_t revid);
+  void setParam(std::string_view param, const cbl::Date& value);
+  void setParam(std::string_view param, EventsDir direction);
   // Sets `param` to `value` if the specified condition is true.
-  void setOrClearParam(const std::string& param, const std::string& value, bool setCondition);
+  void setOrClearParam(std::string_view param, std::string_view value, bool setCondition);
   // Sets `param` to `value` if `value` is not empty.
-  void setParamWithEmptyDefault(const std::string& param, const std::string& value);
+  void setParamWithEmptyDefault(std::string_view param, std::string_view value);
   // Sets a parameter represented by a string of the form flag1|flag2|...|flagN in MediaWiki API and as a bitwise
   // combination of flags in this library.
   template <int size>
-  void setFlagsParam(const std::string& param, int flags, const FlagDef (&flagDefs)[size],
+  void setFlagsParam(std::string_view param, int flags, const FlagDef (&flagDefs)[size],
                      const char* extraFlags = nullptr) {
     setParamWithEmptyDefault(param, convertFlagsToString(flags, flagDefs, flagDefs + size, extraFlags));
   }
-  void clearParam(const std::string& param);
+  void clearParam(std::string_view param);
   // Returns all parameters encoded as a query string. This is normally called by run(), but also exposed for debugging
   // purposes.
   std::string getRequestString() const;
@@ -81,7 +82,7 @@ private:
 // Request that requires a token.
 class WikiWriteRequest : public WikiRequest {
 public:
-  WikiWriteRequest(const std::string& action, TokenType tokenType);
+  WikiWriteRequest(std::string_view action, TokenType tokenType);
   // Runs the query after fetching a token. In some cases, a cached token may be used.
   json::Value setTokenAndRun(WikiBase& wiki);
 
@@ -96,7 +97,7 @@ constexpr char NO_LIMIT_PARAM[] = "";
 class WikiPager : public WikiRequest {
 public:
   // If there is no explicit limit parameter, limitParam should be set to NO_LIMIT_PARAM.
-  explicit WikiPager(const std::string& limitParam);
+  explicit WikiPager(std::string_view limitParam);
   void setLimit(int limit);
   // Opaque string to get the next results of the same request, in case a finite limit was set.
   const std::string& queryContinue() const;
@@ -114,13 +115,13 @@ private:
 // Subclass for requests of the form action=query&prop=...
 class WikiPropPager : public WikiPager {
 public:
-  WikiPropPager(const std::string& prop, const std::string& limitParam);
+  WikiPropPager(std::string_view prop, std::string_view limitParam);
 };
 
 // Subclass for requests of the form action=query&list=...
 class WikiListPager : public WikiPager {
 public:
-  WikiListPager(const std::string& list, const std::string& limitParam);
+  WikiListPager(std::string_view list, std::string_view limitParam);
 
   template <class T, class Callback>
   std::vector<T> runListPager(WikiBase& wiki, Callback callback) {

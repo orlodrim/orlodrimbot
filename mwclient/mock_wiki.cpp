@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 #include "cbl/date.h"
@@ -16,6 +17,7 @@
 
 using cbl::Date;
 using std::string;
+using std::string_view;
 using std::unordered_map;
 using std::vector;
 
@@ -120,7 +122,7 @@ MockWiki::MockWiki() : m_nextRevid(1), m_verboseWrite(false) {
   })"));
 }
 
-Revision MockWiki::readPage(const std::string& title, int properties) {
+Revision MockWiki::readPage(string_view title, int properties) {
   const Page& page = getPage(title);
   if (page.revisions.empty()) {
     throw PageNotFoundError(cbl::concat("Page '", title, "' not found"));
@@ -289,14 +291,14 @@ vector<string> MockWiki::getAllPages(const AllPagesParams& params) {
   return pages;
 }
 
-void MockWiki::writePageInternal(const string& title, const string& content, const WriteToken& writeToken,
-                                 const string& summary, int flags) {
+void MockWiki::writePageInternal(string_view title, string_view content, const WriteToken& writeToken,
+                                 string_view summary, int flags) {
   Page& page = getMutablePage(title);
   const PageProtection* editProtection = getProtectionByType(page.protections, PRT_EDIT);
   if (editProtection != nullptr && editProtection->level == PRL_SYSOP) {
-    throw ProtectedPageError("title=" + title);
+    throw ProtectedPageError(cbl::concat("title=", title));
   }
-  string trimmedContent(cbl::trim(content, cbl::TRIM_RIGHT));
+  string_view trimmedContent = cbl::trim(content, cbl::TRIM_RIGHT);
   string oldContent;
   if (!page.revisions.empty()) {
     oldContent = m_revisions[page.revisions.back()].content;
@@ -313,7 +315,7 @@ void MockWiki::writePageInternal(const string& title, const string& content, con
   revision.user = externalUserName();
   revision.size = content.size();
   revision.comment = summary;
-  revision.content = (flags & EDIT_APPEND) ? oldContent + trimmedContent : trimmedContent;
+  revision.content = (flags & EDIT_APPEND) ? cbl::concat(oldContent, trimmedContent) : string(trimmedContent);
   if (m_verboseWrite) {
     std::cout << "Writing '" << title << "'\n" << revision.content << "\n";
   }
@@ -379,13 +381,13 @@ json::Value MockWiki::apiRequest(const string& request, const string& data, bool
 
 void MockWiki::sleep(int seconds) {}
 
-const MockWiki::Page& MockWiki::getPage(const string& title) const {
+const MockWiki::Page& MockWiki::getPage(string_view title) const {
   static const Page EMPTY_PAGE;
   unordered_map<string, Page>::const_iterator it = m_pages.find(normalizeTitle(title));
   return it == m_pages.end() ? EMPTY_PAGE : it->second;
 }
 
-MockWiki::Page& MockWiki::getMutablePage(const string& title) {
+MockWiki::Page& MockWiki::getMutablePage(string_view title) {
   return m_pages[normalizeTitle(title)];
 }
 

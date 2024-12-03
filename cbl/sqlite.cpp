@@ -4,12 +4,14 @@
 #include <cstring>
 #include <ctime>
 #include <string>
+#include <string_view>
 #include <utility>
 #include "error.h"
 #include "file.h"
 #include "log.h"
 
 using std::string;
+using std::string_view;
 
 namespace sqlite {
 
@@ -112,6 +114,15 @@ void Statement::bind(int parameter, double value) {
   int bindResult = sqlite3_bind_double(m_stmt, parameter, value);
   if (bindResult != SQLITE_OK) {
     throwSqliteError(bindResult, "sqlite3_bind_double failed: " + m_database->lastErrorMessage());
+  }
+}
+
+void Statement::bind(int parameter, string_view value) {
+  CBL_ASSERT(m_stmt);
+  CBL_ASSERT(value.find('\0') == string_view::npos);
+  int bindResult = sqlite3_bind_text(m_stmt, parameter, value.data(), value.size(), SQLITE_TRANSIENT);
+  if (bindResult != SQLITE_OK) {
+    throwSqliteError(bindResult, "sqlite3_bind_text failed: " + m_database->lastErrorMessage());
   }
 }
 

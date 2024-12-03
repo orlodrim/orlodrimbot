@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <string_view>
 #include <unordered_set>
 #include <vector>
 #include "cbl/date.h"
@@ -14,6 +15,7 @@
 
 using cbl::Date;
 using std::string;
+using std::string_view;
 using std::unordered_set;
 using std::vector;
 
@@ -42,11 +44,12 @@ string quoteAndJoin(StringRange range) {
   return result;
 }
 
-Date parseAPITimestamp(const string& timestamp) {
+Date parseAPITimestamp(string_view timestamp) {
   try {
     return Date::fromISO8601OrEmpty(timestamp);
   } catch (const cbl::ParseError&) {
-    throw UnexpectedAPIResponseError("Unexpected API response: '" + timestamp + "' is not a valid ISO8601 date");
+    throw UnexpectedAPIResponseError(
+        cbl::concat("Unexpected API response: '", timestamp, "' is not a valid ISO8601 date"));
   }
 }
 
@@ -69,7 +72,7 @@ string WikiRequest::convertFlagsToString(int flags, const FlagDef* begin, const 
   return result;
 }
 
-WikiRequest::WikiRequest(const string& action) {
+WikiRequest::WikiRequest(string_view action) {
   setParam("action", action);
 }
 
@@ -77,27 +80,27 @@ void WikiRequest::setMethod(Method method) {
   m_method = method;
 }
 
-void WikiRequest::setParam(const string& param, const string& value) {
-  m_fields[param] = value;
+void WikiRequest::setParam(string_view param, string_view value) {
+  m_fields[string(param)] = string(value);
 }
 
-void WikiRequest::setParam(const string& param, int value) {
+void WikiRequest::setParam(string_view param, int value) {
   setParam(param, std::to_string(value));
 }
 
-void WikiRequest::setRevidParam(const string& param, revid_t value) {
+void WikiRequest::setRevidParam(string_view param, revid_t value) {
   setOrClearParam(param, std::to_string(value), value != INVALID_REVID);
 }
 
-void WikiRequest::setParam(const string& param, const Date& value) {
+void WikiRequest::setParam(string_view param, const Date& value) {
   setOrClearParam(param, value.toISO8601(), !value.isNull());
 }
 
-void WikiRequest::setParam(const string& param, EventsDir direction) {
+void WikiRequest::setParam(string_view param, EventsDir direction) {
   setOrClearParam(param, "newer", direction == OLDEST_FIRST);
 }
 
-void WikiRequest::setOrClearParam(const string& param, const string& value, bool setCondition) {
+void WikiRequest::setOrClearParam(string_view param, string_view value, bool setCondition) {
   if (setCondition) {
     setParam(param, value);
   } else {
@@ -105,12 +108,12 @@ void WikiRequest::setOrClearParam(const string& param, const string& value, bool
   }
 }
 
-void WikiRequest::setParamWithEmptyDefault(const string& param, const string& value) {
+void WikiRequest::setParamWithEmptyDefault(string_view param, string_view value) {
   setOrClearParam(param, value, !value.empty());
 }
 
-void WikiRequest::clearParam(const string& param) {
-  m_fields.erase(param);
+void WikiRequest::clearParam(string_view param) {
+  m_fields.erase(cbl::legacyStringConv(param));
 }
 
 string WikiRequest::getRequestString() const {
@@ -140,7 +143,7 @@ json::Value WikiRequest::run(WikiBase& wiki) {
 
 /* == WikiWriteRequest == */
 
-WikiWriteRequest::WikiWriteRequest(const string& action, TokenType tokenType)
+WikiWriteRequest::WikiWriteRequest(string_view action, TokenType tokenType)
     : WikiRequest(action), m_tokenType(tokenType) {
   setMethod(METHOD_POST);
 }
@@ -187,7 +190,7 @@ json::Value WikiWriteRequest::setTokenAndRun(WikiBase& wiki) {
 
 /* == WikiPager == */
 
-WikiPager::WikiPager(const string& limitParam) : WikiRequest("query"), m_limitParam(limitParam) {}
+WikiPager::WikiPager(string_view limitParam) : WikiRequest("query"), m_limitParam(limitParam) {}
 
 void WikiPager::setLimit(int limit) {
   m_limit = limit;
@@ -242,11 +245,11 @@ void WikiPager::setContinue(const json::Value& value) {
   }
 }
 
-WikiPropPager::WikiPropPager(const string& prop, const string& limitParam) : WikiPager(limitParam) {
+WikiPropPager::WikiPropPager(string_view prop, string_view limitParam) : WikiPager(limitParam) {
   setParam("prop", prop);
 }
 
-WikiListPager::WikiListPager(const string& list, const string& limitParam) : WikiPager(limitParam), m_list(list) {
+WikiListPager::WikiListPager(string_view list, string_view limitParam) : WikiPager(limitParam), m_list(list) {
   setParam("list", list);
 }
 

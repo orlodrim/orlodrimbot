@@ -2,6 +2,7 @@
 #define MWC_MOCK_WIKI_H
 
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 #include "cbl/json.h"
@@ -20,7 +21,7 @@ public:
 
   MockWiki();
 
-  Revision readPage(const std::string& title, int properties) override;
+  Revision readPage(std::string_view title, int properties) override;
   void readPages(int properties, std::vector<Revision>& revisions, int flags = 0) override;
   Revision readRevision(revid_t revid, int properties) override;
   void readRevisions(int properties, std::vector<Revision>& revisions) override;
@@ -50,16 +51,16 @@ public:
   void sleep(int seconds) override;
 
 protected:
-  void writePageInternal(const std::string& title, const std::string& content, const WriteToken& writeToken,
-                         const std::string& summary = std::string(), int flags = 0) override;
+  void writePageInternal(std::string_view title, std::string_view content, const WriteToken& writeToken,
+                         std::string_view summary, int flags = 0) override;
 
 private:
   struct Page {
     std::vector<revid_t> revisions;
     std::vector<PageProtection> protections;
   };
-  const Page& getPage(const std::string& title) const;
-  Page& getMutablePage(const std::string& title);
+  const Page& getPage(std::string_view title) const;
+  Page& getMutablePage(std::string_view title);
 
   std::unordered_map<std::string, Page> m_pages;
   std::unordered_map<revid_t, Revision> m_revisions;

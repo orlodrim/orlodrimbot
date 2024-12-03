@@ -190,7 +190,7 @@ struct RenderParams {
 };
 
 using EmergencyStopTest = std::function<bool()>;
-using WriteHook = std::function<void(const std::string& title, std::string& content, std::string& summary)>;
+using WriteHook = std::function<void(std::string_view title, std::string& content, std::string& summary)>;
 
 // Client class for MediaWiki API.
 class Wiki : public WikiBase {
@@ -228,19 +228,19 @@ public:
   // Reads the specified properties of the current revision of page `title`, where `properties` is a combination of
   // values from RevProp.
   // All other variants of readPage call this one, so this is the only one that needs to be overridden in tests.
-  virtual Revision readPage(const std::string& title, int properties);
+  virtual Revision readPage(std::string_view title, int properties);
 
   // Variant of the previous function that also initializes writeToken (if non-null) so that it can be used with
   // writePage. If a WikiError is thrown, writeToken is left unchanged.
-  virtual Revision readPage(const std::string& title, int properties, WriteToken* writeToken);
+  virtual Revision readPage(std::string_view title, int properties, WriteToken* writeToken);
 
   // Reads the content of the current revision of page `title`.
   // If writeToken is non-null, initializes writeToken so that it can be used with writePage
-  virtual std::string readPageContent(const std::string& title, WriteToken* writeToken = nullptr);
+  virtual std::string readPageContent(std::string_view title, WriteToken* writeToken = nullptr);
 
   // Variant of the previous function that does not throw an exception if the page does not exist. Instead, it returns
   // an empty string and sets writeToken to a token that allows page creation.
-  virtual std::string readPageContentIfExists(const std::string& title, WriteToken* writeToken = nullptr);
+  virtual std::string readPageContentIfExists(std::string_view title, WriteToken* writeToken = nullptr);
 
   // Reads a arbitrary revision identified by its revision id (oldid).
   virtual Revision readRevision(revid_t revid, int properties);
@@ -348,8 +348,8 @@ public:
   //   writeToken).
   // This function cannot be overloaded, but afer running writeHooks and doing checks based on the token, it internally
   // calls writePageInternal which is virtual.
-  void writePage(const std::string& title, const std::string& content, const WriteToken& writeToken,
-                 const std::string& summary = std::string(), int flags = 0);
+  void writePage(std::string_view title, std::string_view content, const WriteToken& writeToken,
+                 std::string_view summary = std::string_view(), int flags = 0);
 
   // Appends some text to a page. No new line is automatically added between the previous content and the new text.
   // In most cases, readPage(Content)/writePage should be used instead of this function. Unlike writePage, appendToPage
@@ -361,7 +361,7 @@ public:
   // Helper function that calls readPageContent and then writePage.
   // Can create non-existing pages. In that case, transformContent is called with an empty string.
   // transformContent may be called multiple times in case of an edit conflict.
-  void editPage(const std::string& title,
+  void editPage(std::string_view title,
                 const std::function<void(std::string& content, std::string& summary)>& transformContent, int flags = 0);
 
   // Renames a page and possibly its talk page.
@@ -443,8 +443,8 @@ public:
 protected:
   void setInternalUserName(std::string_view userName);
   // The core part of writePage after calling hooks and doing some validation. This can be overloaded in subclasses.
-  virtual void writePageInternal(const std::string& title, const std::string& content, const WriteToken& writeToken,
-                                 const std::string& summary, int flags);
+  virtual void writePageInternal(std::string_view title, std::string_view content, const WriteToken& writeToken,
+                                 std::string_view summary, int flags);
 
   SiteInfo m_siteInfo;
 

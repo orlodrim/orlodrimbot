@@ -2,6 +2,7 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 #include "cbl/date.h"
 #include "cbl/json.h"
@@ -14,6 +15,7 @@
 
 using cbl::Date;
 using std::string;
+using std::string_view;
 using std::vector;
 
 namespace mwc {
@@ -85,8 +87,8 @@ string Wiki::getTokenUncached(TokenType tokenType) {
   }
 }
 
-void Wiki::writePageInternal(const string& title, const string& content, const WriteToken& writeToken,
-                             const string& summary, int flags) {
+void Wiki::writePageInternal(string_view title, string_view content, const WriteToken& writeToken, string_view summary,
+                             int flags) {
   revid_t baseRevid = writeToken.type() == WriteToken::EDIT ? writeToken.revid() : INVALID_REVID;
   bool createOnly = writeToken.type() == WriteToken::CREATE;
 
@@ -114,7 +116,7 @@ void Wiki::writePageInternal(const string& title, const string& content, const W
   }
 }
 
-void Wiki::writePage(const string& title, const string& content, const WriteToken& writeToken, const string& summary,
+void Wiki::writePage(string_view title, string_view content, const WriteToken& writeToken, string_view summary,
                      int flags) {
   switch (writeToken.type()) {
     case WriteToken::UNINITIALIZED:
@@ -122,11 +124,12 @@ void Wiki::writePage(const string& title, const string& content, const WriteToke
       break;
     case WriteToken::EDIT:
       if (writeToken.title() != title) {
-        throw std::invalid_argument("Cannot write page '" + title + "' with a WriteToken created for page '" +
-                                    writeToken.title() + "'");
+        throw std::invalid_argument(cbl::concat("Cannot write page '", title, "' with a WriteToken created for page '",
+                                                writeToken.title(), "'"));
       }
       if (writeToken.needsNoBotsBypass() && !(flags & EDIT_BYPASS_NOBOTS)) {
-        throw BotExclusionError("Cannot write page '" + title + "' because it contains a bot exclusion template");
+        throw BotExclusionError(
+            cbl::concat("Cannot write page '", title, "' because it contains a bot exclusion template"));
       }
       break;
     case WriteToken::CREATE:
@@ -134,35 +137,35 @@ void Wiki::writePage(const string& title, const string& content, const WriteToke
       break;
   }
 
-  const string* finalContent;
-  const string* finalSummary;
+  string_view finalContent;
+  string_view finalSummary;
   string contentBuffer, summaryBuffer;
   if (m_writeHooks.empty() || (flags & EDIT_APPEND)) {
-    finalContent = &content;
-    finalSummary = &summary;
+    finalContent = content;
+    finalSummary = summary;
   } else {
-    contentBuffer = content;
-    summaryBuffer = summary;
+    contentBuffer = std::string(content);
+    summaryBuffer = std::string(summary);
     for (const WriteHook& writeHook : m_writeHooks) {
       writeHook(title, contentBuffer, summaryBuffer);
     }
-    finalContent = &contentBuffer;
-    finalSummary = &summaryBuffer;
+    finalContent = contentBuffer;
+    finalSummary = summaryBuffer;
   }
 
-  if (!(flags & (EDIT_APPEND | EDIT_ALLOW_BLANKING)) & finalContent->empty()) {
+  if (!(flags & (EDIT_APPEND | EDIT_ALLOW_BLANKING)) & finalContent.empty()) {
     throw InvalidParameterError(cbl::concat("Empty content passed to Wiki::writePage while trying to write '", title,
                                             "'. If this is not a bug, pass EDIT_ALLOW_BLANKING in flags."));
   }
 
-  writePageInternal(title, *finalContent, writeToken, *finalSummary, flags);
+  writePageInternal(title, finalContent, writeToken, finalSummary, flags);
 }
 
 void Wiki::appendToPage(const string& title, const string& content, const string& summary, int flags) {
   writePage(title, content, WriteToken::newWithoutConflictDetection(), summary, flags | EDIT_APPEND);
 }
 
-void Wiki::editPage(const string& title, const std::function<void(string& content, string& summary)>& transformContent,
+void Wiki::editPage(string_view title, const std::function<void(string& content, string& summary)>& transformContent,
                     int flags) {
   bool editSuccessful = false;
   int attemptsLeft = 2;

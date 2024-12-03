@@ -35,7 +35,7 @@ enum BotSectionFlags {
 // Unless BS_MUST_EXIST is set, a new bot section is created at the end of the page is none is found.
 bool replaceBotSection(std::string& code, std::string_view newBotSection, int flags = 0);
 
-bool replaceBotSectionInPage(Wiki& wiki, const std::string& title, std::string_view newBotSection,
+bool replaceBotSectionInPage(Wiki& wiki, std::string_view title, std::string_view newBotSection,
                              const std::string& summary = std::string(), int botSectionFlags = 0);
 
 }  // namespace mwc

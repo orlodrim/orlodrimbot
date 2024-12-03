@@ -3,6 +3,7 @@
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -20,6 +21,7 @@ using cbl::Date;
 using std::map;
 using std::pair;
 using std::string;
+using std::string_view;
 using std::unordered_map;
 using std::unordered_multimap;
 using std::vector;
@@ -271,7 +273,7 @@ static void readRevisionsOneRequest(WikiBase& wiki, int properties, StringRange 
   }
 }
 
-Revision Wiki::readPage(const string& title, int properties) {
+Revision Wiki::readPage(string_view title, int properties) {
   WikiRequest request("query");
   request.setParam("prop", "revisions");
   request.setParam("rvslots", "main");
@@ -283,12 +285,12 @@ Revision Wiki::readPage(const string& title, int properties) {
     const json::Value& page = getSinglePageFromAnswer(&answer);
     return convertPageJSONToRevision(page, properties);
   } catch (WikiError& error) {
-    error.addContext("Cannot read page '" + title + "'");
+    error.addContext(cbl::concat("Cannot read page '", title, "'"));
     throw;
   }
 }
 
-Revision Wiki::readPage(const string& title, int properties, WriteToken* writeToken) {
+Revision Wiki::readPage(string_view title, int properties, WriteToken* writeToken) {
   int extraProperties = writeToken != nullptr ? (RP_CONTENT | RP_REVID) : 0;
   Revision revision = readPage(title, properties | extraProperties);
   if (writeToken != nullptr) {
@@ -304,7 +306,7 @@ Revision Wiki::readPage(const string& title, int properties, WriteToken* writeTo
   return revision;
 }
 
-string Wiki::readPageContentIfExists(const string& title, WriteToken* writeToken) {
+string Wiki::readPageContentIfExists(string_view title, WriteToken* writeToken) {
   try {
     return readPageContent(title, writeToken);
   } catch (const PageNotFoundError&) {
@@ -315,7 +317,7 @@ string Wiki::readPageContentIfExists(const string& title, WriteToken* writeToken
   }
 }
 
-string Wiki::readPageContent(const string& title, WriteToken* writeToken) {
+string Wiki::readPageContent(string_view title, WriteToken* writeToken) {
   return readPage(title, RP_CONTENT, writeToken).content;
 }
 
