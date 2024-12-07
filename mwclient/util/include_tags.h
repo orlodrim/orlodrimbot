@@ -2,11 +2,10 @@
 #ifndef MWC_UTIL_INCLUDE_TAGS_H
 #define MWC_UTIL_INCLUDE_TAGS_H
 
-#include <memory>
+#include <functional>
 #include <optional>
 #include <string>
 #include <string_view>
-#include "cbl/error.h"
 
 namespace mwc {
 namespace include_tags {

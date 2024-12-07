@@ -8,6 +8,7 @@
 #include "cbl/date.h"
 #include "cbl/log.h"
 #include "cbl/string.h"
+#include "mwclient/titles_util.h"
 #include "mwclient/wiki.h"
 
 using cbl::Date;

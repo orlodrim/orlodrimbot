@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -7,21 +6,16 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <vector>
 #include "cbl/args_parser.h"
 #include "cbl/directory.h"
-#include "cbl/file.h"
-#include "cbl/html_entities.h"
 #include "cbl/log.h"
 #include "cbl/string.h"
-#include "cbl/unicode_fr.h"
 #include "mwclient/parser.h"
 #include "mwclient/util/init_wiki.h"
 #include "mwclient/wiki.h"
 #include "side_template_data.h"
 #include "templateinfo.h"
 
-using cbl::encodeURIComponent;
 using mwc::NS_MEDIAWIKI;
 using mwc::NS_USER;
 using mwc::Wiki;
@@ -32,7 +26,8 @@ using std::string;
 using std::string_view;
 using std::unique_ptr;
 using std::unordered_map;
-using std::vector;
+
+namespace templates_stats {
 
 using MiniDump = map<string, string>;
 
@@ -197,6 +192,8 @@ void processExtraction(const string& templatesCodeFileName, const string& inclus
   }
 }
 
+}  // namespace templates_stats
+
 int parseOutputFormats(const string& outputFormatsStr) {
   int outputFormats = 0;
   for (string_view format : cbl::split(outputFormatsStr, ',')) {
@@ -243,7 +240,7 @@ int main(int argc, char** argv) {
   SideTemplateData sideTemplateData;
   sideTemplateData.loadFromFile(luaDB);
 
-  processExtraction(templatesCode, inclusions, outputFormats, textOutput, jsonOutputDir, listByCount, noTalk, noUser,
-                    dumpDate, limit, wiki, sideTemplateData);
+  templates_stats::processExtraction(templatesCode, inclusions, outputFormats, textOutput, jsonOutputDir, listByCount,
+                                     noTalk, noUser, dumpDate, limit, wiki, sideTemplateData);
   return 0;
 }

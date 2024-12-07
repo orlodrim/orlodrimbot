@@ -2,8 +2,8 @@
 #ifndef CBL_DATE_H
 #define CBL_DATE_H
 
-#include <time.h>
 #include <cstdint>
+#include <ctime>
 #include <ostream>
 #include <string>
 #include <string_view>

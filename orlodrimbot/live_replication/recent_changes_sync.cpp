@@ -1,4 +1,5 @@
 #include "recent_changes_sync.h"
+#include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <string>

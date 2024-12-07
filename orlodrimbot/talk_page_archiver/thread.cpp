@@ -106,8 +106,7 @@ int getTitleLevel(string_view line) {
   string lineWithoutComments = wikicode::stripComments(line);
   string_view normLine = cbl::trim(lineWithoutComments, cbl::TRIM_RIGHT);
   int i = 0, n = normLine.size();
-  for (; i < n && normLine[i] == '=' && normLine[n - 1 - i] == '='; i++) {
-  }
+  for (; i < n && normLine[i] == '=' && normLine[n - 1 - i] == '='; i++) {}
   return i < n ? i : 0;
 }
 

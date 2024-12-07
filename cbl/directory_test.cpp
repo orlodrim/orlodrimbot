@@ -1,10 +1,8 @@
 #include "directory.h"
-#include <algorithm>
 #include <string>
 #include "error.h"
 #include "file.h"
 #include "log.h"
-#include "string.h"
 #include "tempfile.h"
 #include "unittest.h"
 

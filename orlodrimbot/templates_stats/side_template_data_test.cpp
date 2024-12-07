@@ -1,5 +1,4 @@
 #include "side_template_data.h"
-#include <re2/re2.h>
 #include <string>
 #include <vector>
 #include "cbl/file.h"

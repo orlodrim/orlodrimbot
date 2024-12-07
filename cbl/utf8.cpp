@@ -62,8 +62,7 @@ int consumeCharFromEnd(string_view& str) {
   const char* end = str.data() + str.size();
   int characterSize = 1;
   int maxSize = str.size() < 4 ? str.size() : 4;
-  for (; characterSize < maxSize && (*(end - characterSize) & 0xC0) == 0x80; characterSize++) {
-  }
+  for (; characterSize < maxSize && (*(end - characterSize) & 0xC0) == 0x80; characterSize++) {}
   string_view encodedChar(end - characterSize, characterSize);
   int character = consumeChar(encodedChar);
   if (!encodedChar.empty()) {

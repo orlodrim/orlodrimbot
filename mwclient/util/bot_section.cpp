@@ -1,12 +1,12 @@
 #include "bot_section.h"
+#include <cstdint>
+#include <cstdlib>
 #include <string>
 #include <string_view>
-#include <utility>
 #include "cbl/string.h"
 #include "cbl/unicode_fr.h"
 #include "mwclient/wiki.h"
 
-using std::pair;
 using std::string;
 using std::string_view;
 

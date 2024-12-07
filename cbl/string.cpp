@@ -105,12 +105,10 @@ StringBorders getTrimmedBorders(string_view s, int trimOptions) {
   const char* start = s.data();
   const char* end = start + s.size();
   if (trimOptions & TRIM_LEFT) {
-    for (; start < end && isspace(static_cast<unsigned char>(*start)); start++) {
-    }
+    for (; start < end && isspace(static_cast<unsigned char>(*start)); start++) {}
   }
   if (trimOptions & TRIM_RIGHT) {
-    for (; start < end && isspace(static_cast<unsigned char>(*(end - 1))); end--) {
-    }
+    for (; start < end && isspace(static_cast<unsigned char>(*(end - 1))); end--) {}
   }
   return {start - s.data(), end - s.data()};
 }

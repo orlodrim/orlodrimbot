@@ -15,8 +15,8 @@ int main(int argc, char** argv) {
   bool updateCat = false;
   bool updateTitles = false;
   string dataDir;
-  cbl::parseArgs(argc, argv, &wikiFlags, "--updaterc", &updateRC, "--updatecat", &updateCat,
-                 "--updatetitles", &updateTitles, "--datadir", &dataDir);
+  cbl::parseArgs(argc, argv, &wikiFlags, "--updaterc", &updateRC, "--updatecat", &updateCat, "--updatetitles",
+                 &updateTitles, "--datadir", &dataDir);
   if (!updateRC && !updateCat && !updateTitles) {
     updateRC = true;
     updateCat = true;

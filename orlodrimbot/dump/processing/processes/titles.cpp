@@ -5,6 +5,7 @@
 #include <string>
 #include "cbl/file.h"
 #include "cbl/log.h"
+#include "mwclient/titles_util.h"
 #include "mwclient/wiki.h"
 #include "process.h"
 

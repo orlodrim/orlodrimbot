@@ -1,7 +1,8 @@
 #include "date.h"
-#include <time.h>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <string>
 #include <string_view>
 #include "error.h"
@@ -27,8 +28,7 @@ Date::Date(string_view t) {
   int i = 0;
   for (char c : t) {
     if (c < '0' || c > '9') continue;
-    for (; buffer[i] == ' '; i++) {
-    }
+    for (; buffer[i] == ' '; i++) {}
     if (!buffer[i]) return;
     buffer[i] = c;
     i++;

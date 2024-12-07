@@ -26,8 +26,7 @@ std::ostream& printLogLinePrefix(LogLevel level, const char* fileName, const End
       break;
   }
   const char* baseName = fileName + strlen(fileName);
-  for (; baseName > fileName && *(baseName - 1) != '/'; baseName--) {
-  }
+  for (; baseName > fileName && *(baseName - 1) != '/'; baseName--) {}
   return std::cerr << prefix << baseName << "] ";
 }
 

@@ -1,9 +1,15 @@
 #include "processing_lib.h"
+#include <functional>
+#include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
-#include "cbl/log.h"
+#include "mwclient/util/xml_dump.h"
+#include "mwclient/wiki.h"
 #include "orlodrimbot/dump/processing/processes/modules.h"
+#include "orlodrimbot/dump/processing/processes/process.h"
 #include "orlodrimbot/dump/processing/processes/templates.h"
 #include "orlodrimbot/dump/processing/processes/titles.h"
 

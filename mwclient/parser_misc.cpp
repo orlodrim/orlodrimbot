@@ -1,6 +1,5 @@
 #include "parser_misc.h"
 #include <ctype.h>
-#include <cstring>
 #include <string>
 #include <string_view>
 #include "cbl/string.h"

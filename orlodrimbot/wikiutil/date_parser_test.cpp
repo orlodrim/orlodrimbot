@@ -12,7 +12,7 @@ using std::string_view;
 namespace wikiutil {
 
 static string debugStringOfSigDate(const SignatureDate& date) {
-  string result;;
+  string result;
   if (date.isNull()) {
     result = "none";
   } else {
@@ -85,7 +85,8 @@ private:
                                                  "Some text. 1 janvier 2003 à 4:56 (CET)\n"),
                   "2003-02-01T03:56:00Z|3600");
     // Restore lexer state between attempts.
-    CBL_ASSERT_EQ(extractFirstSignatureDateAsStr("1 février 2003 à 1 mars 2003 à 4:56 (CET)"), "2003-03-01T03:56:00Z|3600");
+    CBL_ASSERT_EQ(extractFirstSignatureDateAsStr("1 février 2003 à 1 mars 2003 à 4:56 (CET)"),
+                  "2003-03-01T03:56:00Z|3600");
 
     // Missing space between components.
     CBL_ASSERT_EQ(extractFirstSignatureDateAsStr("1février 2003 à 4:56 (CET)"), "none");

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "mwclient/wiki_defs.h"
+#include "mwclient/wiki.h"
 #include "recent_changes_reader.h"
 
 namespace live_replication {

@@ -9,6 +9,7 @@
 #include "cbl/log.h"
 #include "cbl/string.h"
 #include "mwclient/parser.h"
+#include "mwclient/titles_util.h"
 #include "mwclient/util/include_tags.h"
 #include "mwclient/util/xml_dump.h"
 #include "mwclient/wiki.h"

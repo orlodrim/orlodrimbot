@@ -116,7 +116,7 @@ public:
   int columnInt(int column) { return sqlite3_column_int(m_stmt, column); }
   int64_t columnInt64(int column) { return sqlite3_column_int64(m_stmt, column); }
   double columnDouble(int column) { return sqlite3_column_double(m_stmt, column); }
-  const char* columnText(int column) { return (const char*)sqlite3_column_text(m_stmt, column); }
+  const char* columnText(int column) { return (const char*) sqlite3_column_text(m_stmt, column); }
   const char* columnTextNotNull(int column) {
     const char* text = columnText(column);
     return text ? text : "";

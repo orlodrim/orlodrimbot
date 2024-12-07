@@ -30,8 +30,7 @@ map<string, Value> MUTABLE_EMPTY_OBJECT;  // Never actually mutated (only used f
 constexpr char HEX_DIGITS[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 static void skipSpace(string_view& s) {
-  for (; !s.empty() && isspace(static_cast<unsigned char>(s[0])); s.remove_prefix(1)) {
-  }
+  for (; !s.empty() && isspace(static_cast<unsigned char>(s[0])); s.remove_prefix(1)) {}
 }
 
 static bool parseChar(string_view& s, char c) {
@@ -535,8 +534,7 @@ Value ValueParser::parseAnyType(string_view& s) {
 
 Value ValueParser::parseKeyword(string_view& s) {
   size_t keywordSize = 0;
-  for (; keywordSize < s.size() && s[keywordSize] >= 'a' && s[keywordSize] <= 'z'; keywordSize++) {
-  }
+  for (; keywordSize < s.size() && s[keywordSize] >= 'a' && s[keywordSize] <= 'z'; keywordSize++) {}
   string_view keyword = s.substr(0, keywordSize);
   Value value;
   if (keyword == "null") {

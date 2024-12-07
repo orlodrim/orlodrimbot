@@ -1,6 +1,5 @@
 #include "tempfile.h"
 #include <unistd.h>
-#include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
 #include <string>

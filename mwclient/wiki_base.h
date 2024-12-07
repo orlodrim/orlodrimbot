@@ -1,8 +1,8 @@
 #ifndef MWC_WIKI_BASE_H
 #define MWC_WIKI_BASE_H
 
-#include <time.h>
 #include <climits>
+#include <ctime>
 #include <string>
 #include "cbl/json.h"
 

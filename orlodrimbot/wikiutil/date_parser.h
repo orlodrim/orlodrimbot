@@ -13,9 +13,7 @@ struct SignatureDate {
 
   bool isNull() const { return utcDate.isNull(); }
   cbl::Date localDate() const { return utcDate + localTimeDiff; }
-  bool operator<(const SignatureDate& other) const {
-    return utcDate < other.utcDate;
-  }
+  bool operator<(const SignatureDate& other) const { return utcDate < other.utcDate; }
 };
 
 // Parser for human-readable dates occurring in wikicode, possibly using wiki-specific syntax.

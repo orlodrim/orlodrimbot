@@ -1,6 +1,5 @@
 #include "parse_templates_lib.h"
 #include <re2/re2.h>
-#include <cstdio>
 #include <fstream>
 #include <functional>
 #include <istream>

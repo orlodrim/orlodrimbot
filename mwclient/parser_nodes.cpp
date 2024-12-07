@@ -51,11 +51,13 @@ static bool extractDummyVariableText(const Variable& variable, string& rawText) 
 }
 
 static string_view stripSubst(string_view name) {
+  constexpr string_view SUBST_PREFIX = "subst:";
+  constexpr string_view SAFESUBST_PREFIX = "safesubst:";
   string_view strippedName = cbl::trim(name, cbl::TRIM_LEFT);
-  if (strippedName.starts_with("subst:")) {
-    return strippedName.substr(strlen("subst:"));
-  } else if (strippedName.starts_with("safesubst:")) {
-    return strippedName.substr(strlen("safesubst:"));
+  if (strippedName.starts_with(SUBST_PREFIX)) {
+    return strippedName.substr(SUBST_PREFIX.size());
+  } else if (strippedName.starts_with(SAFESUBST_PREFIX)) {
+    return strippedName.substr(SAFESUBST_PREFIX.size());
   }
   return name;
 }

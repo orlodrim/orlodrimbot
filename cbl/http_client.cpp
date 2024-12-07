@@ -101,7 +101,7 @@ void HTTPClient::resetCurlHandle() {
 }
 
 size_t HTTPClient::callback(void* ptr, size_t size, size_t nmemb, void* userdata) {
-  return ((HTTPClient*)userdata)->write(ptr, size, nmemb);
+  return ((HTTPClient*) userdata)->write(ptr, size, nmemb);
 }
 
 size_t HTTPClient::write(void* ptr, size_t size, size_t nmemb) {
@@ -120,7 +120,7 @@ string HTTPClient::openInternal(const string& url, const char* errorMessagePrefi
   }
   string content;
   m_buffer = &content;
-  curlHandle().setPtrOpt(CURLOPT_WRITEFUNCTION, (const void*)HTTPClient::callback);
+  curlHandle().setPtrOpt(CURLOPT_WRITEFUNCTION, (const void*) HTTPClient::callback);
   curlHandle().setPtrOpt(CURLOPT_WRITEDATA, this);
   curlHandle().setPtrOpt(CURLOPT_URL, url.c_str());
   CURLcode perfCode = curl_easy_perform(curlHandle().handle());

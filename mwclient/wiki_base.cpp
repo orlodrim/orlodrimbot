@@ -1,7 +1,7 @@
 #include "wiki_base.h"
-#include <time.h>
 #include <unistd.h>
 #include <algorithm>
+#include <ctime>
 #include <functional>
 #include <string>
 #include "cbl/date.h"

@@ -100,8 +100,7 @@ string unescapeHtml(string_view escapedCode) {
     }
     const char* const entityStart = position + 1;
     const char* entityEnd = entityStart;
-    for (; entityEnd < codeEnd && *entityEnd != ';' && *entityEnd != '&'; entityEnd++) {
-    }
+    for (; entityEnd < codeEnd && *entityEnd != ';' && *entityEnd != '&'; entityEnd++) {}
     int decodedChar = -1;
     if (entityEnd < codeEnd && *entityEnd == ';') {
       if (*entityStart == '#') {

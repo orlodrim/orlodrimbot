@@ -1,5 +1,5 @@
 #include "recent_changes_sync.h"
-#include <time.h>
+#include <ctime>
 #include <memory>
 #include <string>
 #include <string_view>

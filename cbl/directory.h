@@ -2,8 +2,6 @@
 #define CBL_DIRECTORY_H
 
 #include <string>
-#include <string_view>
-#include <vector>
 
 namespace cbl {
 

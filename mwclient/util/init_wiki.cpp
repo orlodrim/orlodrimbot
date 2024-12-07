@@ -1,5 +1,6 @@
 #include "init_wiki.h"
 #include <climits>
+#include <cstdlib>
 #include <stdexcept>
 #include <string>
 #include <string_view>

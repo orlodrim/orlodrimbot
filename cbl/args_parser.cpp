@@ -26,8 +26,7 @@ const char ARBITRARY_VALUE_FOR_TRUE_BOOL[] = "1";
 static bool isFlagArg(const char* arg) {
   if (*arg != '-') return false;
   arg++;
-  for (; *arg >= '0' && *arg <= '9'; arg++) {
-  }
+  for (; *arg >= '0' && *arg <= '9'; arg++) {}
   return *arg != '\0';
 }
 
@@ -43,8 +42,7 @@ static string parseFlagName(const char* arg, const char** endOfName = nullptr) {
     start++;
   }
   const char* end = start;
-  for (; *end && *end != '=' && *end != ','; end++) {
-  }
+  for (; *end && *end != '=' && *end != ','; end++) {}
   if (endOfName) {
     *endOfName = end;
   }
@@ -108,7 +106,8 @@ void ArgsParser::addArg(const char* name, int* value) {
 }
 
 void ArgsParser::addArg(const char* name, bool* value) {
-  addArgWithCallback(name, [value](const string&) { *value = true; }, BOOL_FLAG);
+  addArgWithCallback(
+      name, [value](const string&) { *value = true; }, BOOL_FLAG);
 }
 
 void ArgsParser::addArg(const char* name, vector<string>* extraArgs) {

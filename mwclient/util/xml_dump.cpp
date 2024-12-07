@@ -33,8 +33,7 @@ char unescapeXML(char* p) {
         *p1 = '>';
       else if (*p2 == 'q')
         *p1 = '"';
-      for (p2++; *p2 && *p2 != ';'; p2++) {
-      }
+      for (p2++; *p2 && *p2 != ';'; p2++) {}
       if (!*p2) break;
     } else {
       *p1 = *p2;
@@ -105,8 +104,7 @@ bool PagesDump::getLine() {
       pStart = strstr(m_buffer, DUMP_TEXT_BG);
     } while (!pStart);
     pStart += DUMP_TEXT_BG_LEN;
-    for (; *pStart && *pStart != '>'; pStart++) {
-    }
+    for (; *pStart && *pStart != '>'; pStart++) {}
     if (!*pStart) return false;
     m_line = pStart + 1;
     m_state = 1;

@@ -113,7 +113,8 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Bot/Requêtes/2018/01"), "En-tête\n==2==\n==3==");
   }
 
-  // When the page of the current month becomes empty, do not immediately redirect it, but do so at the end of the month.
+  // When the page of the current month becomes empty, do not immediately redirect it, but do so at the end of the
+  // month.
   CBL_TEST_CASE(DoNotRedirectPageOfCurrentMonth) {
     m_wiki.resetDatabase();
     Date::setFrozenValueOfNow(Date::fromISO8601("2020-12-20T23:00:00Z"));

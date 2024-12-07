@@ -1,6 +1,7 @@
 #include "sqlite.h"
 #include <sqlite3.h>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <string>

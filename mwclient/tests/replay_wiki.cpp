@@ -1,5 +1,6 @@
 #include "replay_wiki.h"
 #include <re2/re2.h>
+#include <cstdlib>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -8,7 +9,6 @@
 #include "cbl/http_client.h"
 #include "cbl/json.h"
 #include "cbl/log.h"
-#include "cbl/string.h"
 #include "mwclient/util/init_wiki.h"
 
 using cbl::HTTPClient;

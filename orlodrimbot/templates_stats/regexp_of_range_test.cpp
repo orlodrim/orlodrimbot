@@ -1,15 +1,10 @@
 #include "regexp_of_range.h"
 #include <re2/re2.h>
 #include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <string>
 #include <string_view>
 #include "cbl/log.h"
-#include "cbl/string.h"
 #include "cbl/unittest.h"
 
-using std::string;
 using std::string_view;
 
 class RegExpOfRangeTest : public cbl::Test {

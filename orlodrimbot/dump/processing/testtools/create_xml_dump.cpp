@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include "cbl/html_entities.h"
-#include "cbl/string.h"
 
 using std::string;
 

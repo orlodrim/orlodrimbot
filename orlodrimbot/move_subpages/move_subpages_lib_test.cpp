@@ -1,5 +1,5 @@
 #include "move_subpages_lib.h"
-#include <time.h>
+#include <ctime>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -42,9 +42,7 @@ public:
     }
     return result;
   }
-  vector<string> getBacklinks(const mwc::BacklinksParams& params) override {
-    return backlinks[params.title];
-  }
+  vector<string> getBacklinks(const mwc::BacklinksParams& params) override { return backlinks[params.title]; }
 
   vector<LogEvent> logEvents;
   unordered_map<string, vector<string>> backlinks;
@@ -75,8 +73,7 @@ private:
     wiki.logEvents = {createMoveEvent("Page 1", "Page 2", 0)};
     SubpagesMover subpagesMover(&wiki, START_DATE, false);
     subpagesMover.processAllMoves();
-    CBL_ASSERT_EQ(wiki.moves,
-                  "Discussion:Page 1/Archive -> Discussion:Page 2/Archive");
+    CBL_ASSERT_EQ(wiki.moves, "Discussion:Page 1/Archive -> Discussion:Page 2/Archive");
   }
   CBL_TEST_CASE(ConsecutiveMoves) {
     MockWikiForSubpagesMover wiki;

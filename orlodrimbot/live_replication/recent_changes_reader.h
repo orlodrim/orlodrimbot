@@ -7,7 +7,7 @@
 #include <vector>
 #include "cbl/date.h"
 #include "cbl/sqlite.h"
-#include "mwclient/wiki_defs.h"
+#include "mwclient/wiki.h"
 
 namespace live_replication {
 

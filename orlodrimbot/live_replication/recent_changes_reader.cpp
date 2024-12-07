@@ -10,7 +10,7 @@
 #include "cbl/json.h"
 #include "cbl/log.h"
 #include "cbl/sqlite.h"
-#include "mwclient/wiki_defs.h"
+#include "mwclient/wiki.h"
 #include "continue_token.h"
 
 using cbl::Date;
@@ -38,12 +38,9 @@ namespace {
 constexpr string_view RC_CONTINUE_TOKEN = "rc";
 
 constexpr pair<mwc::RevProp, const char*> RC_PROPERTIES[] = {
-    {mwc::RP_TITLE, "title, new_title"},
-    {mwc::RP_USER, "user"},
-    {mwc::RP_TIMESTAMP, "timestamp"},
-    {mwc::RP_SIZE, "size"},
-    {mwc::RP_COMMENT, "comment"},
-    {mwc::RP_REVID, "revid, old_revid, logid"},
+    {mwc::RP_TITLE, "title, new_title"}, {mwc::RP_USER, "user"},
+    {mwc::RP_TIMESTAMP, "timestamp"},    {mwc::RP_SIZE, "size"},
+    {mwc::RP_COMMENT, "comment"},        {mwc::RP_REVID, "revid, old_revid, logid"},
 };
 
 constexpr pair<RecentChangeType, const char*> RC_TYPES[] = {

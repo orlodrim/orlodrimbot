@@ -1,4 +1,5 @@
 #include "date_formatter.h"
+#include <stdexcept>
 #include "cbl/date.h"
 #include "cbl/log.h"
 #include "cbl/unittest.h"

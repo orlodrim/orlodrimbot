@@ -5,7 +5,6 @@
 #include "cbl/date.h"
 #include "cbl/file.h"
 #include "cbl/log.h"
-#include "cbl/string.h"
 #include "cbl/tempfile.h"
 #include "cbl/unittest.h"
 #include "mwclient/mock_wiki.h"

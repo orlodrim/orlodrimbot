@@ -1,6 +1,5 @@
 #include "date_parser.h"
 #include <re2/re2.h>
-#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <string_view>

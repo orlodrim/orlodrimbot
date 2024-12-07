@@ -22,8 +22,7 @@ void MockRecentChangesReader::enumRecentChanges(const RecentChangesOptions& opti
     firstChange = cbl::parseInt(options.continueToken->substr(1));
   } else if (!options.start.isNull()) {
     for (firstChange = 0; firstChange < changesCount && m_recentChanges[firstChange].timestamp() < options.start;
-         firstChange++) {
-    }
+         firstChange++) {}
   } else {
     firstChange = changesCount;
   }
