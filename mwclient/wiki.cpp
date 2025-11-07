@@ -136,4 +136,61 @@ bool Wiki::readRedirect(string_view code, string* target, string* anchor) const 
   return true;
 }
 
+/* == Account type == */
+
+static bool isIPv4(string_view s) {
+  int numDots = 0;
+  int number = -1;
+  for (char c : s) {
+    if (c == '.') {
+      if (number == -1) return false;
+      numDots++;
+      number = -1;
+    } else if (c >= '0' && c <= '9') {
+      number = std::max(number, 0) * 10 + (c - '0');
+      if (number > 255) return false;
+    } else {
+      return false;
+    }
+  }
+  return numDots == 3 && number != -1;
+}
+
+static bool isIPv6(string_view s) {
+  int numColons = 0;
+  int numDigits = 0;
+  for (char c : s) {
+    if (c == ':') {
+      numColons++;
+      numDigits = 0;
+    } else if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+      numDigits++;
+      if (numDigits > 4) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+  return numColons == 7;
+}
+
+static bool isIP(string_view s) {
+  return isIPv4(s) || isIPv6(s);
+}
+
+static bool isTempUser(string_view userName) {
+  // https://www.mediawiki.org/w/index.php?title=Help_talk:Temporary_accounts&diff=7691856
+  return userName.starts_with("~2");
+}
+
+AccountType getAccountType(std::string_view userName) {
+  if (isIP(userName)) {
+    return AccountType::IP;
+  } else if (isTempUser(userName)) {
+    return AccountType::TEMP_USER;
+  }
+  return AccountType::USER;
+}
+
 }  // namespace mwc

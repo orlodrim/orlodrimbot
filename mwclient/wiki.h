@@ -486,6 +486,14 @@ private:
   std::vector<WriteHook> m_writeHooks;
 };
 
+enum class AccountType {
+  USER,
+  IP,
+  TEMP_USER,
+};
+
+AccountType getAccountType(std::string_view userName);
+
 }  // namespace mwc
 
 #endif
