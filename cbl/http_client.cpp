@@ -71,6 +71,22 @@ private:
   CURL* m_handle = nullptr;
 };
 
+class SmartSlist {
+public:
+  SmartSlist() = default;
+  SmartSlist(const vector<string>& vec) { for (const string& s : vec) { append(s); } }
+  SmartSlist(const SmartSlist&) = delete;
+  SmartSlist(SmartSlist&& ssl) { std::swap(m_slist, ssl.m_slist); }
+  SmartSlist& operator=(const SmartSlist&) = delete;
+  SmartSlist& operator=(SmartSlist&& ssl) { std::swap(m_slist, ssl.m_slist); return *this; }
+  ~SmartSlist() { if (m_slist) curl_slist_free_all(m_slist); }
+  void append(const string& str) { m_slist = curl_slist_append(m_slist, str.c_str()); }
+  curl_slist* get() { return m_slist; }
+
+private:
+  curl_slist* m_slist = nullptr;
+};
+
 HTTPClient::HTTPClient() {
   m_curlGlobalState = CurlGlobalState::getInstance();
 }
@@ -133,7 +149,7 @@ string HTTPClient::openInternal(const string& url, const char* errorMessagePrefi
   if (perfCode != CURLE_OK) {
     throw InternalError("curl_easy_getinfo failed");
   }
-  if (httpCode != 200) {
+  if (httpCode != 200 && httpCode != 202) {
     string errorMessage =
         string(errorMessagePrefix) + " '" + url + "': server returned HTTP error " + std::to_string(httpCode);
     if (httpCode == 403) {
@@ -150,20 +166,25 @@ string HTTPClient::openInternal(const string& url, const char* errorMessagePrefi
 }
 
 string HTTPClient::get(const string& url) {
+  SmartSlist slist(m_headers);
+  curlHandle().setPtrOpt(CURLOPT_HTTPHEADER, slist.get());
+  RunOnDestroy cleanup([this]() {
+    curlHandle().setPtrOpt(CURLOPT_HTTPHEADER, nullptr);
+  });
   return openInternal(url, "Cannot read");
 }
 
 string HTTPClient::post(const string& url, const string& data) {
   string content;
-  curl_slist* slist = curl_slist_append(nullptr, "Expect:");
-  curlHandle().setPtrOpt(CURLOPT_HTTPHEADER, slist);
+  SmartSlist slist(m_headers);
+  slist.append("Expect:");
+  curlHandle().setPtrOpt(CURLOPT_HTTPHEADER, slist.get());
   curlHandle().setNumOpt(CURLOPT_POST, 1);
   curlHandle().setPtrOpt(CURLOPT_POSTFIELDS, data.c_str());
-  RunOnDestroy cleanup([this, slist]() {
+  RunOnDestroy cleanup([this]() {
     curlHandle().setPtrOpt(CURLOPT_POSTFIELDS, "");
     curlHandle().setNumOpt(CURLOPT_POST, 0);
     curlHandle().setPtrOpt(CURLOPT_HTTPHEADER, nullptr);
-    curl_slist_free_all(slist);
   });
   return openInternal(url, "Failure of POST request on");
 }

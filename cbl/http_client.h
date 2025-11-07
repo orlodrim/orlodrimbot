@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 #include "error.h"
 
 namespace cbl {
@@ -90,6 +91,8 @@ public:
   // Get cookies received from the server (but not those set by setCookies).
   // The returned value has the format of the Set-Cookie header.
   std::string getRemoteCookies() const;
+  void addHeader(std::string_view header) { m_headers.emplace_back(header); }
+  void clearHeaders() { m_headers.clear(); }
 
 private:
   static size_t callback(void* ptr, size_t size, size_t nmemb, void* userdata);
@@ -106,6 +109,7 @@ private:
 
   bool m_remoteCookiesEnabled = false;
   std::string m_cookies;
+  std::vector<std::string> m_headers;
   int m_delayBeforeRequests = 0;
   std::string m_userAgent;
 
