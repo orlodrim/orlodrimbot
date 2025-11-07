@@ -29,6 +29,10 @@ constexpr CategoryConfig CATEGORY_CONFIGS[] = {
      "Utilisateur:OrlodrimBot/Préchargement/Article orphelin"},
     {"Catégorie:Article à wikifier depuis %(monthname)s %(year)d",
      "Utilisateur:OrlodrimBot/Préchargement/Article à wikifier"},
+    {"Catégorie:Article au ton publicitaire depuis %(monthname)s %(year)d",
+     "Utilisateur:OrlodrimBot/Préchargement/Article au ton publicitaire"},
+    {"Catégorie:Article sans source depuis %(monthname)s %(year)d",
+     "Utilisateur:OrlodrimBot/Préchargement/Article sans source"},
 };
 
 constexpr string_view FRENCH_MONTHS[12] = {"janvier", "février", "mars",      "avril",   "mai",      "juin",
