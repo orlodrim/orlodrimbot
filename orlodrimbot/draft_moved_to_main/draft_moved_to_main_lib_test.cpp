@@ -57,10 +57,10 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent(LIST_TITLE),
                   "<!-- BEGIN BOT SECTION -->\n"
                   "== 2 janvier 2000 ==\n"
-                  "*2 janvier 2000 à 00:00 {{u|U7}} a déplacé la page [[Utilisateur:U7/Draft]] vers [[Article 7]]\n\n"
+                  "*2 janvier 2000 à 01:00 {{u|U7}} a déplacé la page [[Utilisateur:U7/Draft]] vers [[Article 7]]\n\n"
                   "== {{1er}} janvier 2000 ==\n"
-                  "*1 janvier 2000 à 16:00 {{u|U5}} a déplacé la page [[Utilisateur:U5/Draft]] vers [[Article 5]]\n"
-                  "*1 janvier 2000 à 08:00 {{u|U3}} a déplacé la page [[:Catégorie:Some category]] vers [[Article 3]]\n"
+                  "*1 janvier 2000 à 17:00 {{u|U5}} a déplacé la page [[Utilisateur:U5/Draft]] vers [[Article 5]]\n"
+                  "*1 janvier 2000 à 09:00 {{u|U3}} a déplacé la page [[:Catégorie:Some category]] vers [[Article 3]]\n"
                   "<!-- END BOT SECTION -->");
     m_wiki.assertPageLastCommentEquals(LIST_TITLE, "[[Article 3]], [[Article 5]], [[Article 7]]");
   }
@@ -76,7 +76,7 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent(LIST_TITLE),
                   "<!-- BEGIN BOT SECTION -->\n"
                   "== {{1er}} janvier 2000 ==\n"
-                  "*1 janvier 2000 à 12:01 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n"
+                  "*1 janvier 2000 à 13:01 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n"
                   "<!-- END BOT SECTION -->");
   }
 
@@ -110,10 +110,10 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent(LIST_TITLE),
                   "<!-- BEGIN BOT SECTION -->\n"
                   "== {{1er}} janvier 2000 ==\n"
-                  "*1 janvier 2000 à 12:30 {{u|U4}} a déplacé la page [[Utilisateur:U4/Draft]] vers [[Article 4]]\n"
-                  "*1 janvier 2000 à 12:10 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]] "
+                  "*1 janvier 2000 à 13:30 {{u|U4}} a déplacé la page [[Utilisateur:U4/Draft]] vers [[Article 4]]\n"
+                  "*1 janvier 2000 à 13:10 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]] "
                   "(titre actuel : [[Article 2b]])\n"
-                  "*1 janvier 2000 à 12:00 {{u|U1}} a déplacé la page [[Utilisateur:U1/Draft]] vers [[Article 1]] "
+                  "*1 janvier 2000 à 13:00 {{u|U1}} a déplacé la page [[Utilisateur:U1/Draft]] vers [[Article 1]] "
                   "(titre actuel : [[Article 1b]])\n"
                   "<!-- END BOT SECTION -->");
   }
@@ -128,9 +128,9 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent(LIST_TITLE),
                   "<!-- BEGIN BOT SECTION -->\n"
                   "== 2 janvier 2000 ==\n"
-                  "*2 janvier 2000 à 00:00 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n\n"
+                  "*2 janvier 2000 à 01:00 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n\n"
                   "== {{1er}} janvier 2000 ==\n"
-                  "*1 janvier 2000 à 08:00 {{u|U1}} a déplacé la page [[Utilisateur:U1/Draft]] vers [[Article 1]]\n"
+                  "*1 janvier 2000 à 09:00 {{u|U1}} a déplacé la page [[Utilisateur:U1/Draft]] vers [[Article 1]]\n"
                   "<!-- END BOT SECTION -->");
     m_wiki.assertPageLastCommentEquals(LIST_TITLE, "[[Article 1]], [[Article 2]]");
 
@@ -142,11 +142,11 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent(LIST_TITLE),
                   "<!-- BEGIN BOT SECTION -->\n"
                   "== 2 janvier 2000 ==\n"
-                  "*2 janvier 2000 à 20:00 {{u|U4}} a déplacé la page [[Utilisateur:U4/Draft]] vers [[Article 4]]\n"
-                  "*2 janvier 2000 à 10:00 {{u|U3}} a déplacé la page [[Utilisateur:U3/Draft]] vers [[Article 3]]\n"
-                  "*2 janvier 2000 à 00:00 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n\n"
+                  "*2 janvier 2000 à 21:00 {{u|U4}} a déplacé la page [[Utilisateur:U4/Draft]] vers [[Article 4]]\n"
+                  "*2 janvier 2000 à 11:00 {{u|U3}} a déplacé la page [[Utilisateur:U3/Draft]] vers [[Article 3]]\n"
+                  "*2 janvier 2000 à 01:00 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n\n"
                   "== {{1er}} janvier 2000 ==\n"
-                  "*1 janvier 2000 à 08:00 {{u|U1}} a déplacé la page [[Utilisateur:U1/Draft]] vers [[Article 1]]\n"
+                  "*1 janvier 2000 à 09:00 {{u|U1}} a déplacé la page [[Utilisateur:U1/Draft]] vers [[Article 1]]\n"
                   "<!-- END BOT SECTION -->");
     m_wiki.assertPageLastCommentEquals(LIST_TITLE, "[[Article 3]], [[Article 4]]");
 
@@ -158,13 +158,13 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent(LIST_TITLE),
                   "<!-- BEGIN BOT SECTION -->\n"
                   "== 4 janvier 2000 ==\n"
-                  "*4 janvier 2000 à 00:30 {{u|U6}} a déplacé la page [[Utilisateur:U6/Draft]] vers [[Article 6]]\n\n"
+                  "*4 janvier 2000 à 01:30 {{u|U6}} a déplacé la page [[Utilisateur:U6/Draft]] vers [[Article 6]]\n\n"
                   "== 3 janvier 2000 ==\n"
-                  "*3 janvier 2000 à 12:00 {{u|U5}} a déplacé la page [[Utilisateur:U5/Draft]] vers [[Article 5]]\n\n"
+                  "*3 janvier 2000 à 13:00 {{u|U5}} a déplacé la page [[Utilisateur:U5/Draft]] vers [[Article 5]]\n\n"
                   "== 2 janvier 2000 ==\n"
-                  "*2 janvier 2000 à 20:00 {{u|U4}} a déplacé la page [[Utilisateur:U4/Draft]] vers [[Article 4]]\n"
-                  "*2 janvier 2000 à 10:00 {{u|U3}} a déplacé la page [[Utilisateur:U3/Draft]] vers [[Article 3]]\n"
-                  "*2 janvier 2000 à 00:00 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n"
+                  "*2 janvier 2000 à 21:00 {{u|U4}} a déplacé la page [[Utilisateur:U4/Draft]] vers [[Article 4]]\n"
+                  "*2 janvier 2000 à 11:00 {{u|U3}} a déplacé la page [[Utilisateur:U3/Draft]] vers [[Article 3]]\n"
+                  "*2 janvier 2000 à 01:00 {{u|U2}} a déplacé la page [[Utilisateur:U2/Draft]] vers [[Article 2]]\n"
                   "<!-- END BOT SECTION -->");
   }
 

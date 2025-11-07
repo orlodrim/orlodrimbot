@@ -19,6 +19,7 @@
 #include "orlodrimbot/live_replication/recent_changes_reader.h"
 #include "orlodrimbot/wikiutil/date_formatter.h"
 #include "orlodrimbot/wikiutil/date_parser.h"
+#include "orlodrimbot/wikiutil/wiki_local_time.h"
 
 using cbl::Date;
 using cbl::DateDiff;
@@ -216,7 +217,8 @@ ListOfPublishedDrafts::Articles ListOfPublishedDrafts::getNewlyPublishedDrafts(j
 
 string ListOfPublishedDrafts::describeNewArticle(const Article& article) {
   string buffer = "*";
-  buffer += DateFormatter::getByLang("fr").format(article.publishDate, DateFormatter::LONG, DateFormatter::MINUTE);
+  buffer += DateFormatter::getByLang("fr").format(wikiutil::getFrWikiLocalTime(article.publishDate),
+                                                  DateFormatter::LONG, DateFormatter::MINUTE);
   buffer += " {{u|" + article.publisher + "}} a déplacé la page ";
   buffer += m_wiki->makeLink(article.draftTitle);
   buffer += " vers ";
@@ -258,7 +260,7 @@ void ListOfPublishedDrafts::updateBotSection(const Articles& newArticles, bool d
     EventsByDay eventsByDay;
     eventsByDay.addEventsFromCode(oldBotSection);
     for (const Article& article : newArticles) {
-      eventsByDay.addEvent(article.publishDate, describeNewArticle(article));
+      eventsByDay.addEvent(wikiutil::getFrWikiLocalTime(article.publishDate), describeNewArticle(article));
     }
     eventsByDay.removeOldEvents(m_daysToKeep);
     string newBotSection = eventsByDay.toString();
