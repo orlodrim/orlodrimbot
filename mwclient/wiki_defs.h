@@ -29,6 +29,7 @@ public:
     HTTP,
     JSON_PARSING,
     READ_ONLY_WIKI,
+    DB_CONNECTION_ERROR,
   };
   LowLevelError(Type type, const std::string& message) : WikiError(message), m_type(type) {}
   Type type() const { return m_type; }

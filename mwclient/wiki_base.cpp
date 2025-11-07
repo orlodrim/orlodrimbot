@@ -104,6 +104,8 @@ json::Value WikiBase::apiRequest(const string& request, const string& data, bool
         }
       } else if (errorCode == "readonly") {
         throw LowLevelError(LowLevelError::READ_ONLY_WIKI, "Wiki in read-only mode");
+      } else if (errorCode == "internal_api_error_DBConnectionError") {
+        throw LowLevelError(LowLevelError::DB_CONNECTION_ERROR, "DB connection error on the server side");
       } else if (errorCode == "editconflict") {
         throw EditConflictError("Edit conflict");
       } else if (errorCode == "articleexists") {
