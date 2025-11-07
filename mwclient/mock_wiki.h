@@ -38,7 +38,8 @@ public:
 
   virtual void resetDatabase();
   // Like writePage, but does not check for edit conflicts.
-  void setPageContent(const std::string& title, const std::string& content);
+  void setPageContent(const std::string& title, const std::string& content, const std::string& user = "",
+                      const std::string& summary = "");
   void assertPageLastCommentEquals(const std::string& title, const std::string& expectedComment);
   int getNumPages() const { return m_pages.size(); }
   void hideRevision(const std::string& title, int revIndex);

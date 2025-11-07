@@ -361,8 +361,17 @@ void MockWiki::hideRevision(const string& title, int revIndex) {
   m_revisions.at(page.revisions[revIndex]).contentHidden = true;
 }
 
-void MockWiki::setPageContent(const string& title, const string& content) {
-  writePage(title, content, WriteToken::newWithoutConflictDetection(), "", EDIT_ALLOW_BLANKING);
+void MockWiki::setPageContent(const string& title, const string& content, const string& user, const string& summary) {
+  bool overrideUser = !user.empty();
+  string oldUser;
+  if (overrideUser) {
+    oldUser = internalUserName();
+    setInternalUserName(user);
+  }
+  writePage(title, content, WriteToken::newWithoutConflictDetection(), summary, EDIT_ALLOW_BLANKING);
+  if (overrideUser) {
+    setInternalUserName(oldUser);
+  }
 }
 
 void MockWiki::assertPageLastCommentEquals(const string& title, const string& expectedComment) {
