@@ -60,6 +60,9 @@ public:
   int minute() const { return m_minute; }
   int second() const { return m_second; }
 
+  // 0=Monday, ..., 6=Sunday
+  int dayOfWeek() const;
+
   bool operator==(const Date& d) const { return sortKey() == d.sortKey(); }
   bool operator!=(const Date& d) const { return sortKey() != d.sortKey(); }
   bool operator<=(const Date& d) const { return sortKey() <= d.sortKey(); }

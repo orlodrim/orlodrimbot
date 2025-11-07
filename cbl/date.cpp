@@ -79,6 +79,12 @@ void Date::init(int y, int mo, int d, int h, int mi, int s) {
   }
 }
 
+int Date::dayOfWeek() const {
+  time_t daysSince1970 = toTimeT() / 86400;
+  // January 1, 1970 was a Thursday (day 3).
+  return static_cast<int>((daysSince1970 + 3) % 7);
+}
+
 int64_t Date::sortKey() const {
   return static_cast<int64_t>(m_second) + (static_cast<int64_t>(m_minute) << 8) + (static_cast<int64_t>(m_hour) << 16) +
          (static_cast<int64_t>(m_day) << 24) + (static_cast<int64_t>(m_month) << 32) +
