@@ -31,6 +31,27 @@ string Wiki::expandTemplates(const string& code, const string& title, revid_t re
   }
 }
 
+string Wiki::presaveTransform(const string& code, const string& title, revid_t revid) {
+  WikiRequest request("parse");
+  request.setMethod(WikiRequest::METHOD_POST_NO_SIDE_EFFECT);
+  request.setParam("title", title);
+  request.setRevidParam("revid", revid);
+  request.setParam("text", code);
+  request.setParam("onlypst", "1");
+
+  try {
+    json::Value answer = request.run(*this);
+    const json::Value& parsedTextNode = answer["parse"]["text"]["*"];
+    if (parsedTextNode.isNull()) {
+      throw UnexpectedAPIResponseError("parse.text.* missing in server answer");
+    }
+    return parsedTextNode.str();
+  } catch (WikiError& error) {
+    error.addContext("Cannot apply pre-save transform to text");
+    throw;
+  }
+}
+
 string Wiki::renderAsHTML(const RenderParams& params) {
   WikiRequest request("parse");
   request.setMethod(WikiRequest::METHOD_POST_NO_SIDE_EFFECT);

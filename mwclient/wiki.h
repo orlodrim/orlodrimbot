@@ -327,6 +327,7 @@ public:
 
   virtual std::string expandTemplates(const std::string& code, const std::string& title = "API",
                                       revid_t revid = INVALID_REVID);
+  virtual std::string presaveTransform(const std::string& code, const std::string& title = "API", revid_t revid = INVALID_REVID);
   virtual std::string renderAsHTML(const RenderParams& params);
 
   virtual std::vector<std::string> searchText(const std::string& query, int maxResults = 10);
