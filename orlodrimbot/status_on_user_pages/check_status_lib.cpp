@@ -135,11 +135,19 @@ vector<Inconsistency> enumInconsistencies(Wiki& wiki) {
 void updateListOfStatusInconsistencies(Wiki& wiki, const string& listPage) {
   vector<Inconsistency> inconsistencies = enumInconsistencies(wiki);
   string botSection;
-  for (const Inconsistency& inconsistency : inconsistencies) {
-    botSection += inconsistency.describe();
-  }
-  if (botSection.empty()) {
+  string comment;
+  if (inconsistencies.empty()) {
     botSection = "* ''Aucune page détectée''\n";
+    comment = "aucune indication statut à vérifier";
+  } else {
+    for (const Inconsistency& inconsistency : inconsistencies) {
+      botSection += inconsistency.describe();
+    }
+    if (inconsistencies.size() == 1) {
+      comment = "1 indication de statut à vérifier";
+    } else {
+      comment = std::to_string(inconsistencies.size()) + " indications de statut à vérifier";
+    }
   }
-  mwc::replaceBotSectionInPage(wiki, listPage, botSection, "Mise à jour", mwc::BS_UPDATE_COUNTER);
+  mwc::replaceBotSectionInPage(wiki, listPage, botSection, "Mise à jour : " + comment, mwc::BS_UPDATE_COUNTER);
 }
