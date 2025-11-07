@@ -2,6 +2,7 @@
 #include <fstream>
 #include <memory>
 #include <string>
+#include <vector>
 #include "cbl/date.h"
 #include "cbl/file.h"
 #include "cbl/log.h"
@@ -16,9 +17,18 @@ using cbl::DateDiff;
 using mwc::MockWiki;
 using std::string;
 using std::unique_ptr;
+using std::vector;
 
 namespace talk_page_archiver {
 namespace {
+
+class MockWikiWithPurge : public mwc::MockWiki {
+public:
+  void purgePage(const string& title) override {
+    purgedPages.push_back(title);
+  }
+  vector<string> purgedPages;
+};
 
 class TestDataReader {
 public:
@@ -154,7 +164,7 @@ private:
 
   cbl::TempDir m_tempDir;
   string m_stableRevidsPath;
-  mwc::MockWiki m_wiki;
+  MockWikiWithPurge m_wiki;
   unique_ptr<Archiver> m_archiver;
 };
 

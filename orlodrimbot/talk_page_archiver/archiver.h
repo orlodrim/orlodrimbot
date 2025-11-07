@@ -2,8 +2,10 @@
 #define TALK_PAGE_ARCHIVER_ARCHIVER_H
 
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 #include "mwclient/parser.h"
 #include "mwclient/wiki.h"
@@ -11,6 +13,8 @@
 #include "archive_template.h"
 
 namespace talk_page_archiver {
+
+constexpr std::string_view DISABLE_SUBPAGE_CHECK = "<no_subpage_check>";
 
 // Archives pages using {{Archivage par bot}}.
 class Archiver {
@@ -21,11 +25,13 @@ public:
   // Archives specific pages.
   void archivePages(const std::vector<std::string>& pages);
 
+  void disableSubpageCheck() { m_keyPrefix = DISABLE_SUBPAGE_CHECK; }
+
 private:
   // Throws: ArchiverError.
   void checkArchiveName(const std::string& title, const std::string& archive, const std::string& rawArchive,
                         const std::string& key);
-  void updateCounterInCode(std::string& wcode, int newValue);
+  void updateArchiveTemplate(std::string& code, std::optional<int> newCounterValue = std::nullopt);
   // Throws: ArchiverError, WikiError.
   void archivePageWithCode(const std::string& title, const ArchiveParams& params, const mwc::WriteToken& writeToken,
                            const std::string& wcode, bool& inStableState);

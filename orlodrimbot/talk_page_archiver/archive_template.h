@@ -21,6 +21,7 @@ constexpr int DEF_MIN_THREADS_TO_ARCHIVE = 2;
 wikicode::Template* findArchiveTemplate(mwc::Wiki& wiki, wikicode::List& parsedCode);
 // Tests whether a page contains {{Archivage par bot}}.
 bool containsArchiveTemplate(mwc::Wiki& wiki, std::string_view code);
+void normalizeArchiveTemplate(wikicode::Template& template_);
 
 class ParamsInitializationError : public cbl::Error {
 public:
@@ -32,7 +33,7 @@ class ArchiveParams {
 public:
   ArchiveParams() = default;
   // Throws: ParamsInitializationError.
-  ArchiveParams(mwc::Wiki& wiki, const Algorithms& algorithms, const std::string& title, wikicode::List& parsedCode);
+  ArchiveParams(mwc::Wiki& wiki, const Algorithms& algorithms, const std::string& title, std::string_view code);
 
   const std::string& archive() const { return m_archive; }
   const std::string& rawArchive() const { return m_rawArchive; }

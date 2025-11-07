@@ -13,6 +13,7 @@
 #include "mwclient/parser.h"
 #include "mwclient/wiki.h"
 #include "orlodrimbot/wikiutil/date_parser.h"
+#include "orlodrimbot/wikiutil/detect_standard_message.h"
 #include "algorithm.h"
 #include "thread_util.h"
 
@@ -21,7 +22,9 @@ using std::string;
 using std::string_view;
 using std::unordered_set;
 using wikiutil::DateParser;
+using wikiutil::detectStandardMessage;
 using wikiutil::SignatureDate;
+using wikiutil::StandardMessage;
 
 namespace talk_page_archiver {
 
@@ -117,7 +120,7 @@ public:
   RunResult run(const mwc::Wiki& wiki, string_view threadContent) const override {
     static const re2::RE2 reChecked(
         R"(\{\{\s*([Ff]ait|[Nn]on|[Oo]ui|[Dd]éplacée|[Ss]uppression +immédiate|[Hh][Cc]|[Cc]roix3|[Pp]as +fait|)"
-        R"([Aa]F)\s*[|}])");
+        R"([Aa]F)\s*[|}]|\([Tt]raitée?\)|\[[Tt]raitée?\])");
     bool match = RE2::PartialMatch(wikicode::stripComments(extractThreadTitle(threadContent)), reChecked);
     return {.action = match ? ThreadAction::ARCHIVE : ThreadAction::KEEP};
   }
@@ -137,10 +140,50 @@ public:
   }
 };
 
+class DdAAlgorithm : public Algorithm {
+public:
+  DdAAlgorithm() : Algorithm("dda") {}
+  RunResult run(const mwc::Wiki& wiki, string_view threadContent) const override {
+    return {.action = detectStandardMessage(threadContent).type == StandardMessage::AFD ? ThreadAction::ARCHIVE
+                                                                                        : ThreadAction::KEEP};
+  }
+};
+
+class EraseDdAAlgorithm : public Algorithm {
+public:
+  EraseDdAAlgorithm() : Algorithm("erasedda") {}
+  RunResult run(const mwc::Wiki& wiki, string_view threadContent) const override {
+    return {.action = detectStandardMessage(threadContent).type == StandardMessage::AFD ? ThreadAction::ERASE
+                                                                                        : ThreadAction::KEEP};
+  }
+};
+
+class AnecdotesAlgorithm : public Algorithm {
+public:
+  AnecdotesAlgorithm() : Algorithm("anecdotes") {}
+  RunResult run(const mwc::Wiki& wiki, string_view threadContent) const override {
+    return {.action = detectStandardMessage(threadContent).type == StandardMessage::DID_YOU_KNOW ? ThreadAction::ARCHIVE
+                                                                                                 : ThreadAction::KEEP};
+  }
+};
+
+class EraseAnecdotesAlgorithm : public Algorithm {
+public:
+  EraseAnecdotesAlgorithm() : Algorithm("eraseanecdotes") {}
+  RunResult run(const mwc::Wiki& wiki, string_view threadContent) const override {
+    return {.action = detectStandardMessage(threadContent).type == StandardMessage::DID_YOU_KNOW ? ThreadAction::ERASE
+                                                                                                 : ThreadAction::KEEP};
+  }
+};
+
 Algorithms getFrwikiAlgorithms() {
   Algorithms algorithms;
   // The order is important. For instance, if the bot was just enabled on a page with "erasenewsletters(1d),old(2d)",
   // sections that match both algorithms (i.e. newsletters older than 2 days) should be erased and not archived.
+  algorithms.add(make_unique<EraseDdAAlgorithm>());
+  algorithms.add(make_unique<DdAAlgorithm>());
+  algorithms.add(make_unique<EraseAnecdotesAlgorithm>());
+  algorithms.add(make_unique<AnecdotesAlgorithm>());
   algorithms.add(make_unique<EraseNewslettersAlgorithm>());
   algorithms.add(make_unique<FdNAlgorithm>());
   algorithms.add(make_unique<CheckInTitleAlgorithm>());

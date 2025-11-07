@@ -127,6 +127,32 @@ CHECK Discussion:AddCounterTest2
  |counter=1
  }}
 #
+# Normalize parameters when archiving
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:AutofixAlgo
+ {{Archivage par bot|algo=old(7),eraseAnecdote(3)|maxarchivesize=20|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:AutofixAlgo
+CHECK Discussion:AutofixAlgo
+ {{Archivage par bot|algo=old(7d),eraseAnecdotes(3d)|maxarchivesize=20K|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+WRITE Discussion:AutofixAlgo
+ {{Archivage par bot|algo=old(7j)|maxarchivesize=1M|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:AutofixAlgo
+CHECK Discussion:AutofixAlgo
+ {{Archivage par bot|algo=old(7d)|maxarchivesize=1000K|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+WRITE Discussion:AutofixAlgo
+ {{Archivage par bot|algo=old(7d)|maxarchivesize=100M|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+ARCHIVE Discussion:AutofixAlgo
+CHECK Discussion:AutofixAlgo
+ {{Archivage par bot|algo=old(7d)|maxarchivesize=1950K|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
+#
 # "check+old" algorithm
 #
 RESET
@@ -145,6 +171,10 @@ WRITE Discussion utilisateur:Exemple
  Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
  == <!-- {{fait}} --> Section 6 ==
  Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == (Traitée) Section 7 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == [traité] Section 8 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
 ARCHIVE Discussion utilisateur:Exemple
 CHECK Discussion utilisateur:Exemple
  {{Archivage par bot|algo=checked+old(7d)|minthreadstoarchive=1|minthreadsleft=0|counter=1}}
@@ -162,6 +192,10 @@ CHECK Discussion utilisateur:Exemple/Archive 1
  == {{pas fait}} Section 4 ==
  Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
  == {{Pas fait}} Section 5 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == (Traitée) Section 7 ==
+ Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+ == [traité] Section 8 ==
  Message. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
 #
 # "fdn" algorithm
@@ -188,6 +222,185 @@ CHECK Discussion:FdNAlgo/Archive 1
  {{Réponse FdN|oui}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
  == Section 3 ==
  {{FdNHS}} [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# "dda" algorithm
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:DdAAlgo
+ {{Archivage par bot|algo=DdA(7d)|minthreadstoarchive=1|minthreadsleft=0|archiveheader=test-header|counter=}}
+ == Section 1 ==
+ Test. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+
+ == L'article TestPageOld est proposé à la suppression ==
+
+ {| align="center" title="{{((}}subst:avertissement suppression page{{!}}page{{))}}" border="0" cellpadding="4" cellspacing="4" style="border-style:none; background-color:#FFFFFF;"
+ | [[Image:Icono consulta borrar.png|64px|Page proposée à la suppression]]
+ |Bonjour,
+
+ L’article « '''{{Lien à supprimer|TestPageOld}}''' » est proposé à la suppression ({{cf.}} [[Wikipédia:Pages à supprimer]]). Après avoir pris connaissance des [[Wikipédia:Critères d'admissibilité des articles|critères généraux d’admissibilité des articles]] et des [[:Catégorie:Wikipédia:Admissibilité des articles|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'une procédure de suppression|donner votre avis]] sur la page de discussion '''[[Discussion:TestPageOld/Suppression]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+ |}
+
+ [[Utilisateur:TestUser|TestUser]] ([[Discussion utilisateur:TestUser|d]]) 1 janvier 2000 à 12:00 (CET)
+
+ == L'admissibilité de l'article sur « TestPage1 » est débattue ==
+
+ <templatestyles src="BMA début/style.css"/><div class="bma  ">
+ [[Fichier:OOjs UI icon alert-progressive.svg|45px|droite|Page proposée au débat d'admissibilité]]
+ Bonjour,
+
+ L’article « '''{{Lien à supprimer|1=TestPage1}}''' » fait l'objet d'un débat d'admissibilité ({{cf.}} [[Wikipédia:Débat d'admissibilité]]). Il débouchera sur la conservation, la suppression ou la fusion de l'article. Après avoir pris connaissance des [[Wikipédia:Notoriété|critères généraux d’admissibilité des articles]] et des [[Wikipédia:Liste des critères spécifiques de notoriété|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'un débat d'admissibilité|donner votre avis]] sur la page de discussion '''[[Discussion:Test/Admissibilité]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+
+ <div style="text-align:center">[[Discussion:TestPage1/Admissibilité|{{bouton cliquable|Accéder au débat|couleur=blue}}]]</div>
+ </div>[[Utilisateur:TestUser|TestUser]] [[Discussion utilisateur:TestUser|TestUser]] 1 janvier 2000 à 12:00 (CET)
+
+ == L'admissibilité de l'article sur « TestPage2 » est débattue ==
+
+ <templatestyles src="BMA début/style.css"/><div class="bma  ">
+ [[Fichier:OOjs UI icon alert-progressive.svg|45px|droite|Page proposée au débat d'admissibilité]]
+ Bonjour,
+
+ L’article « '''{{Lien à supprimer|1=TestPage2}}''' » fait l'objet d'un débat d'admissibilité ({{cf.}} [[Wikipédia:Débat d'admissibilité]]). Il débouchera sur la conservation, la suppression ou la fusion de l'article. Après avoir pris connaissance des [[Wikipédia:Notoriété|critères généraux d’admissibilité des articles]] et des [[Wikipédia:Liste des critères spécifiques de notoriété|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'un débat d'admissibilité|donner votre avis]] sur la page de discussion '''[[Discussion:Test/Admissibilité]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+
+ <div style="text-align:center">[[Discussion:TestPage2/Admissibilité|{{bouton cliquable|Accéder au débat|couleur=blue}}]]</div>
+ </div>[[Utilisateur:TestUser|TestUser]] [[Discussion utilisateur:TestUser|TestUser]] 1 janvier 2000 à 12:00 (CET)
+ :Test response (not signed).
+
+ == L'admissibilité de l'article sur « TestPage3 » est débattue ==
+
+ <templatestyles src="BMA début/style.css"/><div class="bma  ">
+ [[Fichier:OOjs UI icon alert-progressive.svg|45px|droite|Page proposée au débat d'admissibilité]]
+ Bonjour,
+
+ L’article « '''{{Lien à supprimer|1=TestPage3}}''' » fait l'objet d'un débat d'admissibilité ({{cf.}} [[Wikipédia:Débat d'admissibilité]]). Il débouchera sur la conservation, la suppression ou la fusion de l'article. Après avoir pris connaissance des [[Wikipédia:Notoriété|critères généraux d’admissibilité des articles]] et des [[Wikipédia:Liste des critères spécifiques de notoriété|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'un débat d'admissibilité|donner votre avis]] sur la page de discussion '''[[Discussion:Test/Admissibilité]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+
+ <div style="text-align:center">[[Discussion:TestPage3/Admissibilité|{{bouton cliquable|Accéder au débat|couleur=blue}}]]</div>
+ </div>[[Utilisateur:TestUser|TestUser]] [[Discussion utilisateur:TestUser|TestUser]] 1 janvier 2000 à 12:00 (CET)
+
+ Test response (not indented). [[Utilisateur:TestUser2|TestUser2]]
+ARCHIVE Discussion:DdAAlgo
+CHECK Discussion:DdAAlgo/Archive 1
+ test-header
+
+ == L'article TestPageOld est proposé à la suppression ==
+
+ {| align="center" title="{{((}}subst:avertissement suppression page{{!}}page{{))}}" border="0" cellpadding="4" cellspacing="4" style="border-style:none; background-color:#FFFFFF;"
+ | [[Image:Icono consulta borrar.png|64px|Page proposée à la suppression]]
+ |Bonjour,
+
+ L’article « '''{{Lien à supprimer|TestPageOld}}''' » est proposé à la suppression ({{cf.}} [[Wikipédia:Pages à supprimer]]). Après avoir pris connaissance des [[Wikipédia:Critères d'admissibilité des articles|critères généraux d’admissibilité des articles]] et des [[:Catégorie:Wikipédia:Admissibilité des articles|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'une procédure de suppression|donner votre avis]] sur la page de discussion '''[[Discussion:TestPageOld/Suppression]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+ |}
+
+ [[Utilisateur:TestUser|TestUser]] ([[Discussion utilisateur:TestUser|d]]) 1 janvier 2000 à 12:00 (CET)
+
+ == L'admissibilité de l'article sur « TestPage1 » est débattue ==
+
+ <templatestyles src="BMA début/style.css"/><div class="bma  ">
+ [[Fichier:OOjs UI icon alert-progressive.svg|45px|droite|Page proposée au débat d'admissibilité]]
+ Bonjour,
+
+ L’article « '''{{Lien à supprimer|1=TestPage1}}''' » fait l'objet d'un débat d'admissibilité ({{cf.}} [[Wikipédia:Débat d'admissibilité]]). Il débouchera sur la conservation, la suppression ou la fusion de l'article. Après avoir pris connaissance des [[Wikipédia:Notoriété|critères généraux d’admissibilité des articles]] et des [[Wikipédia:Liste des critères spécifiques de notoriété|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'un débat d'admissibilité|donner votre avis]] sur la page de discussion '''[[Discussion:Test/Admissibilité]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+
+ <div style="text-align:center">[[Discussion:TestPage1/Admissibilité|{{bouton cliquable|Accéder au débat|couleur=blue}}]]</div>
+ </div>[[Utilisateur:TestUser|TestUser]] [[Discussion utilisateur:TestUser|TestUser]] 1 janvier 2000 à 12:00 (CET)
+#
+# "erasedda" algorithm
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:EraseDdAAlgo
+ {{Archivage par bot|algo=eraseDdA(7d),old(7d)|minthreadstoarchive=1|minthreadsleft=0|archiveheader=test-header|counter=}}
+ == Section 1 ==
+ Test. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+
+ == L'admissibilité de l'article sur « TestPage1 » est débattue ==
+
+ <templatestyles src="BMA début/style.css"/><div class="bma  ">
+ [[Fichier:OOjs UI icon alert-progressive.svg|45px|droite|Page proposée au débat d'admissibilité]]
+ Bonjour,
+
+ L’article « '''{{Lien à supprimer|1=TestPage1}}''' » fait l'objet d'un débat d'admissibilité ({{cf.}} [[Wikipédia:Débat d'admissibilité]]). Il débouchera sur la conservation, la suppression ou la fusion de l'article. Après avoir pris connaissance des [[Wikipédia:Notoriété|critères généraux d’admissibilité des articles]] et des [[Wikipédia:Liste des critères spécifiques de notoriété|critères spécifiques]], vous pourrez [[Aide:Arguments à éviter lors d'un débat d'admissibilité|donner votre avis]] sur la page de discussion '''[[Discussion:Test/Admissibilité]]'''.
+
+ Le meilleur moyen d’obtenir un consensus pour la conservation de l’article est de fournir des [[Wikipédia:Citez vos sources|sources secondaires fiables et indépendantes]]. Si vous ne pouvez trouver de telles sources, c’est que l’article n’est probablement pas admissible. N’oubliez pas que les [[Wikipédia:Principes fondateurs|principes fondateurs]] de Wikipédia ne garantissent aucun droit à avoir un article sur Wikipédia.
+
+ <div style="text-align:center">[[Discussion:TestPage1/Admissibilité|{{bouton cliquable|Accéder au débat|couleur=blue}}]]</div>
+ </div>[[Utilisateur:TestUser|TestUser]] [[Discussion utilisateur:TestUser|TestUser]] 1 janvier 2000 à 12:00 (CET)
+ARCHIVE Discussion:EraseDdAAlgo
+CHECK Discussion:EraseDdAAlgo
+ {{Archivage par bot|algo=eraseDdA(7d),old(7d)|minthreadstoarchive=1|minthreadsleft=0|archiveheader=test-header|counter=1}}
+CHECK Discussion:EraseDdAAlgo/Archive 1
+ test-header
+
+ == Section 1 ==
+ Test. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+#
+# "anecdotes" algorithm
+#
+RESET
+DATE 2000-01-01T00:00:00Z
+WRITE Discussion:AnecdotesAlgo
+ {{Archivage par bot|algo=anecdotes(7d)|minthreadstoarchive=1|minthreadsleft=0|archiveheader=test-header|counter=}}
+ == Section 1 ==
+ Test. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+
+ == Proposition d'anecdote pour la page d'accueil : [[Jean-Jacques Rousseau]] ==
+
+ Une anecdote fondée sur l'article [[Jean-Jacques Rousseau]] a été '''[[Wikipédia:Le saviez-vous ?/Anecdotes proposées#ID_24232|proposée ici]]''' (une fois acceptée ou refusée, elle est [[Discussion:Jean-Jacques Rousseau/LSV_24232|archivée là]]). N'hésitez pas à apporter votre avis sur sa pertinence ou sa formulation et à ajouter des sources dans l'article.<br />
+ ''Les anecdotes sont destinées à la section [[Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil|{{citation|Le Saviez-vous ?}}]] de [[Wikipédia:Accueil_principal|la page d'accueil]] de Wikipédia. Elles doivent d'abord être proposées sur [[WP:LSV|la page dédiée]].''<br />{{#if: Jean-Jacques Rousseau|<small>Pour placer ces notifications sur une sous-page spécifique, consultez [[Utilisateur:GhosterBot/Explication_notification_projet|cette documentation]].</small><br />}}
+ <small>(ceci est un message automatique du [[Wikipédia:Bot|bot]] {{u-|GhosterBot}} le 31 juillet 2025 à 23:17, sans '''bot flag''')</small>
+
+ == Proposition d'anecdote pour la page d'accueil : [[Université Charles]] ==
+
+ Une anecdote fondée sur l'article [[Université Charles]] a été '''[[Wikipédia:Le saviez-vous ?/Anecdotes proposées#ID_24231|proposée ici]]''' (une fois acceptée ou refusée, elle est [[Discussion:Université Charles/LSV_24231|archivée là]]). N'hésitez pas à apporter votre avis sur sa pertinence ou sa formulation et à ajouter des sources dans l'article.<br />
+ ''Les anecdotes sont destinées à la section [[Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil|{{citation|Le Saviez-vous ?}}]] de [[Wikipédia:Accueil_principal|la page d'accueil]] de Wikipédia. Elles doivent d'abord être proposées sur [[WP:LSV|la page dédiée]].''<br />{{#if: Université Charles|<small>Pour placer ces notifications sur une sous-page spécifique, consultez [[Utilisateur:GhosterBot/Explication_notification_projet|cette documentation]].</small><br />}}
+ <small>(ceci est un message automatique du [[Wikipédia:Bot|bot]] {{u-|GhosterBot}} le 31 juillet 2025 à 08:17, sans '''bot flag''')</small>
+ :Test response.
+DATE 2000-02-01T00:00:00Z
+ARCHIVE Discussion:AnecdotesAlgo
+CHECK Discussion:AnecdotesAlgo/Archive 1
+ test-header
+
+ == Proposition d'anecdote pour la page d'accueil : [[Jean-Jacques Rousseau]] ==
+
+ Une anecdote fondée sur l'article [[Jean-Jacques Rousseau]] a été '''[[Wikipédia:Le saviez-vous ?/Anecdotes proposées#ID_24232|proposée ici]]''' (une fois acceptée ou refusée, elle est [[Discussion:Jean-Jacques Rousseau/LSV_24232|archivée là]]). N'hésitez pas à apporter votre avis sur sa pertinence ou sa formulation et à ajouter des sources dans l'article.<br />
+ ''Les anecdotes sont destinées à la section [[Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil|{{citation|Le Saviez-vous ?}}]] de [[Wikipédia:Accueil_principal|la page d'accueil]] de Wikipédia. Elles doivent d'abord être proposées sur [[WP:LSV|la page dédiée]].''<br />{{#if: Jean-Jacques Rousseau|<small>Pour placer ces notifications sur une sous-page spécifique, consultez [[Utilisateur:GhosterBot/Explication_notification_projet|cette documentation]].</small><br />}}
+ <small>(ceci est un message automatique du [[Wikipédia:Bot|bot]] {{u-|GhosterBot}} le 31 juillet 2025 à 23:17, sans '''bot flag''')</small>
+#
+# "eraseanecdotes" algorithm
+#
+RESET
+DATE 2000-01-01T00:00:00Z
+WRITE Discussion:EraseAnecdotesAlgo
+ {{Archivage par bot|algo=eraseAnecdotes(7d),old(7d)|minthreadstoarchive=1|minthreadsleft=0|archiveheader=test-header|counter=}}
+ == Section 1 ==
+ Test. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
+
+ == Proposition d'anecdote pour la page d'accueil : [[Jean-Jacques Rousseau]] ==
+
+ Une anecdote fondée sur l'article [[Jean-Jacques Rousseau]] a été '''[[Wikipédia:Le saviez-vous ?/Anecdotes proposées#ID_24232|proposée ici]]''' (une fois acceptée ou refusée, elle est [[Discussion:Jean-Jacques Rousseau/LSV_24232|archivée là]]). N'hésitez pas à apporter votre avis sur sa pertinence ou sa formulation et à ajouter des sources dans l'article.<br />
+ ''Les anecdotes sont destinées à la section [[Wikipédia:Le saviez-vous ?/Anecdotes sur l'accueil|{{citation|Le Saviez-vous ?}}]] de [[Wikipédia:Accueil_principal|la page d'accueil]] de Wikipédia. Elles doivent d'abord être proposées sur [[WP:LSV|la page dédiée]].''<br />{{#if: Jean-Jacques Rousseau|<small>Pour placer ces notifications sur une sous-page spécifique, consultez [[Utilisateur:GhosterBot/Explication_notification_projet|cette documentation]].</small><br />}}
+ <small>(ceci est un message automatique du [[Wikipédia:Bot|bot]] {{u-|GhosterBot}} le 31 juillet 2025 à 23:17, sans '''bot flag''')</small>
+DATE 2000-02-01T00:00:00Z
+ARCHIVE Discussion:EraseAnecdotesAlgo
+CHECK Discussion:EraseAnecdotesAlgo
+ {{Archivage par bot|algo=eraseAnecdotes(7d),old(7d)|minthreadstoarchive=1|minthreadsleft=0|archiveheader=test-header|counter=1}}
+CHECK Discussion:EraseAnecdotesAlgo/Archive 1
+ test-header
+
+ == Section 1 ==
+ Test. [[Utilisateur:Exemple]] 1 janvier 2000 à 00:00 (CET)
 #
 # Do not archive sections with {{Ne pas archiver}} or {{Archivage par bot}}
 #
@@ -1061,3 +1274,33 @@ CHECK Discussion:DoNotUpdateHeader2/Archive 1
 
  == Section 1 ==
  Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+#
+# Do not archive to redirects
+#
+RESET
+DATE 2000-02-01T00:00:00Z
+WRITE Discussion:BasicTest
+ {{Archivage par bot|algo=old(7d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+WRITE Discussion:BasicTest/Archive 1
+ #REDIRECTION [[Discussion:BasicTest/Archives 1]]
+ARCHIVE Discussion:BasicTest
+CHECK Discussion:BasicTest
+ {{Archivage par bot|algo=old(7d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2000 à 00:00 (CET)
+#
+# Extremely large max age.
+#
+RESET
+DATE 2023-02-01T00:00:00Z
+WRITE Discussion:VeryLargeMaxAge
+ {{Archivage par bot|algo=old(100000d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2023 à 00:00 (CET)
+ARCHIVE Discussion:VeryLargeMaxAge
+CHECK Discussion:VeryLargeMaxAge
+ {{Archivage par bot|algo=old(100000d)|counter=|minthreadstoarchive=1|minthreadsleft=0}}
+ == Section 1 ==
+ Message. [[Utilisateur:Exemple]] 10 janvier 2023 à 00:00 (CET)

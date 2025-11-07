@@ -295,6 +295,9 @@ void ArchivePage::update(Wiki* wiki, const string& sourcePage, bool dryRun) cons
   wiki->editPage(
       m_title,
       [&](string& content, string& summary) {
+        if (wiki->readRedirect(content, nullptr, nullptr)) {
+          throw ArchiverError(cbl::concat("Cannot archive to '", m_title, "' because it's a redirect"));
+        }
         summary = editSummary;
         if (content.empty()) {
           content = m_newHeader;
@@ -556,23 +559,27 @@ void Archiver::checkArchiveName(const string& title, const string& archive, cons
   }
 }
 
-void Archiver::updateCounterInCode(string& wcode, int newValue) {
-  wikicode::List parsedCode = wikicode::parse(wcode);
+void Archiver::updateArchiveTemplate(string& code, optional<int> newCounterValue) {
+  wikicode::List parsedCode = wikicode::parse(code);
   wikicode::Template* archiveTemplate = findArchiveTemplate(*m_wiki, parsedCode);
   if (archiveTemplate == nullptr) {
-    CBL_ERROR << "Cannot update counter after archiving because the template was not found";
+    CBL_ERROR << "The archiving template can no longer be found in the page after archiving it";
     return;
   }
 
-  int counterIndex = archiveTemplate->getParsedFields().indexOf("counter");
-  if (counterIndex != wikicode::FIND_PARAM_NONE) {
-    archiveTemplate->setFieldValue(counterIndex, std::to_string(newValue));
-  } else {
-    bool singleLine = archiveTemplate->toString().find('\n') == string::npos;
-    archiveTemplate->addField(cbl::concat("counter=", std::to_string(newValue), singleLine ? "" : "\n"));
+  normalizeArchiveTemplate(*archiveTemplate);
+
+  if (newCounterValue.has_value()) {
+    int counterIndex = archiveTemplate->getParsedFields().indexOf("counter");
+    if (counterIndex != wikicode::FIND_PARAM_NONE) {
+      archiveTemplate->setFieldValue(counterIndex, std::to_string(*newCounterValue));
+    } else {
+      bool singleLine = archiveTemplate->toString().find('\n') == string::npos;
+      archiveTemplate->addField(cbl::concat("counter=", std::to_string(*newCounterValue), singleLine ? "" : "\n"));
+    }
   }
 
-  wcode = parsedCode.toString();
+  code = parsedCode.toString();
 }
 
 void Archiver::archivePageWithCode(const string& title, const ArchiveParams& params, const mwc::WriteToken& writeToken,
@@ -664,7 +671,9 @@ void Archiver::archivePageWithCode(const string& title, const ArchiveParams& par
 
   string editSummary = generateEditSummary(pageToArchive.reorderedThreads(), usedArchivePages);
   if (archivePagesBuffer.useCounter() && archivePagesBuffer.counter() != -1) {
-    updateCounterInCode(newCode, archivePagesBuffer.counter());
+    updateArchiveTemplate(newCode, archivePagesBuffer.counter());
+  } else {
+    updateArchiveTemplate(newCode);
   }
   if (m_dryRun) {
     CBL_INFO << "[DRY RUN] Writing '" << title << "' with comment '" << editSummary << "'";
@@ -691,10 +700,9 @@ void Archiver::archivePage(const string& title) {
   CBL_INFO << "Archiving '" << title << "'";
   mwc::WriteToken writeToken;
   Revision revision = m_wiki->readPage(title, mwc::RP_CONTENT | mwc::RP_REVID, &writeToken);
-  wikicode::List parsedCode = wikicode::parse(revision.content);
   optional<ArchiveParams> params;
   try {
-    params.emplace(*m_wiki, m_algorithms, title, parsedCode);
+    params.emplace(*m_wiki, m_algorithms, title, revision.content);
   } catch (const ParamsInitializationError& error) {
     throw ArchiverError(error.what());
   }

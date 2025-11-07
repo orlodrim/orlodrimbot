@@ -1,5 +1,6 @@
 #include "thread.h"
 #include <re2/re2.h>
+#include <algorithm>
 #include <string>
 #include <string_view>
 #include <unordered_set>
@@ -85,7 +86,10 @@ void Thread::computeState(Wiki* wiki, const Date& now, const vector<Parameterize
     if (runResult.action == ThreadAction::KEEP) {
       continue;
     }
-    Date archiveThreshold = now - DateDiff::fromDays(algo.maxAgeInDays);
+    // Upper bound on algo.maxAgeInDays to make sure that the computation of archiveThreshold does not overflow
+    // (which was probably the cause of https://fr.wikipedia.org/w/index.php?diff=186122029).
+    DateDiff timeSince2000 = now - cbl::Date(2000, 1, 1);
+    Date archiveThreshold = now - std::min(DateDiff::fromDays(algo.maxAgeInDays), timeSince2000);
     SignatureDate threadDateForAlgorithm = runResult.forcedDate.isNull() ? defaultThreadDate : runResult.forcedDate;
     if (threadDateForAlgorithm.isNull()) {
       if (!historyCache->searchThreadAtDate(m_text, archiveThreshold)) {

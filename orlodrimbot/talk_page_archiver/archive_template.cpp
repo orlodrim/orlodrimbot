@@ -4,6 +4,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include "cbl/log.h"
 #include "cbl/string.h"
 #include "mwclient/parser.h"
 #include "mwclient/util/templates_by_name.h"
@@ -58,27 +59,68 @@ vector<ParameterizedAlgorithm> parseAlgorithms(const Algorithms& algorithms, str
   return parameterizedAlgorithms;
 }
 
+vector<wikicode::Template*> findAllArchiveTemplates(Wiki& wiki, wikicode::List& parsedCode) {
+  vector<wikicode::Template*> templates;
+  for (wikicode::Template& template_ : wikicode::getTemplatesByName(wiki, parsedCode, ARCHIVE_TEMPLATE_NAME)) {
+    templates.push_back(&template_);
+  }
+  return templates;
+}
+
 }  // namespace
 
 wikicode::Template* findArchiveTemplate(Wiki& wiki, wikicode::List& parsedCode) {
-  for (wikicode::Template& template_ : wikicode::getTemplatesByName(wiki, parsedCode, ARCHIVE_TEMPLATE_NAME)) {
-    return &template_;
-  }
-  return nullptr;
+  vector<wikicode::Template*> templates = findAllArchiveTemplates(wiki, parsedCode);
+  return templates.empty() ? nullptr : templates[0];
 }
 
 bool containsArchiveTemplate(Wiki& wiki, string_view code) {
   wikicode::List parsedCode = wikicode::parse(code);
-  return findArchiveTemplate(wiki, parsedCode) != nullptr;
+  return !findAllArchiveTemplates(wiki, parsedCode).empty();
 }
 
-ArchiveParams::ArchiveParams(Wiki& wiki, const Algorithms& algorithms, const string& title,
-                             wikicode::List& parsedCode) {
-  wikicode::Template* archiveTemplate = findArchiveTemplate(wiki, parsedCode);
-  if (archiveTemplate == nullptr) {
+void normalizeArchiveTemplate(wikicode::Template& template_) {
+  wikicode::ParsedFields parsedFields = template_.getParsedFields(wikicode::NORMALIZE_COLLAPSE_VALUE);
+  for (const wikicode::TemplateField& field : parsedFields) {
+    if (field.param == "algo") {
+      static const re2::RE2 reAlgoAnecdote(R"((?i:(\b(erase)?anecdote)\b))");
+      static const re2::RE2 reAlgoAge(R"(\( *([0-9]+) *[DdJj]?\))");
+      string newValue = field.value;
+      RE2::GlobalReplace(&newValue, reAlgoAnecdote, R"(\1s)");
+      RE2::GlobalReplace(&newValue, reAlgoAge, R"((\1d))");
+      if (field.value != newValue) {
+        template_.setFieldValue(field.index, newValue);
+      }
+    } else if (field.param == "maxarchivesize") {
+      static const re2::RE2 reSizeExtended(R"((\d+) *([KkMm])?)");
+      int size = 0;
+      string unit;
+      if (RE2::FullMatch(field.value, reSizeExtended, &size, &unit)) {
+        if (unit == "M" || unit == "m") {
+          size *= 1000;
+        }
+        size = std::min(std::max(size, 1), 1950);
+        string newValue = std::to_string(size) + "K";
+        if (field.value != newValue) {
+          template_.setFieldValue(field.index, newValue);
+        }
+      }
+    }
+  }
+}
+
+ArchiveParams::ArchiveParams(Wiki& wiki, const Algorithms& algorithms, const string& title, string_view code) {
+  wikicode::List parsedCode = wikicode::parse(code);
+  vector<wikicode::Template*> archiveTemplates = findAllArchiveTemplates(wiki, parsedCode);
+  if (archiveTemplates.empty()) {
     throw ParamsInitializationError(cbl::concat("Modèle {{", ARCHIVE_TEMPLATE_NAME, "}} non trouvé"));
   }
+  if (archiveTemplates.size() >= 2) {
+    CBL_ERROR << "Multiple occurrences of {{" << ARCHIVE_TEMPLATE_NAME << "}} in page '" << title << "'";
+  }
+  wikicode::Template* archiveTemplate = archiveTemplates[0];
 
+  normalizeArchiveTemplate(*archiveTemplate);
   wikicode::ParsedFields parsedFields = archiveTemplate->getParsedFields(wikicode::NORMALIZE_COLLAPSE_VALUE);
 
   m_rawArchive = parsedFields["archive"];
