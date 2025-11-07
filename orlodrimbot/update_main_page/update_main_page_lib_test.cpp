@@ -224,12 +224,13 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Image du jour (copie sans modèles)"),
                   wrapInBotSection("[[File:TestA.jpg]]"));
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Éphéméride (copie sans modèles)"),
-                  wrapInBotSection("Some fact for January 2."));
+                  wrapInBotSection("{{expanded:Wikipédia:Accueil principal/Cadre éphéméride"
+                                   "|jour=2|mois=janvier|contenu=Some fact for January 2.}}"));
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Lumière sur (copie sans modèles)"),
                   wrapInBotSection("Content of ArticleOfTheDayJanuary"));
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Lumière sur 2 (copie sans modèles)"),
                   wrapInBotSection("<!-- Pas de second article mis en lumière aujourd'hui -->"));
-    CBL_ASSERT_EQ(m_wiki.expandTemplatesCallCount, oldExpandTemplatesCallCount);
+    CBL_ASSERT_EQ(m_wiki.expandTemplatesCallCount, oldExpandTemplatesCallCount + 1);  // +1 for "Cadre éphéméride".
     CBL_ASSERT_EQ(getReportedErrors(), "no reported errors");
 
     Date::setFrozenValueOfNow(Date::fromISO8601("2001-02-01T00:00:00Z"));
@@ -237,12 +238,13 @@ private:
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Image du jour (copie sans modèles)"),
                   wrapInBotSection("[[File:TestB.jpg]]"));
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Éphéméride (copie sans modèles)"),
-                  wrapInBotSection("Some fact for February 1."));
+                  wrapInBotSection("{{expanded:Wikipédia:Accueil principal/Cadre éphéméride"
+                                   "|jour=1|mois=février|contenu=Some fact for February 1.}}"));
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Lumière sur (copie sans modèles)"),
                   wrapInBotSection("Content of ArticleOfTheDayFebruaryA"));
     CBL_ASSERT_EQ(m_wiki.readPageContent("Wikipédia:Accueil principal/Lumière sur 2 (copie sans modèles)"),
                   wrapInBotSection("Content of ArticleOfTheDayFebruaryB"));
-    CBL_ASSERT_EQ(m_wiki.expandTemplatesCallCount, oldExpandTemplatesCallCount);
+    CBL_ASSERT_EQ(m_wiki.expandTemplatesCallCount, oldExpandTemplatesCallCount + 2);  // "Cadre éphéméride" again.
     CBL_ASSERT_EQ(getReportedErrors(), "no reported errors");
   }
 

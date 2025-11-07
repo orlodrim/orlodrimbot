@@ -41,6 +41,7 @@ private:
     // The expansion is now in cache.
     {
       Date::advanceFrozenClock(DateDiff::fromDays(1));
+      m_templateExpansionCache->resetCleanupFlag();
       ExpansionResult result = m_templateExpansionCache->expand("Test: {{a}}, {{b}}, {{c}}", "TestPage", 123);
       CBL_ASSERT_EQ(result.code, "Test: {{expanded:a}}, {{expanded:b}}, {{expanded:c}}");
       CBL_ASSERT_EQ(cbl::join(result.templates, ","), "Modèle:A,Modèle:B,Modèle:C");
@@ -50,9 +51,10 @@ private:
       CBL_ASSERT_EQ(m_wiki.expandTemplatesCallCount, 1);
     }
 
-    // The cache expires after a bit less than a year.
+    // The cache expires after some time (less than a year).
     {
       Date::advanceFrozenClock(DateDiff::fromDays(360));
+      m_templateExpansionCache->resetCleanupFlag();
       m_templateExpansionCache->expand("Test: {{a}}, {{b}}, {{c}}", "TestPage", 123);
       CBL_ASSERT_EQ(m_wiki.expandTemplatesCallCount, 2);
     }

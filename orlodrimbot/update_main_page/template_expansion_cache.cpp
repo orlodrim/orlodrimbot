@@ -80,15 +80,21 @@ TemplateExpansionCache::TemplateExpansionCache(mwc::Wiki* wiki, const string& da
 
 ExpansionResult TemplateExpansionCache::expand(const string& code, const string& sourcePage, mwc::revid_t sourceRevid) {
   sqlite::WriteTransaction transaction(m_database, CBL_HERE);
+  if (!m_cleanupDoneOnce) {
+    Date cacheExpiration = Date::now() - DateDiff::fromDays(180);
+    m_database.exec(
+        "DELETE FROM expansion WHERE expansion_timestamp <= ?1 AND NOT source_page LIKE 'Wikipédia:Éphéméride/%';",
+        cacheExpiration.toTimeT());
+    m_cleanupDoneOnce = true;
+  }
   // The picture of the day should stay in the cache between its creation and its display, but anniversaries should be
   // reparsed at least once a year.
-  Date cacheExpiration = Date::now() - DateDiff::fromDays(300);
   Statement statement = m_database.prepareAndBind(
       R"(SELECT code, expanded_code, expansion_timestamp, templates, last_changed_template,
          last_changed_template_timestamp
          FROM expansion WHERE source_page = ?1 AND source_revid = ?2;)",
       sourcePage, sourceRevid);
-  if (statement.step() && Date::fromTimeT(statement.columnInt64(2)) > cacheExpiration) {
+  if (statement.step()) {
     if (statement.columnTextNotNull(0) == code) {
       int64_t timestamp = statement.columnInt64(5);
       vector<string> templates;
@@ -118,7 +124,6 @@ ExpansionResult TemplateExpansionCache::expand(const string& code, const string&
          VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8);)",
       sourcePage, sourceRevid, code, expandedCode, Date::now().toTimeT(), cbl::join(templates, "|"),
       lastChangedTemplate, lastChangedTemplateTimestamp.isNull() ? 0 : lastChangedTemplateTimestamp.toTimeT());
-  m_database.exec("DELETE FROM expansion WHERE expansion_timestamp <= ?1;", cacheExpiration.toTimeT());
   transaction.commit();
 
   return {
@@ -128,4 +133,8 @@ ExpansionResult TemplateExpansionCache::expand(const string& code, const string&
       .lastChangedTemplateTimestamp = lastChangedTemplateTimestamp,
       .fromCache = false,
   };
+}
+
+void TemplateExpansionCache::resetCleanupFlag() {
+  m_cleanupDoneOnce = false;
 }

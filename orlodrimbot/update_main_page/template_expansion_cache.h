@@ -19,10 +19,12 @@ class TemplateExpansionCache {
 public:
   TemplateExpansionCache(mwc::Wiki* wiki, const std::string& databasePath);
   ExpansionResult expand(const std::string& code, const std::string& sourcePage, mwc::revid_t sourceRevid);
+  void resetCleanupFlag();
 
 private:
   mwc::Wiki* m_wiki = nullptr;
   sqlite::Database m_database;
+  bool m_cleanupDoneOnce = false;
 };
 
 #endif

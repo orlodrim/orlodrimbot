@@ -21,6 +21,7 @@
 #include "orlodrimbot/live_replication/recent_changes_reader.h"
 #include "orlodrimbot/wikiutil/date_formatter.h"
 #include "orlodrimbot/wikiutil/date_parser.h"
+#include "orlodrimbot/wikiutil/wiki_local_time.h"
 #include "template_expansion_cache.h"
 
 using cbl::Date;
@@ -59,7 +60,7 @@ public:
 // Return the day in the time zone used to select the picture of the day and other pages changing daily.
 // Currently, the time zone is UTC, so no shift is needed.
 Date getDisplayedDay(const Date& now) {
-  return now.extractDay();
+  return wikiutil::getFrWikiLocalTime(now).extractDay();
 }
 
 string getFormattedDay(const Date& day, DateFormatter::Format dateFormat) {
@@ -267,8 +268,8 @@ private:
                          bool featuredArticlesUpdated);
   pair<Revision, ExpansionResult> readAndCacheSource(const string& sourcePage, int maxSizeToExpand = -1);
   bool readFeaturedArticles(const Date& day, vector<string>& featuredArticles, vector<string>& errors);
-  bool updateTargetPage(const string& targetPage, const SourceTargetMap& sourceTargetMap, vector<string>& errors,
-                        bool& canClearErrorLog);
+  bool updateTargetPage(const string& targetPage, const SourceTargetMap& sourceTargetMap, const Date& displayedDay,
+                        vector<string>& errors, bool& canClearErrorLog);
 
   Wiki& m_wiki;
   json::Value& m_state;
@@ -384,7 +385,7 @@ bool MainPageUpdater::readFeaturedArticles(const Date& day, vector<string>& feat
 }
 
 bool MainPageUpdater::updateTargetPage(const string& targetPage, const SourceTargetMap& sourceTargetMap,
-                                       vector<string>& errors, bool& canClearErrorLog) {
+                                       const Date& displayedDay, vector<string>& errors, bool& canClearErrorLog) {
   const string* sourcePage = sourceTargetMap.getSourceFromTarget(targetPage);
   if (!sourcePage) {
     return true;
@@ -417,6 +418,13 @@ bool MainPageUpdater::updateTargetPage(const string& targetPage, const SourceTar
       }
       newCode = std::move(expansion.code);
       checkStylesheetsProtection(m_wiki, newCode);
+
+      if (targetPage == "Wikipédia:Accueil principal/Éphéméride (copie sans modèles)") {
+        string frame = m_wiki.expandTemplates(cbl::concat(
+            "{{Wikipédia:Accueil principal/Cadre éphéméride|jour=", std::to_string(displayedDay.day()),
+            "|mois=", DateFormatter::getByLang("fr").getMonthName(displayedDay.month()), "|contenu=PLACEHOLDER}}"));
+        newCode = cbl::replace(frame, "PLACEHOLDER", newCode);
+      }
     }
     CBL_INFO << "Updating '" << targetPage << "' from '" << *sourcePage << "'";
     if (!mwc::replaceBotSectionInPage(m_wiki, targetPage, newCode,
@@ -460,7 +468,7 @@ void MainPageUpdater::run() {
 
   for (; !m_targetsToUpdate.empty(); m_targetsToUpdate.pop()) {
     const string& targetPage = m_targetsToUpdate.top();
-    if (!updateTargetPage(targetPage, sourceTargetMap, errors, canClearErrorLog)) {
+    if (!updateTargetPage(targetPage, sourceTargetMap, displayedDay, errors, canClearErrorLog)) {
       m_targetsToUpdate.markTopPageAsFailed();
     }
   }
