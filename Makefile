@@ -11,6 +11,7 @@ BINARIES= \
 	orlodrimbot/lost_messages/lost_messages \
 	orlodrimbot/monthly_categories_init/monthly_categories_init \
 	orlodrimbot/move_subpages/move_subpages \
+	orlodrimbot/newsletters/raw \
 	orlodrimbot/sandbox/sandbox \
 	orlodrimbot/status_on_user_pages/check_status \
 	orlodrimbot/talk_page_archiver/talk_page_archiver \
@@ -36,6 +37,10 @@ TESTS= \
 	orlodrimbot/live_replication/recent_changes_sync_test \
 	orlodrimbot/lost_messages/lost_messages_lib_test \
 	orlodrimbot/move_subpages/move_subpages_lib_test \
+	orlodrimbot/newsletters/emergency_stop_test \
+	orlodrimbot/newsletters/newsletter_distributor_test \
+	orlodrimbot/newsletters/raw_lib_test \
+	orlodrimbot/newsletters/tweet_proposals_test \
 	orlodrimbot/status_on_user_pages/check_status_lib_test \
 	orlodrimbot/talk_page_archiver/archiver_test \
 	orlodrimbot/talk_page_archiver/frwiki_algorithms_test \
@@ -485,6 +490,78 @@ orlodrimbot/move_subpages/move_subpages_lib_test.o: orlodrimbot/move_subpages/mo
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 orlodrimbot/move_subpages/move_subpages_lib_test: orlodrimbot/move_subpages/move_subpages_lib_test.o cbl/unittest.o \
 	orlodrimbot/move_subpages/move_subpages_lib.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2
+orlodrimbot/newsletters/emergency_stop.o: orlodrimbot/newsletters/emergency_stop.cpp cbl/date.h cbl/error.h \
+	cbl/json.h cbl/log.h mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h \
+	mwclient/wiki_defs.h orlodrimbot/newsletters/emergency_stop.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/emergency_stop_test.o: orlodrimbot/newsletters/emergency_stop_test.cpp cbl/date.h \
+	cbl/error.h cbl/json.h cbl/log.h cbl/unittest.h mwclient/mock_wiki.h mwclient/site_info.h \
+	mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/newsletters/emergency_stop.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/emergency_stop_test: orlodrimbot/newsletters/emergency_stop_test.o cbl/unittest.o \
+	orlodrimbot/newsletters/emergency_stop.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl
+orlodrimbot/newsletters/newsletter_distributor.o: orlodrimbot/newsletters/newsletter_distributor.cpp cbl/date.h \
+	cbl/error.h cbl/file.h cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h \
+	mwclient/bot_exclusion.h mwclient/parser.h mwclient/parser_misc.h mwclient/parser_nodes.h \
+	mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/live_replication/recent_changes_reader.h orlodrimbot/newsletters/newsletter_distributor.h \
+	orlodrimbot/newsletters/tweet_proposals.h orlodrimbot/wikiutil/date_formatter.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/newsletter_distributor_test.o: orlodrimbot/newsletters/newsletter_distributor_test.cpp \
+	cbl/date.h cbl/error.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/unittest.h mwclient/mock_wiki.h \
+	mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/live_replication/recent_changes_reader.h orlodrimbot/newsletters/newsletter_distributor.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/newsletter_distributor_test: orlodrimbot/newsletters/newsletter_distributor_test.o \
+	cbl/sqlite.o cbl/unittest.o orlodrimbot/live_replication/continue_token.o \
+	orlodrimbot/live_replication/recent_changes_reader.o orlodrimbot/newsletters/newsletter_distributor.o \
+	orlodrimbot/newsletters/tweet_proposals.o orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2 -lsqlite3
+orlodrimbot/newsletters/raw.o: orlodrimbot/newsletters/raw.cpp cbl/args_parser.h cbl/date.h cbl/error.h \
+	cbl/json.h cbl/log.h cbl/sqlite.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/init_wiki.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/live_replication/recent_changes_reader.h orlodrimbot/newsletters/emergency_stop.h \
+	orlodrimbot/newsletters/newsletter_distributor.h orlodrimbot/newsletters/raw_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/raw: orlodrimbot/newsletters/raw.o cbl/sqlite.o \
+	orlodrimbot/live_replication/continue_token.o orlodrimbot/live_replication/recent_changes_reader.o \
+	orlodrimbot/newsletters/emergency_stop.o orlodrimbot/newsletters/newsletter_distributor.o \
+	orlodrimbot/newsletters/raw_lib.o orlodrimbot/newsletters/tweet_proposals.o \
+	orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2 -lsqlite3
+orlodrimbot/newsletters/raw_lib.o: orlodrimbot/newsletters/raw_lib.cpp cbl/date.h cbl/error.h \
+	cbl/generated_range.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/string.h mwclient/parser.h \
+	mwclient/parser_misc.h mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/util/templates_by_name.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/live_replication/recent_changes_reader.h orlodrimbot/newsletters/newsletter_distributor.h \
+	orlodrimbot/newsletters/raw_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/raw_lib_test.o: orlodrimbot/newsletters/raw_lib_test.cpp cbl/date.h cbl/error.h \
+	cbl/file.h cbl/json.h cbl/log.h cbl/sqlite.h cbl/tempfile.h mwclient/mock_wiki.h \
+	mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h \
+	orlodrimbot/live_replication/mock_recent_changes_reader.h orlodrimbot/live_replication/recent_changes_reader.h \
+	orlodrimbot/newsletters/newsletter_distributor.h orlodrimbot/newsletters/raw_lib.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/raw_lib_test: orlodrimbot/newsletters/raw_lib_test.o cbl/sqlite.o cbl/tempfile.o \
+	orlodrimbot/live_replication/continue_token.o orlodrimbot/live_replication/mock_recent_changes_reader.o \
+	orlodrimbot/live_replication/recent_changes_reader.o orlodrimbot/newsletters/newsletter_distributor.o \
+	orlodrimbot/newsletters/raw_lib.o orlodrimbot/newsletters/tweet_proposals.o \
+	orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl -lre2 -lsqlite3
+orlodrimbot/newsletters/tweet_proposals.o: orlodrimbot/newsletters/tweet_proposals.cpp cbl/date.h cbl/error.h \
+	cbl/generated_range.h cbl/json.h cbl/log.h cbl/string.h mwclient/parser.h mwclient/parser_misc.h \
+	mwclient/parser_nodes.h mwclient/site_info.h mwclient/titles_util.h mwclient/wiki.h mwclient/wiki_base.h \
+	mwclient/wiki_defs.h orlodrimbot/newsletters/tweet_proposals.h orlodrimbot/wikiutil/date_parser.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/tweet_proposals_test.o: orlodrimbot/newsletters/tweet_proposals_test.cpp cbl/date.h \
+	cbl/error.h cbl/json.h mwclient/mock_wiki.h mwclient/site_info.h mwclient/titles_util.h \
+	mwclient/wiki.h mwclient/wiki_base.h mwclient/wiki_defs.h orlodrimbot/newsletters/tweet_proposals.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+orlodrimbot/newsletters/tweet_proposals_test: orlodrimbot/newsletters/tweet_proposals_test.o \
+	orlodrimbot/newsletters/tweet_proposals.o orlodrimbot/wikiutil/libwikiutil.a mwclient/libmwclient.a
 	$(CXX) -o $@ $^ -lcurl -lre2
 orlodrimbot/sandbox/sandbox.o: orlodrimbot/sandbox/sandbox.cpp cbl/args_parser.h cbl/date.h cbl/error.h \
 	cbl/json.h mwclient/site_info.h mwclient/titles_util.h mwclient/util/init_wiki.h mwclient/wiki.h \
