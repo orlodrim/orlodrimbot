@@ -11,6 +11,7 @@
 #include "http_client.h"
 #include "json.h"
 #include "log.h"
+#include "sha1.h"
 #include "string.h"
 
 using std::make_unique;
@@ -84,6 +85,56 @@ LLMResponse LLMClient::generateResponse(const LLMQuery& query) {
     }
   }
   return response;
+}
+
+LLMClientWithCache::LLMClientWithCache(string_view cacheFile, std::unique_ptr<HTTPClient> httpClient)
+    : LLMClient(std::move(httpClient)), m_cacheFile(cacheFile) {
+  if (cbl::fileExists(m_cacheFile)) {
+    string cacheText = cbl::readFile(m_cacheFile);
+    m_cacheContentHash = cbl::sha1(cacheText);
+    json::Value cacheObj = json::parse(cacheText);
+    for (const auto& [queryKey, responseObj] : cacheObj.object()) {
+      LLMResponse& response = m_cache[queryKey].first;
+      response.text = responseObj["text"].str();
+      response.thought = responseObj["thought"].str();
+    }
+  }
+}
+
+LLMResponse LLMClientWithCache::generateResponse(const LLMQuery& query) {
+  string queryKey = getQueryKey(query);
+  // If the response is not cached yet, we must not create an entry in the cache until it is successfully generated.
+  unordered_map<string, pair<LLMResponse, bool>>::iterator responseIt = m_cache.find(queryKey);
+  if (responseIt != m_cache.end()) {
+    responseIt->second.second = true;
+  } else {
+    responseIt = m_cache.insert({std::move(queryKey), {LLMClient::generateResponse(query), true}}).first;
+  }
+  return responseIt->second.first;
+}
+
+void LLMClientWithCache::saveCachedResponses(bool keepUnused) {
+  json::Value cacheObj;
+  for (const auto& [queryKey, responseAndUsed] : m_cache) {
+    if (!keepUnused && !responseAndUsed.second) {
+      continue;
+    }
+    const LLMResponse& response = responseAndUsed.first;
+    json::Value& responseObj = cacheObj.getMutable(queryKey);
+    responseObj.getMutable("text") = response.text;
+    if (!response.thought.empty()) {
+      responseObj.getMutable("thought") = response.thought;
+    }
+  }
+  string newContent = cacheObj.toJSON(json::INDENTED) + "\n";
+  if (cbl::sha1(newContent) != m_cacheContentHash) {
+    cbl::writeFile(m_cacheFile, newContent);
+  }
+}
+
+std::string LLMClientWithCache::getQueryKey(const LLMQuery& query) {
+  return cbl::sha1(cbl::concat(query.text, "|", std::to_string(query.thinkingBudget), "|",
+                               query.includeThoughts ? "1" : "0", "|", query.generationConfig.toJSON()));
 }
 
 }  // namespace cbl

@@ -3,10 +3,13 @@
 #include <unistd.h>
 #include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
 #include "error.h"
+#include "file.h"
+#include "sha1.h"
 #include "string.h"
 
 using std::string;
@@ -246,6 +249,105 @@ string HTTPClient::getRemoteCookies() const {
     curl_slist_free_all(slist);
   }
   return cookies;
+}
+
+string HTTPClientWithCache::getCacheFileForGET(const string& url) const {
+  return getCacheFile(url);
+}
+
+string HTTPClientWithCache::getCacheFileForPOST(const string& url, const string& data) const {
+  return getCacheFile(url + '\n' + data);
+}
+
+string HTTPClientWithCache::get(const string& url) {
+  string content;
+  if (m_cacheMode & CACHE_ENABLED) {
+    m_lastCacheFile = getCacheFileForGET(url);
+    if ((m_cacheMode & CACHE_READ_ENABLED) && fileExists(m_lastCacheFile)) {
+      try {
+        return readFile(m_lastCacheFile);
+      } catch (const cbl::Error& e) {
+        throw cbl::InternalError("Reading " + url + " from cache failed: " + e.what());
+      }
+    } else if (m_cacheMode & CACHE_OFFLINE_MODE) {
+      throw PageNotInCacheError(url + " is not in cache");
+    }
+  } else {
+    m_lastCacheFile.clear();
+  }
+  content = HTTPClient::get(url);
+  if (m_cacheMode & CACHE_WRITE_ENABLED) {
+    writeFile(m_lastCacheFile, content);
+  }
+  return content;
+}
+
+string HTTPClientWithCache::post(const string& url, const string& data) {
+  string content;
+  if (m_cacheMode & CACHE_ENABLED) {
+    m_lastCacheFile = getCacheFileForPOST(url, data);
+    if (!(m_cacheMode & CACHE_POST)) {
+      throw InvalidStateError("Attempt to cache result of POST request on " + url +
+                              " while the cache of POST requests is disabled");
+    } else if ((m_cacheMode & CACHE_READ_ENABLED) && fileExists(m_lastCacheFile)) {
+      try {
+        return readFile(m_lastCacheFile);
+      } catch (const cbl::Error& e) {
+        throw cbl::InternalError("Reading cached POST request to " + url + " failed: " + e.what());
+      }
+    } else if (m_cacheMode & CACHE_OFFLINE_MODE) {
+      throw PageNotInCacheError(url + " + data for POST request are not in cache");
+    }
+  } else {
+    m_lastCacheFile.clear();
+  }
+  content = HTTPClient::post(url, data);
+  if (m_cacheMode & CACHE_WRITE_ENABLED) {
+    writeFile(m_lastCacheFile, content);
+  }
+  return content;
+}
+
+string HTTPClientWithCache::getCacheFile(const string& request) const {
+  if (m_cacheDir.empty()) {
+    throw InvalidStateError("HTTPClientWithCache::getCacheFile() called without initializing the cache directory");
+  }
+  string cacheFile = m_cacheDir;
+  if (cacheFile[cacheFile.size() - 1] != '/') cacheFile += '/';
+  cacheFile += sha1(request);
+  cacheFile += ".dat";
+  return cacheFile;
+}
+
+int HTTPClientWithCache::cacheMode() const {
+  return m_cacheMode;
+}
+
+void HTTPClientWithCache::setCacheMode(int mode) {
+  if ((mode & CACHE_ENABLED) == 0 && mode != 0) {
+    throw std::invalid_argument(
+        "Bad mode for HTTPClientWithCache::setCacheMode: if read and write cache are disabled, no other flags can be "
+        "enabled");
+  } else if ((mode & CACHE_OFFLINE_MODE) && !(mode & CACHE_READ_ENABLED)) {
+    throw std::invalid_argument(
+        "Bad mode for HTTPClientWithCache::setCacheMode: offline mode requires that reading from cache is enabled");
+  }
+  m_cacheMode = mode;
+}
+
+const string& HTTPClientWithCache::cacheDir() const {
+  return m_cacheDir;
+}
+
+void HTTPClientWithCache::setCacheDir(const string& dir) {
+  m_cacheDir = dir;
+}
+
+void HTTPClientWithCache::doNotCacheLastResponse() {
+  if (!m_lastCacheFile.empty()) {
+    removeFile(m_lastCacheFile, /* mustExist = */ false);
+    m_lastCacheFile.clear();
+  }
 }
 
 }  // namespace cbl

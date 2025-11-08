@@ -116,6 +116,52 @@ private:
   std::string* m_buffer = nullptr;
 };
 
+// Variant of HTTPClient that can cache responses to disk.
+// Usage:
+//   HTTPClientWithCache client;
+//   client.setCacheDir("/tmp/http-cache");  // The directory must exist.
+//   client.setCacheMode(HTTPClientWithCache::CACHE_ENABLED);
+//   string response1 = client.get("https://example.com");
+//   string response2 = client.get("https://example.com");  // This is read from the cache.
+class HTTPClientWithCache : public HTTPClient {
+public:
+  enum CacheFlags {
+    CACHE_DISABLED = 0,
+    // Return the response from the cache if possible.
+    CACHE_READ_ENABLED = 1,
+    // When there is no cache entry for a query, write the response back to the cache.
+    CACHE_WRITE_ENABLED = 2,
+    // Normal cache behavior: get the response from the cache if possible, and otherwise write it to the cache.
+    CACHE_ENABLED = CACHE_READ_ENABLED | CACHE_WRITE_ENABLED,
+    // Only use the cache. Any uncached query throws PageNotInCacheError. Requires CACHE_READ_ENABLED.
+    CACHE_OFFLINE_MODE = 4,
+    // Also enable the cache for POST requests (with key = (url, data)).
+    CACHE_POST = 8,
+  };
+
+  // Throws: HTTPError and subclasses, NetworkError, PageNotInCacheError (only in offline mode).
+  std::string get(const std::string& url) override;
+  // Throws: HTTPError and subclasses, NetworkError, PageNotInCacheError (only in offline mode).
+  std::string post(const std::string& url, const std::string& data) override;
+
+  int cacheMode() const;
+  // mode must be a bitwise combination of values from CacheFlags.
+  void setCacheMode(int mode);
+  const std::string& cacheDir() const;
+  // The directory must exist.
+  void setCacheDir(const std::string& dir);
+  void doNotCacheLastResponse();
+
+private:
+  std::string getCacheFile(const std::string& request) const;
+  std::string getCacheFileForGET(const std::string& url) const;
+  std::string getCacheFileForPOST(const std::string& url, const std::string& data) const;
+
+  std::string m_cacheDir;
+  int m_cacheMode = CACHE_DISABLED;
+  std::string m_lastCacheFile;
+};
+
 }  // namespace cbl
 
 #endif

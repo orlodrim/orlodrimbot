@@ -1,0 +1,30 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"code\": \"de\", \"name\": \"German\"}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 45,
+    "candidatesTokenCount": 12,
+    "totalTokenCount": 127,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 45
+      }
+    ],
+    "thoughtsTokenCount": 70
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "I52CaILeLLSkvdIPz_i2yA0"
+}

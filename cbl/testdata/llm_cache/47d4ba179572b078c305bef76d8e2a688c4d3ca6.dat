@@ -1,0 +1,30 @@
+{
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\"code\": \"fr\", \"name\": \"French\"}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 49,
+    "candidatesTokenCount": 12,
+    "totalTokenCount": 212,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 49
+      }
+    ],
+    "thoughtsTokenCount": 151
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "IZ2CaPqxKtG6xN8PuaOSkQM"
+}

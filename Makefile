@@ -21,6 +21,7 @@ BINARIES= \
 TESTS= \
 	cbl/containers_helpers_test \
 	cbl/directory_test \
+	cbl/llm_query_test \
 	cbl/path_test \
 	cbl/sha1_test \
 	mwclient/tests/parser_misc_test \
@@ -81,13 +82,19 @@ cbl/file.o: cbl/file.cpp cbl/error.h cbl/file.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/html_entities.o: cbl/html_entities.cpp cbl/html_entities.h cbl/utf8.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
-cbl/http_client.o: cbl/http_client.cpp cbl/error.h cbl/generated_range.h cbl/http_client.h cbl/string.h
+cbl/http_client.o: cbl/http_client.cpp cbl/error.h cbl/file.h cbl/generated_range.h cbl/http_client.h \
+	cbl/sha1.h cbl/string.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/json.o: cbl/json.cpp cbl/error.h cbl/json.h cbl/utf8.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/llm_query.o: cbl/llm_query.cpp cbl/date.h cbl/error.h cbl/file.h cbl/generated_range.h cbl/http_client.h \
-	cbl/json.h cbl/llm_query.h cbl/log.h cbl/string.h
+	cbl/json.h cbl/llm_query.h cbl/log.h cbl/sha1.h cbl/string.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/llm_query_test.o: cbl/llm_query_test.cpp cbl/date.h cbl/error.h cbl/http_client.h cbl/json.h \
+	cbl/llm_query.h cbl/log.h cbl/unittest.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/llm_query_test: cbl/llm_query_test.o cbl/llm_query.o cbl/unittest.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^ -lcurl
 cbl/log.o: cbl/log.cpp cbl/log.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/path.o: cbl/path.cpp cbl/path.h
@@ -100,7 +107,7 @@ cbl/sha1.o: cbl/sha1.cpp cbl/sha1.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/sha1_test.o: cbl/sha1_test.cpp cbl/log.h cbl/sha1.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
-cbl/sha1_test: cbl/sha1_test.o cbl/sha1.o mwclient/libmwclient.a
+cbl/sha1_test: cbl/sha1_test.o mwclient/libmwclient.a
 	$(CXX) -o $@ $^
 cbl/sqlite.o: cbl/sqlite.cpp cbl/error.h cbl/file.h cbl/log.h cbl/sqlite.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -762,8 +769,8 @@ orlodrimbot/wikiutil/wiki_local_time.o: orlodrimbot/wikiutil/wiki_local_time.cpp
 	orlodrimbot/wikiutil/wiki_local_time.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 mwclient/libmwclient.a: cbl/args_parser.o cbl/date.o cbl/error.o cbl/file.o cbl/html_entities.o \
-	cbl/http_client.o cbl/json.o cbl/log.o cbl/path.o cbl/string.o cbl/unicode_fr.o cbl/utf8.o \
-	mwclient/bot_exclusion.o mwclient/mock_wiki.o mwclient/parser.o mwclient/parser_misc.o \
+	cbl/http_client.o cbl/json.o cbl/log.o cbl/path.o cbl/sha1.o cbl/string.o cbl/unicode_fr.o \
+	cbl/utf8.o mwclient/bot_exclusion.o mwclient/mock_wiki.o mwclient/parser.o mwclient/parser_misc.o \
 	mwclient/parser_nodes.o mwclient/request.o mwclient/site_info.o mwclient/titles_util.o \
 	mwclient/util/bot_section.o mwclient/util/include_tags.o mwclient/util/init_wiki.o \
 	mwclient/util/templates_by_name.o mwclient/util/xml_dump.o mwclient/wiki.o mwclient/wiki_base.o \

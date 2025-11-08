@@ -37,6 +37,20 @@ private:
   cbl::DateDiff m_delayBetweenQueries = cbl::DateDiff::fromSeconds(12);
 };
 
+class LLMClientWithCache : public LLMClient {
+public:
+  explicit LLMClientWithCache(std::string_view cacheFile, std::unique_ptr<HTTPClient> httpClient = nullptr);
+  LLMResponse generateResponse(const LLMQuery& query) override;
+  void saveCachedResponses(bool keepUnused);
+
+private:
+  static std::string getQueryKey(const LLMQuery& query);
+
+  std::string m_cacheFile;
+  std::string m_cacheContentHash;
+  std::unordered_map<std::string, std::pair<LLMResponse, bool>> m_cache;
+};
+
 }  // namespace cbl
 
 #endif
