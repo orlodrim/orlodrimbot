@@ -22,6 +22,7 @@ TESTS= \
 	cbl/containers_helpers_test \
 	cbl/directory_test \
 	cbl/path_test \
+	cbl/sha1_test \
 	mwclient/tests/parser_misc_test \
 	mwclient/tests/parser_nodes_test \
 	mwclient/tests/parser_test \
@@ -94,6 +95,12 @@ cbl/path.o: cbl/path.cpp cbl/path.h
 cbl/path_test.o: cbl/path_test.cpp cbl/log.h cbl/path.h cbl/unittest.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 cbl/path_test: cbl/path_test.o cbl/unittest.o mwclient/libmwclient.a
+	$(CXX) -o $@ $^
+cbl/sha1.o: cbl/sha1.cpp cbl/sha1.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/sha1_test.o: cbl/sha1_test.cpp cbl/log.h cbl/sha1.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+cbl/sha1_test: cbl/sha1_test.o cbl/sha1.o mwclient/libmwclient.a
 	$(CXX) -o $@ $^
 cbl/sqlite.o: cbl/sqlite.cpp cbl/error.h cbl/file.h cbl/log.h cbl/sqlite.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
